@@ -1,8 +1,0 @@
-version: "0.1"
-services:
-  backend:
-    image: gpqeueue-backend:latest
-    ports:
-      - "5000:5000"
-  frontend:
-    image: gpqueue-frontend:latest
