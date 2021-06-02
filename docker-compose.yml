@@ -4,6 +4,10 @@ services:
   backend:
     container_name: backend
     build: ./backend
+    environment:
+      - PORT=5000
+    volumes:
+      - ./backend/src:/backend/src
 
   frontend:
     container_name: frontend
