@@ -1,0 +1,8 @@
+compile:
+  stage: build
+  script:
+    - docker-compose build
+deploy:
+  stage: deploy
+  script:
+    - docker-compose up
