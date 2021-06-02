@@ -3,5 +3,5 @@ WORKDIR /backend
 RUN apk add --no-cache gcc musl-dev linux-headers
 COPY . .
 RUN ./setup.sh
-EXPOSE 5000
+EXPOSE $PORT
 CMD ["./start_dev.sh"]
