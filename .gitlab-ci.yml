@@ -6,6 +6,9 @@ default:
 
 deploy-heroku:
   stage: deploy-public
+  inherit:
+    default: false
+  image: travisci/ci-ubuntu-2004
   script:
     - apt-get update -yq
     - apt-get install -y ruby-dev
