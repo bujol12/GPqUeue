@@ -52,7 +52,7 @@ const GPUCard = (props) => {
                 <img className="icon" src={icon} />
             </div>
             <div className="col pt-3">
-                <h3>GPU {props.index} - {props.name}</h3>
+                <h3>GPU {props.key} - {props.name}</h3>
                 <p>{user}</p>
             </div>
             <div className="col pt-3 me-3 text-end">
@@ -64,10 +64,10 @@ const GPUCard = (props) => {
 };
 
 const GPUOverview = (props) => {
-    const gpus = props.gpuData.map((data, index) => {
-        data.index = index;
-        return GPUCard(props);
-    });
+    const gpuCards = props.gpuData.map((data, index) =>
+        <GPUCard key={index} name={data.name} user={data.user} util={data.util} memory={data.memory} maxMemory={data.maxMemory} />
+    );
+
     return (
         <div>
             <div className="row">
@@ -80,14 +80,13 @@ const GPUOverview = (props) => {
                         Sort by
                         </button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a className="dropdown-item" href="#">Load</a></li>
-                            <li><a className="dropdown-item" href="#">Another action</a></li>
+                            <li><a className="dropdown-item" href="#">Utilisation</a></li>
                             <li><a className="dropdown-item" href="#">Something else here</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
-            {gpus}
+            {gpuCards}
         </div>
     );
 };
