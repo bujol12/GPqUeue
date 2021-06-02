@@ -6,8 +6,6 @@ default:
 
 deploy-heroku:
   stage: deploy-public
-  tags:
-    - deployment
   script:
     - apt-get update -yq
     - apt-get install -y ruby-dev
