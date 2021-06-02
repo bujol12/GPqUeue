@@ -6,4 +6,4 @@ VOLUME /app/src/ /app/public
 ENV PATH /app/node_modules/.bin:$PATH
 RUN npm install
 EXPOSE $PORT
-CMD ["npm", "start"]
+CMD ["npm", "install", "&", "npm", "start"]
