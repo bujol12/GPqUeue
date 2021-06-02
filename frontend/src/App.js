@@ -63,6 +63,23 @@ const GPUCard = (props) => {
     );
 };
 
+const SortByDropdown = () => {
+    return (
+        <div className="dropdown">
+            <button className="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort by
+            </button>
+            <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li><a className="dropdown-item" href="#">User</a></li>
+                <li><a className="dropdown-item" href="#">Max memory</a></li>
+                <li><a className="dropdown-item" href="#">Memory used</a></li>
+                <li><a className="dropdown-item" href="#">Load</a></li>
+                <li><a className="dropdown-item" href="#">Utilisation</a></li>
+            </ul>
+        </div>
+    );
+};
+
 const GPUOverview = (props) => {
     const gpuCards = props.gpuData.map((data, index) =>
         <GPUCard key={index} name={data.name} user={data.user} util={data.util} memory={data.memory} maxMemory={data.maxMemory} />
@@ -75,18 +92,50 @@ const GPUOverview = (props) => {
                     <h2>GPU Loads</h2>
                 </div>
                 <div className="col text-end">
-                    <div className="dropdown">
-                        <button className="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                        Sort by
-                        </button>
-                        <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a className="dropdown-item" href="#">Utilisation</a></li>
-                            <li><a className="dropdown-item" href="#">Something else here</a></li>
-                        </ul>
-                    </div>
+                    <SortByDropdown />
                 </div>
             </div>
             {gpuCards}
+        </div>
+    );
+};
+
+const ExperimentCard = (props) => {
+    const icon = `${props.status}.png`;
+
+    return (
+        <div className="row border mb-3">
+            <div className="icon-col align-self-center pt-3 mb-3 me-3">
+                <img className="icon" src={icon} />
+            </div>
+            <div className="col pt-3">
+                <h3>{props.name}</h3>
+                <p>{props.user} {props.gpu}</p>
+            </div>
+            <div className="col pt-3 me-3 text-end">
+                <p>{props.start}</p>
+                <p>{props.duration}</p>
+            </div>
+        </div>
+    );
+};
+
+const CompletedOverview = (props) => {
+    const experimentCards = props.experiments.map((data, index) =>
+        <ExperimentCard key={index} status={data.status} name={data.name} user={data.user} gpu={data.gpu} start={data.start} duration={data.duration} />
+    );
+
+    return (
+        <div>
+            <div className="row">
+                <div className="col">
+                    <h2>Completed Experiments</h2>
+                </div>
+                <div className="col text-end">
+                    <SortByDropdown />
+                </div>
+            </div>
+            {experimentCards}
         </div>
     );
 };
@@ -98,10 +147,16 @@ const Overview = () => {
         {name: "V100", user: "Joe Stacey", util: 74, memory: 12302, maxMemory: 15258},
     ];
 
+    const completedExperiments = [
+        {status: "success", user: "Delilah Han", name: "NLP Experiment", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration:"18h 53m 6s"},
+        {status: "failed", user: "Joe Stacey", name: "Muffins vs Dogs Detector", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration:"18h 53m 6s"}
+    ];
+
     return (
         <div className="container-md">
             <h1 className="pt-4 mb-4">Overview</h1>
-            <GPUOverview gpuData={gpuData} />
+            <GPUOverview className="mb-4" gpuData={gpuData} />
+            <CompletedOverview className="mb-4" experiments={completedExperiments}/>
         </div>
     );
 };
