@@ -1,9 +1,19 @@
 version: "3"
 
 services:
+  db:
+    container_name: db
+    image: redis:6.2.4-alpine
+    volumes:
+      - ./redis_data:/data
+    ports:
+      - 6379:6379
+    command: "redis-server --port 6379 --appendonly yes"
   backend:
     container_name: backend
     build: ./backend
+    depends_on:
+      - db
     environment:
       - PORT=5000
     volumes:
@@ -15,7 +25,6 @@ services:
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
-
   nginx:
     container_name: web
     image: nginx
@@ -24,3 +33,4 @@ services:
     ports:
       - 80:80/tcp
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
