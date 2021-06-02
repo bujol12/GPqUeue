@@ -4,7 +4,7 @@ compile:
     - docker-compose build
 deploy:
   only:
-    - master
+    - main
   stage: deploy
   script:
     - ./start-stag.sh
