@@ -52,7 +52,7 @@ const GPUCard = (props) => {
                 <img className="icon" src={icon} />
             </div>
             <div className="col pt-3">
-                <h3>GPU {props.key} - {props.name}</h3>
+                <h3>GPU {props.index} - {props.name}</h3>
                 <p>{user}</p>
             </div>
             <div className="col pt-3 me-3 text-end">
@@ -82,7 +82,7 @@ const SortByDropdown = () => {
 
 const GPUOverview = (props) => {
     const gpuCards = props.gpuData.map((data, index) =>
-        <GPUCard key={index} name={data.name} user={data.user} util={data.util} memory={data.memory} maxMemory={data.maxMemory} />
+        <GPUCard key={index} index={index} name={data.name} user={data.user} util={data.util} memory={data.memory} maxMemory={data.maxMemory} />
     );
 
     return (
@@ -140,16 +140,39 @@ const CompletedOverview = (props) => {
     );
 };
 
+const OngoingOverview = (props) => {
+    const experimentCards = props.experiments.map((data, index) =>
+        <ExperimentCard key={index} status={data.status} name={data.name} user={data.user} gpu={data.gpu} start={data.start} duration={data.duration} />
+    );
+
+    return (
+        <div>
+            <div className="row">
+                <div className="col">
+                    <h2>Ongoing Experiments</h2>
+                </div>
+                <div className="col text-end">
+                    <SortByDropdown />
+                </div>
+            </div>
+            {experimentCards}
+        </div>
+    );
+};
+
 const Overview = () => {
     const gpuData = [
         {name: "RTX 3060", user: "Delilah Han", util: 50, memory: 7432, maxMemory: 11019},
         {name: "RTX 2080 Ti", user: "", util: 4, memory: 500, maxMemory: 11019},
         {name: "V100", user: "Joe Stacey", util: 74, memory: 12302, maxMemory: 15258},
     ];
-
     const completedExperiments = [
         {status: "success", user: "Delilah Han", name: "NLP Experiment", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration:"18h 53m 6s"},
         {status: "failed", user: "Joe Stacey", name: "Muffins vs Dogs Detector", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration:"18h 53m 6s"}
+    ];
+    const ongoingExperiments = [
+        {status: "inprogress", user: "Sherry Edwards", name: "Hotdog Classifer", gpu: "GPU 2 - V100", start: "13:04", duration:"3m 54s"},
+        {status: "queued", user: "Joe Stacey", name: "Colddog Classifer", gpu: "GPU 0 - RTX 3060", start: "", duration:""}
     ];
 
     return (
@@ -157,6 +180,7 @@ const Overview = () => {
             <h1 className="pt-4 mb-4">Overview</h1>
             <GPUOverview className="mb-4" gpuData={gpuData} />
             <CompletedOverview className="mb-4" experiments={completedExperiments}/>
+            <OngoingOverview className="mb-4" experiments={ongoingExperiments} />
         </div>
     );
 };
