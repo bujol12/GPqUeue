@@ -42,7 +42,7 @@ const Login = () => {
     );
 };
 
-const GPUOverview = (props) => {
+const GPUCard = (props) => {
     const icon = props.user == "" ? "" : "busy.png";
     const user = props.user == "" ? "Available" : props.user;
 
@@ -63,10 +63,13 @@ const GPUOverview = (props) => {
     );
 };
 
-const Overview = () => {
+const GPUOverview = (props) => {
+    const gpus = props.gpuData.map((data, index) => {
+        data.index = index;
+        return GPUCard(props);
+    });
     return (
-        <div className="container-md">
-            <h1 className="pt-4 mb-4">Overview</h1>
+        <div>
             <div className="row">
                 <div className="col">
                     <h2>GPU Loads</h2>
@@ -84,9 +87,22 @@ const Overview = () => {
                     </div>
                 </div>
             </div>
-            <GPUOverview index={0} name="RTX 3060" user="Delilah Han" util={50} memory="7432" maxMemory="11019" />
-            <GPUOverview index={1} name="RTX 2080 Ti" user="" util={4} memory="500" maxMemory="11019" />
-            <GPUOverview index={2} name="V100" user="Joe Stacey" util={74} memory="12302" maxMemory="15258" />
+            {gpus}
+        </div>
+    );
+};
+
+const Overview = () => {
+    const gpuData = [
+        {name: "RTX 3060", user: "Delilah Han", util: 50, memory: 7432, maxMemory: 11019},
+        {name: "RTX 2080 Ti", user: "", util: 4, memory: 500, maxMemory: 11019},
+        {name: "V100", user: "Joe Stacey", util: 74, memory: 12302, maxMemory: 15258},
+    ];
+
+    return (
+        <div className="container-md">
+            <h1 className="pt-4 mb-4">Overview</h1>
+            <GPUOverview gpuData={gpuData} />
         </div>
     );
 };
