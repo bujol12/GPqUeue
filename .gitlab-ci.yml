@@ -5,4 +5,4 @@ compile:
 deploy:
   stage: deploy
   script:
-    - docker-compose up
+    - ./start-stag.sh
