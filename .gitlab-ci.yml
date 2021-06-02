@@ -8,7 +8,7 @@ deploy-heroku:
   stage: deploy-public
   inherit:
     default: false
-  image: dpl:latest
+  image: rubygem/dpl:latest
   script:
     - dpl --provider=heroku --app=gpqueue-year-2-web-app --api-key=$HEROKU_TOKEN
 
