@@ -3,6 +3,8 @@ compile:
   script:
     - docker-compose build
 deploy:
+  only:
+    - master
   stage: deploy
   script:
     - ./start-stag.sh
