@@ -43,14 +43,17 @@ const Login = () => {
 };
 
 const GPUOverview = (props) => {
+    const icon = props.user == "" ? "" : "busy.png";
+    const user = props.user == "" ? "Available" : props.user;
+
     return (
         <div className="row border mb-3">
             <div className="icon-col align-self-center pt-3 mb-3 me-3">
-                <img className="icon" src="busy.png"/>
+                <img className="icon" src={icon} />
             </div>
             <div className="col pt-3">
                 <h3>GPU {props.index} - {props.name}</h3>
-                <p>{props.user}</p>
+                <p>{user}</p>
             </div>
             <div className="col pt-3 me-3 text-end">
                 <p>Utilisation: {props.util}%</p>
