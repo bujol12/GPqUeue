@@ -17,7 +17,6 @@ services:
     links:
       - db
     environment:
-      - REDIS_URL=redis://db
       - PORT=5000
       - gpu=${gpu:-false}
     volumes:
@@ -41,11 +40,3 @@ services:
     ports:
       - 80:80/tcp
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-
-# networking for the Redis container
-networks:
-  node_net:
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.28.0.0/16

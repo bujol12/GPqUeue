@@ -2,9 +2,9 @@ from typing import Any, Optional
 
 import attr
 
-from converters import Converters
-from enums.gpu_status import GpuStatus
-from user import User
+from src.converters import Converters
+from src.enums.gpu_status import GpuStatus
+from src.user import User
 
 
 @attr.define(slots=False)

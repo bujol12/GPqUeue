@@ -3,8 +3,8 @@ from typing import Dict, Optional, Union
 
 import attr
 
-from enums.job_status import JobStatus
-from gpu import GPU
+from src.enums.job_status import JobStatus
+from src.gpu import GPU
 
 
 @attr.define(slots=False)

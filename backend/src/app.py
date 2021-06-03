@@ -2,11 +2,11 @@ import os
 from typing import Any, Dict, Optional
 from flask import Flask, request
 
-from database import Database
-from enums.job_status import JobStatus
-from gpu import GPU
-from job import Job
-from mocked_gpu import MockedGPU
+from src.database import Database
+from src.enums.job_status import JobStatus
+from src.gpu import GPU
+from src.job import Job
+from src.mocked_gpu import MockedGPU
 
 app = Flask(__name__)
 

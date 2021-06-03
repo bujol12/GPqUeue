@@ -4,9 +4,9 @@ from uuid import uuid4
 
 import attr
 
-from enums.job_status import JobStatus
-from gpu import GPU
-from user import User
+from src.enums.job_status import JobStatus
+from src.gpu import GPU
+from src.user import User
 
 
 @attr.define(slots=False, frozen=False)

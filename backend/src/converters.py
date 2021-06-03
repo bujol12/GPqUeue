@@ -1,7 +1,7 @@
 from functools import singledispatchmethod
 from typing import Dict
 
-from user import User
+from src.user import User
 
 
 class Converters:

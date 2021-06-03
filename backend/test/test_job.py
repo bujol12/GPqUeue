@@ -1,6 +1,6 @@
 import pytest
-from job import Job
-from enums.job_status import JobStatus
+from src.job import Job
+from src.enums.job_status import JobStatus
 
 class TestJob:
     job = Job(name="abc", script_path="xyz/hjk", cli_args="-x")
