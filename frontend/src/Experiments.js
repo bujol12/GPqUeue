@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Sort, SortDropdown} from "./Sort.js";
 
 const secondsToHoursMinutesSeconds = (totalSeconds) => {
@@ -8,10 +8,9 @@ const secondsToHoursMinutesSeconds = (totalSeconds) => {
     return `${hours}h ${minutes}m ${seconds}s`;
 };
 
-const ExperimentCard = ({status, name, user, gpu, start, end}) => {
-    const icon = `${status}.png`;
-
+const getInfoText = (status, startTime, endTime) => {
     let infoText;
+
     if (status === "queued") {
         infoText = (
             <div className="col align-self-center pt-3 me-3 text-end">
@@ -19,7 +18,7 @@ const ExperimentCard = ({status, name, user, gpu, start, end}) => {
             </div>
         );
     } else {
-        const startDate = new Date(start);
+        const startDate = new Date(startTime);
         const currentDate = new Date();
         const millisecondsInADay = 1000 * 60 * 60 * 24;
         const daysSinceStart = Math.floor((currentDate.getTime() - startDate.getTime()) / millisecondsInADay);
@@ -35,7 +34,7 @@ const ExperimentCard = ({status, name, user, gpu, start, end}) => {
             startText = `${startDate.getDate()}/${startDate.getMonth()}/${startDate.getFullYear()}`;
         }
 
-        const endDate = new Date(end);
+        const endDate = endTime ? new Date(endTime) : currentDate;
         const duration = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
 
         infoText = (
@@ -45,6 +44,21 @@ const ExperimentCard = ({status, name, user, gpu, start, end}) => {
             </div>
         );
     }
+
+    return infoText;
+};
+
+const ExperimentCard = ({status, name, user, gpu, start, end}) => {
+    const icon = `${status}.png`;
+    const [infoText, setInfoText] = useState(getInfoText(status, start, end));
+
+    useEffect(() => {
+        const interval = setInterval(() => setInfoText(getInfoText(status, start, end)), 1000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
 
     return (
         <div className="row border mb-3">
