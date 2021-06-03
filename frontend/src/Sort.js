@@ -18,15 +18,7 @@ const SortDropdown = ({rules, setRule}) => {
 };
 
 const Sort = ({children, prop, increasing}) => {
-    let sortedChildren = React.Children.toArray(children).sort((a, b) => {
-        if (a[prop] < b[prop]) {
-            return -1;
-        } else if (a[prop] === b[prop]) {
-            return 0;
-        } else if (a[prop] > b[prop]) {
-            return 1;
-        }
-    });
+    let sortedChildren = React.Children.toArray(children).sort((a, b) => a[prop] - b[prop]);
 
     if (!increasing) {
         sortedChildren = sortedChildren.reverse();
