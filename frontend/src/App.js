@@ -2,6 +2,7 @@ import React from "react";
 import {Route, BrowserRouter as Router, Link} from "react-router-dom";
 import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
+import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
 import {Login, SignUp} from "./LoginSignUp.js";
 import "./App.css";
 
@@ -37,35 +38,10 @@ const Navbar = () => {
     );
 };
 
-
 const Gpus = () => {
     return (
         <div>
             <h1>GPUs</h1>
-        </div>
-    );
-};
-
-const NewExperiment = () => {
-    return (
-        <div className="container container-md-custom">
-            <h1 className="pt-4 mb-4">Begin new experiment</h1>
-            <form action="/api/add_job">
-                <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Experiment name*</label>
-                    <input type="text" className="form-control" id="name" aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer"/>
-                    <div id="nameHelp" className="form-text">Give your experiment a good unique name so it&apos;s easy to find later.</div>
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="script" className="form-label">Python / Bash script*</label>
-                    <input type="file" className="form-control" id="script" />
-                </div>
-                <div className="mb-3">
-                    <label htmlFor="arguments" className="form-label">Command line arguments</label>
-                    <input type="text" className="form-control" id="arguments" />
-                </div>
-                <button type="submit" className="btn btn-primary">Submit</button>
-            </form>
         </div>
     );
 };
@@ -82,6 +58,7 @@ const App = () => {
                 <Route exact path="/myexperiments" component={MyExperiments}></Route>
                 <Route exact path="/gpus" component={Gpus}></Route>
                 <Route exact path="/newexperiment" component={NewExperiment}></Route>
+                <Route exact path="/newexperiment/failed" component={NewExperimentFailed}></Route>
             </div>
         </Router>
     );
