@@ -1,8 +1,8 @@
-import React, {useState} from "react";
+import React from "react";
 import {Route, BrowserRouter as Router, Link} from "react-router-dom";
 import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
-import NewExperiment from "./NewExperiment.js";
+import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
 import {Login, SignUp} from "./LoginSignUp.js";
 import "./App.css";
 
@@ -58,6 +58,7 @@ const App = () => {
                 <Route exact path="/myexperiments" component={MyExperiments}></Route>
                 <Route exact path="/gpus" component={Gpus}></Route>
                 <Route exact path="/newexperiment" component={NewExperiment}></Route>
+                <Route exact path="/newexperiment/failed" component={NewExperimentFailed}></Route>
             </div>
         </Router>
     );

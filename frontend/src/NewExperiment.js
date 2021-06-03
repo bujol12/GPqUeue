@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import axios from "axios";
 
 const postNewJob = (history, name, file, args) => {
@@ -9,7 +9,7 @@ const postNewJob = (history, name, file, args) => {
         cli_args: args,
     }).then(res => {
         if (res.data.status === "success") {
-            history.push("/newexperiment/success");
+            history.push("/myexperiments");
         } else {
             history.push("/newexperiment/failed");
         }
@@ -33,7 +33,7 @@ const NewExperiment = () => {
 
     return (
         <div className="container container-md-custom">
-            <h1 className="pt-4 mb-4">Begin new experiment</h1>
+            <h1 className="pt-4 mb-4">Start new experiment</h1>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                     <label htmlFor="name" className="form-label">Experiment name*</label>
@@ -54,4 +54,13 @@ const NewExperiment = () => {
     );
 };
 
-export default NewExperiment;
+const NewExperimentFailed = () => {
+    return (
+        < div className="container container-md-custom" >
+            <h1 className="pt-4 mb-4">Uh oh</h1>
+            <p>Experiment failed to start. Try again <Link to="/newexperiment">here.</Link></p>
+        </div>
+    );
+};
+
+export {NewExperiment, NewExperimentFailed};
