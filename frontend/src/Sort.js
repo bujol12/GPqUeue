@@ -1,6 +1,8 @@
-const SortDropdown = ({options, setSortBy}) => {
-    const menuItems = options.map((name, index) =>
-        <li key={index}><a className="dropdown-item" href="#">{name}</a></li>
+import React from "react";
+
+const SortDropdown = ({rules, setRule}) => {
+    const menuItems = rules.map((rule, index) =>
+        <li key={index}><button className="dropdown-item" onClick={() => setRule(rule)}>{rule.text}</button></li>
     );
 
     return (
@@ -15,12 +17,22 @@ const SortDropdown = ({options, setSortBy}) => {
     );
 };
 
-const Sort = ({children, by}) => {
-    return (
-        <div>
-            {children}
-        </div>
-    );
+const Sort = ({children, prop, increasing}) => {
+    let sortedChildren = React.Children.toArray(children).sort((a, b) => {
+        if (a[prop] < b[prop]) {
+            return -1;
+        } else if (a[prop] === b[prop]) {
+            return 0;
+        } else if (a[prop] > b[prop]) {
+            return 1;
+        }
+    });
+
+    if (!increasing) {
+        sortedChildren = sortedChildren.reverse();
+    }
+
+    return sortedChildren;
 };
 
 export {Sort, SortDropdown};

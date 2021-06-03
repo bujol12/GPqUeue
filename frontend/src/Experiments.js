@@ -36,14 +36,14 @@ const ExperimentCard = ({status, name, user, gpu, start, duration}) => {
 
 const Experiments = ({experiments, title}) => {
     const experimentCards = experiments.map((data, index) =>
-        <ExperimentCard key={index} status={data.status} name={data.name} user={data.user} gpu={data.gpu} start={data.start} duration={data.duration} />
+        <ExperimentCard key={index} {...data} />
     );
-    const sortOptions = [
-        "Newest",
-        "Oldest",
-        "Duration"
+    const sortRules = [
+        {text: "Newest", prop: "start", increasing: false},
+        {text: "Oldest", prop: "start", increasing: true},
+        {text: "Duration", prop: "duration", increasing: false},
     ];
-    const {sortBy, setSortBy} = useState("Newest");
+    const [sortRule, setSortRule] = useState(sortRules[0]);
 
     return (
         <div>
@@ -52,10 +52,10 @@ const Experiments = ({experiments, title}) => {
                     <h2>{title}</h2>
                 </div>
                 <div className="col-2 text-end">
-                    <SortDropdown options={sortOptions} setSortBy={setSortBy} />
+                    <SortDropdown rules={sortRules} setRule={setSortRule} />
                 </div>
             </div>
-            <Sort by={sortBy}>
+            <Sort {...sortRule}>
                 {experimentCards}
             </Sort>
         </div>

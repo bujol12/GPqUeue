@@ -24,17 +24,16 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
 };
 
 
-const GPUOverview = ({gpuData}) => {
-    const gpuCards = gpuData.map((data, index) =>
-        <GPUCard key={index} index={index} name={data.name} user={data.user} util={data.util} memory={data.memory} maxMemory={data.maxMemory} />
+const GPUOverview = ({gpus}) => {
+    const gpuCards = gpus.map((data, index) =>
+        <GPUCard key={index} index={index} {...data} />
     );
-    const sortOptions = [
-        "GPU",
-        "Available",
-        "Utilisation",
-        "Memory",
+    const sortRules = [
+        {text: "GPU", prop: "gpu", increasing: true},
+        {text: "Utilisation", prop: "util", increasing: true},
+        {text: "Memory", prop: "memory", increasing: true}
     ];
-    const {sortBy, setSortBy} = useState("gpu");
+    const [sortRule, setSortRule] = useState(sortRules[0]);
 
     return (
         <div>
@@ -43,10 +42,10 @@ const GPUOverview = ({gpuData}) => {
                     <h2>GPU Loads</h2>
                 </div>
                 <div className="col text-end">
-                    <SortDropdown options={sortOptions} setSortBy={setSortBy} />
+                    <SortDropdown rules={sortRules} setRule={setSortRule} />
                 </div>
             </div>
-            <Sort by={sortBy}>
+            <Sort {...sortRule}>
                 {gpuCards}
             </Sort>
         </div>
@@ -54,7 +53,7 @@ const GPUOverview = ({gpuData}) => {
 };
 
 const Overview = () => {
-    const gpuData = [
+    const gpus = [
         { name: "RTX 3060", user: "Delilah Han", util: 50, memory: 7432, maxMemory: 11019 },
         { name: "RTX 2080 Ti", user: "", util: 4, memory: 500, maxMemory: 11019 },
         { name: "V100", user: "Joe Stacey", util: 74, memory: 12302, maxMemory: 15258 },
@@ -71,7 +70,7 @@ const Overview = () => {
     return (
         <div className="container container-md-custom">
             <h1 className="pt-4 mb-4">Overview</h1>
-            <GPUOverview className="mb-4" gpuData={gpuData} />
+            <GPUOverview className="mb-4" gpus={gpus} />
             <Experiments className="mb-4" experiments={completedExperiments} title="Completed Experiments"/>
             <Experiments className="mb-4" experiments={ongoingExperiments} title="Ongoing Experiments" />
         </div>
