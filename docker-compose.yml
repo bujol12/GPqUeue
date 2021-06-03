@@ -11,6 +11,7 @@ services:
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
+      - ./frontend/node_modules:/app/node_modules
 
   nginx:
     container_name: web
