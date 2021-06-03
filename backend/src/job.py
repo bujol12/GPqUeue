@@ -1,11 +1,14 @@
 from datetime import datetime
 from typing import List, Optional
 
+import attr
+
 from enums.job_status import JobStatus
 from gpu import GPU
 from user import User
 
 
+@attr.define(slots=False, frozen=False)
 class Job:
     name: str
     user: User

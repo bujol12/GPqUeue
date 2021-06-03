@@ -1,25 +1,20 @@
 import random
 from typing import Dict, Optional, Union
 
+import attr
+
 from enums.job_status import JobStatus
 from gpu import GPU
 
 
+@attr.define(slots=False)
 class MockedGPU(GPU):
-    def __init__(self, name, model, total_memory_mib):
-        super().__init__(name, model, total_memory_mib)
-
     def get_stats(self) -> Dict[str, Union[Optional[str], float]]:
         self.fetch_stats()
 
-        return {
-            'last_status': str(self.last_status),
-            'last_user': str(self.last_user) if self.last_user is not None else None,
-            'last_utilisation_pct': self.last_utilisation_pct,
-            'last_memory_used_mib': self.last_memory_used_mib
-        }
+        return super().get_stats()
 
-    def fetch_stats(self):
+    def fetch_stats(self) -> None:
         self.last_status = random.choice([e.value for e in JobStatus])
         self.last_user = None
 
