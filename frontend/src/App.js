@@ -55,8 +55,24 @@ const Gpus = () => {
 
 const NewExperiment = () => {
     return (
-        <div>
-            <h1>New Experiment</h1>
+        <div className="container container-md-custom">
+            <h1 className="pt-4 mb-4">Begin new experiment</h1>
+            <form action="/api/add_job">
+                <div className="mb-3">
+                    <label htmlFor="name" className="form-label">Experiment name*</label>
+                    <input type="text" className="form-control" id="name" aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer"/>
+                    <div id="nameHelp" className="form-text">Give your experiment a good unique name so it&apos;s easy to find later.</div>
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="script" className="form-label">Python / Bash Script*</label>
+                    <input type="file" className="form-control" id="script" disabled/>
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="arguments" className="form-label">Command line arguments</label>
+                    <input type="text" className="form-control" id="arguments" disabled/>
+                </div>
+                <button type="submit" className="btn btn-primary">Submit</button>
+            </form>
         </div>
     );
 };
