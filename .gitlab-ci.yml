@@ -2,6 +2,10 @@ compile:
   stage: build
   script:
     - docker-compose build
+test:
+  stage: test
+  script:
+    - ./test.sh
 deploy:
   only:
     - main

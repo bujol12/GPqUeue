@@ -2,3 +2,4 @@
 **.aof
 **.rdb
 redis_data/
+**/__pycache__/
