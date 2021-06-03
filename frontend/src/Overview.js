@@ -29,12 +29,6 @@ const GPUOverview = ({gpus}) => {
     const gpuCards = gpus.map((data, index) =>
         <GPUCard key={index} index={index} {...data} />
     );
-    const sortRules = [
-        {text: "GPU", prop: "gpu", increasing: true},
-        {text: "Utilisation", prop: "util", increasing: true},
-        {text: "Memory", prop: "memory", increasing: true}
-    ];
-    const [sortRule, setSortRule] = useState(sortRules[0]);
 
     return (
         <div>
@@ -42,13 +36,8 @@ const GPUOverview = ({gpus}) => {
                 <div className="col">
                     <h2>GPU Loads</h2>
                 </div>
-                <div className="col text-end">
-                    <SortDropdown rules={sortRules} setRule={setSortRule} />
-                </div>
             </div>
-            <Sort {...sortRule}>
-                {gpuCards}
-            </Sort>
+            {gpuCards}
         </div>
     );
 };
@@ -59,7 +48,7 @@ const getGpus = (setGpus) => {
         for (const key in Object.keys(res.data)) {
             const data = res.data[key];
             tempGpus.push({
-                index: key,
+                index: data.name,
                 name: data.model,
                 user: data.last_user,
                 util: data.last_utilisation_pct,
