@@ -18,4 +18,4 @@ class Job:
 
     def job_finished(self, time: datetime):
         self.finish_time = time
-        self.duration_ms = (time - self.start_time).total_seconds()
+        self.duration_ms = int((time - self.start_time).total_seconds())
