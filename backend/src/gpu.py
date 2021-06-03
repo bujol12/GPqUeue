@@ -43,6 +43,5 @@ class GPU:
         return attr.asdict(
             self,
             recurse=True,
-            filter=lambda a, v: a.name.startswith('last_'),
             value_serializer=_serializer,
         )
