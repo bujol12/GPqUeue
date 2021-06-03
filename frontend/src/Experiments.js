@@ -1,0 +1,91 @@
+import React, {useState} from "react";
+import {Sort, SortDropdown} from "./Sort.js";
+
+const secondsToHoursMinutesSeconds = (totalSeconds) => {
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60) % 60;
+    const hours = Math.floor(totalSeconds / (60 * 60));
+    return `${hours}h ${minutes}m ${seconds}s`;
+};
+
+const ExperimentCard = ({status, name, user, gpu, start, end}) => {
+    const icon = `${status}.png`;
+
+    let infoText;
+    if (status === "queued") {
+        infoText = (
+            <div className="col align-self-center pt-3 me-3 text-end">
+                <p>Queued</p>
+            </div>
+        );
+    } else {
+        const startDate = new Date(start);
+        const currentDate = new Date();
+        const millisecondsInADay = 1000 * 60 * 60 * 24;
+        const daysSinceStart = Math.floor((currentDate.getTime() - startDate.getTime()) / millisecondsInADay);
+        let startText = "";
+
+        if (daysSinceStart === 0) {
+            startText = `${startDate.getHours()}:${startDate.getMinutes()}`;
+        } else if (daysSinceStart === 1) {
+            startText = "Yesterday";
+        } else if (daysSinceStart < 7) {
+            startText = `${daysSinceStart} days ago`;
+        } else {
+            startText = `${startDate.getDate()}/${startDate.getMonth()}/${startDate.getFullYear()}`;
+        }
+
+        const endDate = new Date(end);
+        const duration = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
+
+        infoText = (
+            <div className="col pt-3 me-3 text-end">
+                <p>{startText}</p>
+                <p>{secondsToHoursMinutesSeconds(duration)}</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="row border mb-3">
+            <div className="icon-col align-self-center pt-3 mb-3 me-3">
+                <img className="icon" src={icon} />
+            </div>
+            <div className="col pt-3">
+                <h3>{name}</h3>
+                <p>{user} {gpu}</p>
+            </div>
+            {infoText}
+        </div>
+    );
+};
+
+const Experiments = ({experiments, title}) => {
+    const experimentCards = experiments.map((data, index) =>
+        <ExperimentCard key={index} {...data} />
+    );
+    const sortRules = [
+        {text: "Newest", prop: "start", increasing: true},
+        {text: "Oldest", prop: "start", increasing: false},
+        {text: "Duration", prop: "duration", increasing: false},
+    ];
+    const [sortRule, setSortRule] = useState(sortRules[0]);
+
+    return (
+        <div>
+            <div className="row">
+                <div className="col">
+                    <h2>{title}</h2>
+                </div>
+                <div className="col-2 text-end">
+                    <SortDropdown rules={sortRules} setRule={setSortRule} />
+                </div>
+            </div>
+            <Sort {...sortRule}>
+                {experimentCards}
+            </Sort>
+        </div>
+    );
+};
+
+export default Experiments;

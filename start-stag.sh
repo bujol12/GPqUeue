@@ -1,2 +1,2 @@
 docker-compose stop
-docker-compose up -d
+gpu=false docker-compose up -d --remove-orphans
