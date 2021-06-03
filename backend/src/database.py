@@ -12,7 +12,7 @@ class Database:
 
     def add_key(self, key: str, value: Dict[str, Any]) -> bool:
         self.r.hmset(key, value)
-        return False
+        return True
 
     def fetch_key(self, key: str) -> Dict:
         return self.r.hgetall(key)
