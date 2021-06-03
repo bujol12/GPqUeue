@@ -29,13 +29,15 @@ class Job:
         self.name = name
         self.script_path = script_path
         self.cli_args = cli_args
+        self.status = JobStatus.QUEUED
 
     def job_finished(self, time: datetime):
         self.finish_time = time
         self.duration_ms = int((time - self.start_time).total_seconds())
 
     def to_dict(self):
-        return {'uuid': self.uuid, 'name': self.name, 'script_path': self.script_path, 'cli_args': self.cli_args}
+        return {'uuid': self.uuid, 'status': self.status.value, 'name': self.name,
+                'script_path': self.script_path, 'cli_args': self.cli_args}
 
     @staticmethod
     def from_dict(self, dict: Dict[str, Any]):
