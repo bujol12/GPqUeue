@@ -1,24 +1,36 @@
+import React, {useState, useEffect} from "react";
+import axios from "axios";
 import Experiments from "./Experiments.js";
 
+const getExperiments = (setExperiments, endpoint) => {
+    axios.get(`/api/${endpoint}`).then(res => {
+        let tempExperiments = [];
+        for (const key in Object.keys(res.data.jobs)) {
+            tempExperiments.push({
+                status: res.data.jobs[key].status,
+                name: res.data.jobs[key].name,
+                gpu: "TODO",
+                queueing: "queued",
+            });
+        }
+        setExperiments(tempExperiments);
+    });
+};
+
 const MyExperiments = () => {
-    const experiments = [
-        {status: "queued", name: "Cold Dog Classifier", gpu: "GPU 0 - RTX 3060", queuing: "Queued (1 / 2)"},
-        {status: "queued", name: "Cold Dog Classifier #1", gpu: "GPU 0 - RTX 3060", queuing: "Queued (2 / 2)"},
-        {status: "inprogress", name: "Hot Dog Classifier #2", gpu: "GPU 2 - V100", start: 1622720565742},
-        {status: "failed", name: "Hot Dog Classifier #1", gpu: "GPU 2 - V100", start: 1622720465742, end: 1622720565742},
-        {status: "failed", name: "Muffins vs Dogs Detector", gpu: "GPU 0 - RTX 3060", start: 1622720345742, end: 1622720565742},
-        {status: "success", name: "NLP Experiment", gpu: "GPU 0 - RTX 3060", start: 1622719215742, end: 1622720565742}
-    ];
-    const queuingExperiments = experiments.filter(e => e.status === "queued");
-    const ongoingExperiments = experiments.filter(e => e.status === "inprogress");
-    const completedExperiments = experiments.filter(e => e.status === "failed" || e.status === "success");
+    const [ongoingExperiments, setOngoingExperiments] = useState([]);
+    const [finishedExperiments, setFinishedExperiments] = useState([]);
+
+    useEffect(() => {
+        getExperiments(setOngoingExperiments, "ongoing_jobs");
+        getExperiments(setFinishedExperiments, "finished_jobs");
+    }, []);
 
     return (
         <div className="container container-md-custom">
             <h1 className="pt-4 mb-4">My Experiments</h1>
-            <Experiments className="mb-4" experiments={queuingExperiments} title="Queued Experiments" />
             <Experiments className="mb-4" experiments={ongoingExperiments} title="Ongoing Experiments" />
-            <Experiments className="mb-4" experiments={completedExperiments} title="Completed Experiments" />
+            <Experiments className="mb-4" experiments={finishedExperiments} title="Completed Experiments" />
         </div>
     );
 };
