@@ -189,7 +189,7 @@ const Overview = () => {
     ];
 
     return (
-        <div className="container-md">
+        <div className="container container-md-custom">
             <h1 className="pt-4 mb-4">Overview</h1>
             <GPUOverview className="mb-4" gpuData={gpuData} />
             <CompletedOverview className="mb-4" experiments={completedExperiments} />

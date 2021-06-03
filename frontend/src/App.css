@@ -1,3 +1,7 @@
+.container-md-custom {
+  max-width: 720px;
+}
+
 .icon-col {
   max-width: 40px;
 }
