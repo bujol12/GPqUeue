@@ -1,20 +1,20 @@
-from typing import *
 from datetime import datetime
+from typing import List, Optional
 
-from user import User
 from enums.job_status import JobStatus
 from gpu import GPU
+from user import User
 
 
 class Job:
-    start_time: datetime
-    finish_time: Optional[datetime]
-    duration_ms: Optional[int]
-
     name: str
     user: User
     status: JobStatus
-    gpus_lst: List[GPU]
+    gpus_list: List[GPU]
+
+    start_time: datetime
+    finish_time: Optional[datetime] = None
+    duration_ms: Optional[int] = None
 
     def job_finished(self, time: datetime):
         self.finish_time = time

@@ -1,5 +1,5 @@
 import os
-from typing import *
+from typing import Any, Dict
 
 from flask import Flask
 from gpu import GPU
@@ -25,12 +25,12 @@ def hello_world():
 
 
 @app.route("/available_gpus")
-def get_available_gpu_names() -> Dict:
+def get_available_gpu_names() -> Dict[str, Any]:
     return {'gpus': list(GPU_DCT.keys())}
 
 
 @app.route("/gpu_stats")
-def get_gpu_stats() -> Dict[str, Dict]:
+def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
     result = {}
     for gpu_name, gpu in GPU_DCT.items():
         result[gpu_name] = gpu.get_stats()
@@ -38,12 +38,12 @@ def get_gpu_stats() -> Dict[str, Dict]:
 
 
 @app.route("/finished_jobs")
-def get_finished_jobs() -> Dict:
+def get_finished_jobs() -> Dict[str, Any]:
     return {}
 
 
 @app.route("/ongoing_jobs")
-def get_ongoing_jobs() -> Dict:
+def get_ongoing_jobs() -> Dict[str, Any]:
     return {}
 
 

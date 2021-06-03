@@ -1,14 +1,15 @@
 import random
+from typing import Dict, Optional, Union
 
-from gpu import GPU
 from enums.job_status import JobStatus
+from gpu import GPU
 
 
 class MockedGPU(GPU):
     def __init__(self, name, model, total_memory_mib):
         super().__init__(name, model, total_memory_mib)
 
-    def get_stats(self):
+    def get_stats(self) -> Dict[str, Union[Optional[str], float]]:
         self.fetch_stats()
 
         return {
@@ -23,4 +24,6 @@ class MockedGPU(GPU):
         self.last_user = None
 
         self.last_utilisation_pct = random.uniform(0, 1)
-        self.last_memory_used_mib = float(random.randint(0, self.total_memory_mib))
+        self.last_memory_used_mib = float(
+            random.randint(0, self.total_memory_mib)
+        )

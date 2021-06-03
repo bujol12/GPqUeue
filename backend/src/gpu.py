@@ -1,7 +1,7 @@
-from typing import *
+from typing import Any, Optional
 
-from user import User
 from enums.gpu_status import GpuStatus
+from user import User
 
 
 class GPU:
