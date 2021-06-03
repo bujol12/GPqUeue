@@ -1,1 +1,4 @@
 .idea
+**.aof
+**.rdb
+redis_data/
