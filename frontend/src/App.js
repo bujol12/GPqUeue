@@ -103,6 +103,22 @@ const GPUOverview = (props) => {
 const ExperimentCard = (props) => {
     const icon = `${props.status}.png`;
 
+    let end;
+    if (props.status === "queued") {
+        end = (
+            <div className="col align-self-center pt-3 me-3 text-end">
+                <p>{props.queuing}</p>
+            </div>
+        );
+    } else {
+        end = (
+            <div className="col pt-3 me-3 text-end">
+                <p>{props.start}</p>
+                <p>{props.duration}</p>
+            </div>
+        );
+    }
+
     return (
         <div className="row border mb-3">
             <div className="icon-col align-self-center pt-3 mb-3 me-3">
@@ -112,10 +128,7 @@ const ExperimentCard = (props) => {
                 <h3>{props.name}</h3>
                 <p>{props.user} {props.gpu}</p>
             </div>
-            <div className="col pt-3 me-3 text-end">
-                <p>{props.start}</p>
-                <p>{props.duration}</p>
-            </div>
+            {end}
         </div>
     );
 };
@@ -162,33 +175,62 @@ const OngoingOverview = (props) => {
 
 const Overview = () => {
     const gpuData = [
-        {name: "RTX 3060", user: "Delilah Han", util: 50, memory: 7432, maxMemory: 11019},
-        {name: "RTX 2080 Ti", user: "", util: 4, memory: 500, maxMemory: 11019},
-        {name: "V100", user: "Joe Stacey", util: 74, memory: 12302, maxMemory: 15258},
+        { name: "RTX 3060", user: "Delilah Han", util: 50, memory: 7432, maxMemory: 11019 },
+        { name: "RTX 2080 Ti", user: "", util: 4, memory: 500, maxMemory: 11019 },
+        { name: "V100", user: "Joe Stacey", util: 74, memory: 12302, maxMemory: 15258 },
     ];
     const completedExperiments = [
-        {status: "success", user: "Delilah Han", name: "NLP Experiment", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration:"18h 53m 6s"},
-        {status: "failed", user: "Joe Stacey", name: "Muffins vs Dogs Detector", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration:"18h 53m 6s"}
+        { status: "success", user: "Delilah Han", name: "NLP Experiment", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration: "18h 53m 6s" },
+        { status: "failed", user: "Joe Stacey", name: "Muffins vs Dogs Detector", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration: "18h 53m 6s" }
     ];
     const ongoingExperiments = [
-        {status: "inprogress", user: "Sherry Edwards", name: "Hotdog Classifer", gpu: "GPU 2 - V100", start: "13:04", duration:"3m 54s"},
-        {status: "queued", user: "Joe Stacey", name: "Colddog Classifer", gpu: "GPU 0 - RTX 3060", start: "", duration:""}
+        { status: "inprogress", user: "Sherry Edwards", name: "Hotdog Classifer", gpu: "GPU 2 - V100", start: "13:04", duration: "3m 54s" },
+        { status: "queued", user: "Joe Stacey", name: "Colddog Classifer", gpu: "GPU 0 - RTX 3060", start: "", duration: "" }
     ];
 
     return (
         <div className="container-md">
             <h1 className="pt-4 mb-4">Overview</h1>
             <GPUOverview className="mb-4" gpuData={gpuData} />
-            <CompletedOverview className="mb-4" experiments={completedExperiments}/>
+            <CompletedOverview className="mb-4" experiments={completedExperiments} />
             <OngoingOverview className="mb-4" experiments={ongoingExperiments} />
         </div>
     );
 };
 
-const MyExperiments = () => {
+const ExperimentCardList = (props) => {
+    const experimentCards = props.experiments.map((data, index) =>
+        <ExperimentCard key={index} status={data.status} name={data.name} user={data.user} gpu={data.gpu} start={data.start} duration={data.duration} queuing={data.queuing} />
+    );
     return (
         <div>
-            <h1>My Experiments</h1>
+            {experimentCards}
+        </div>
+    );
+};
+
+const MyExperiments = () => {
+    const queuingExperiments = [
+        { status: "queued", name: "Cold Dog Classifier", gpu: "GPU 0 - RTX 3060", queuing: "Queued (1 / 2)" },
+        { status: "queued", name: "Cold Dog Classifier #1", gpu: "GPU 0 - RTX 3060", queuing: "Queued (2 / 2)" }
+    ];
+    const ongoingExperiments = [
+        { status: "inprogress", name: "Hot Dog Classifier #2", gpu: "GPU 2 - V100", start: "13:04", duration: "3m 54s" },
+    ];
+    const completedExperiments = [
+        { status: "failed", name: "Hot Dog Classifier #1", gpu: "GPU 2 - V100", start: "03:54", duration: "10h 30m 19s" },
+        { status: "failed", name: "Muffins vs Dogs Detector", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration: "18h 53m 6s" },
+        { status: "success", name: "NLP Experiment", gpu: "GPU 0 - RTX 3060", start: "Yesterday", duration: "18h 53m 6s" }
+    ];
+    return (
+        <div className="container-md">
+            <h1 className="pt-4 mb-4">My Experiments</h1>
+            <div className="col text-end mb-3">
+                <SortByDropdown />
+            </div>
+            <ExperimentCardList className="mb-4" experiments={queuingExperiments} />
+            <ExperimentCardList className="mb-4" experiments={ongoingExperiments} />
+            <ExperimentCardList className="mb-4" experiments={completedExperiments} />
         </div>
     );
 };
