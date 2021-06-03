@@ -60,11 +60,11 @@ const getGpus = (setGpus) => {
             const data = res.data[key];
             tempGpus.push({
                 index: key,
-                name: "TODO ADD NAME TO API",
+                name: data.model,
                 user: data.last_user,
                 util: data.last_utilisation_pct,
                 memory: data.last_memory_used_mib,
-                maxMemory: -1
+                maxMemory: data.total_memory_mib
             });
         }
         setGpus(tempGpus);
