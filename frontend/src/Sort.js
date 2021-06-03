@@ -15,11 +15,10 @@ const SortDropdown = ({options, setSortBy}) => {
     );
 };
 
-// Sort sorts a list of elements by their properties
 const Sort = ({children, by}) => {
     return (
         <div>
-            
+            {children}
         </div>
     );
 };
