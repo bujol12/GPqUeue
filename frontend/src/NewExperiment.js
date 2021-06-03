@@ -34,22 +34,22 @@ const NewExperiment = () => {
     return (
         <div className="container container-md-custom">
             <h1 className="pt-4 mb-4">Start new experiment</h1>
-            <form onSubmit={handleSubmit}>
+            <div>
                 <div className="mb-3">
-                    <label htmlFor="name" className="form-label">Experiment name*</label>
-                    <input type="text" className="form-control" id="name" aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer" onChange={handleChange(setName)}/>
+                    <label htmlFor="experiment_name" className="form-label">Experiment name*</label>
+                    <input type="text" className="form-control" id="experiment_name" aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer" onChange={handleChange(setName)}/>
                     <div id="nameHelp" className="form-text">Give your experiment a good unique name so it&apos;s easy to find later.</div>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="script" className="form-label">Python / Bash script*</label>
-                    <input type="file" className="form-control" id="script" onChange={handleChange(setFile)} />
+                    <label htmlFor="script_path" className="form-label">Python / Bash script*</label>
+                    <input type="file" className="form-control" id="script_path" onChange={handleChange(setFile)} />
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="arguments" className="form-label">Command line arguments</label>
-                    <input type="text" className="form-control" id="arguments" onChange={handleChange(setArgs)} />
+                    <label htmlFor="cli_args" className="form-label">Command line arguments</label>
+                    <input type="text" className="form-control" id="cli_args" onChange={handleChange(setArgs)} />
                 </div>
-                <button type="submit" className="btn btn-primary" >Submit</button>
-            </form>
+                <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Submit</button>
+            </div>
         </div>
     );
 };

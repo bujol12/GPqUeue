@@ -11,7 +11,7 @@ const secondsToHoursMinutesSeconds = (totalSeconds) => {
 const getInfoText = (status, startTime, endTime) => {
     let infoText;
 
-    if (status === "queued") {
+    if (status === "QUEUED") {
         infoText = (
             <div className="col align-self-center pt-3 me-3 text-end">
                 <p>Queued</p>
@@ -49,7 +49,7 @@ const getInfoText = (status, startTime, endTime) => {
 };
 
 const ExperimentCard = ({status, name, user, gpu, start, end}) => {
-    const icon = `${status}.png`;
+    const icon = `${status ? status.toLowerCase() : ""}.png`;
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
 
     useEffect(() => {
