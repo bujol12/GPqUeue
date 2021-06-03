@@ -38,7 +38,6 @@ const Navbar = () => {
     );
 };
 
-
 const Gpus = () => {
     return (
         <div>
@@ -46,7 +45,6 @@ const Gpus = () => {
         </div>
     );
 };
-
 
 const App = () => {
     const routing = (
