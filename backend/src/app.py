@@ -6,7 +6,7 @@ from mocked_gpu import MockedGPU
 
 app = Flask(__name__)
 
-HAS_GPU = (os.environ.get("gpu").lower() in ('true', '1', 't'))
+HAS_GPU = ((os.environ.get("gpu") or '').lower() in ('true', '1', 't'))
 GPU_DCT = {}
 
 
