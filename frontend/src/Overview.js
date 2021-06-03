@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from "react";
-import {Sort, SortDropdown} from "./Sort.js";
 import Experiments from "./Experiments.js";
 import axios from "axios";
 
