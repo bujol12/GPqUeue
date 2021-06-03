@@ -2,6 +2,7 @@ import React from "react";
 import {Route, BrowserRouter as Router, Link} from "react-router-dom";
 import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
+import {Login, SignUp} from "./LoginSignUp.js";
 import "./App.css";
 
 const NavbarLink = ({to, text}) => {
@@ -33,14 +34,6 @@ const Navbar = () => {
                 </div>
             </nav>
         </React.Fragment>
-    );
-};
-
-const Login = () => {
-    return (
-        <div>
-            <h1>Login</h1>
-        </div>
     );
 };
 
@@ -83,6 +76,7 @@ const App = () => {
             <Navbar/>
             <div className="container">
                 <Route exact path="/" component={Login}></Route>
+                <Route exact path="/signup" component={SignUp}></Route>
                 <Route exact path="/overview" component={Overview}></Route>
                 <Route exact path="/myexperiments" component={MyExperiments}></Route>
                 <Route exact path="/gpus" component={Gpus}></Route>
