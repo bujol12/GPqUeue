@@ -1,6 +1,7 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Sort, SortDropdown} from "./Sort.js";
 import Experiments from "./Experiments.js";
+import axios from "axios";
 
 const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
     const icon = user == "" ? "" : "busy.png";
@@ -16,7 +17,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
                 <p>{userText}</p>
             </div>
             <div className="col pt-3 me-3 text-end">
-                <p>Utilisation: {util}%</p>
+                <p>Utilisation: {(new Number(util * 100).toPrecision(3))}%</p>
                 <p>Memory: {memory} / {maxMemory} MiB</p>
             </div>
         </div>
@@ -52,12 +53,35 @@ const GPUOverview = ({gpus}) => {
     );
 };
 
+const getGpus = (setGpus) => {
+    axios.get("/api/gpu_stats").then(res => {
+        let tempGpus = [];
+        for (const key in Object.keys(res.data)) {
+            const data = res.data[key];
+            tempGpus.push({
+                index: key,
+                name: "TODO ADD NAME TO API",
+                user: data.last_user,
+                util: data.last_utilisation_pct,
+                memory: data.last_memory_used_mib,
+                maxMemory: -1
+            });
+        }
+        setGpus(tempGpus);
+    });
+};
+
 const Overview = () => {
-    const gpus = [
-        { name: "RTX 3060", user: "Delilah Han", util: 50, memory: 7432, maxMemory: 11019 },
-        { name: "RTX 2080 Ti", user: "", util: 4, memory: 500, maxMemory: 11019 },
-        { name: "V100", user: "Joe Stacey", util: 74, memory: 12302, maxMemory: 15258 },
-    ];
+    const [gpus, setGpus] = useState([]);
+
+    useEffect(() => {
+        getGpus(setGpus);
+        const interval = setInterval(() => getGpus(setGpus), 1500);
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
     const experiments = [
         {status: "success", user: "Delilah Han", name: "NLP Experiment", gpu: "GPU 0 - RTX 3060", start: 1621790591741, end: 1621820591741},
         {status: "failed", user: "Joe Stacey", name: "Muffins vs Dogs Detector", gpu: "GPU 0 - RTX 3060", start: 1621610591741, end: 1621720591741},
