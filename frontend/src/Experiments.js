@@ -35,7 +35,7 @@ const ExperimentCard = ({status, name, user, gpu, start, end}) => {
             startText = `${startDate.getDate()}/${startDate.getMonth()}/${startDate.getFullYear()}`;
         }
 
-        const endDate = new Date(end);
+        const endDate = end ? new Date(end) : currentDate;
         const duration = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
 
         infoText = (
