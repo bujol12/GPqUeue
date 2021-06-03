@@ -1,0 +1,10 @@
+compile:
+  stage: build
+  script:
+    - docker-compose build
+deploy:
+  only:
+    - main
+  stage: deploy
+  script:
+    - ./start-stag.sh
