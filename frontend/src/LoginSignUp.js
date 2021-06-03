@@ -3,7 +3,7 @@ import "./LoginSignUp.css";
 
 const Login = () => {
     return (
-        <div className="container login">
+        <div className="container container-sm-custom">
             <h1 className="pt-4 mb-4">Login</h1>
             <form action="/api/login" >
                 <div className="mb-3">
@@ -25,8 +25,22 @@ const Login = () => {
 
 const SignUp = () => {
     return (
-        <div>
-
+        <div className="container container-sm-custom">
+            <h1 className="pt-4 mb-4">Sign up</h1>
+            <form action="/api/signup" >
+                <div className="mb-3">
+                    <label htmlFor="username" className="form-label">Username</label>
+                    <input type="text" className="form-control" id="username" />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="password" className="form-label">Password</label>
+                    <input type="password" className="form-control" id="password" />
+                </div>
+                <button type="submit" className="btn btn-primary login-button">Sign up</button>
+            </form>
+            <div className="text-center pt-3">
+                <Link to="login">Have an account? Login instead</Link>
+            </div>
         </div>
     );
 };

@@ -76,6 +76,7 @@ const App = () => {
             <Navbar/>
             <div className="container">
                 <Route exact path="/" component={Login}></Route>
+                <Route exact path="/login" component={Login}></Route>
                 <Route exact path="/signup" component={SignUp}></Route>
                 <Route exact path="/overview" component={Overview}></Route>
                 <Route exact path="/myexperiments" component={MyExperiments}></Route>
