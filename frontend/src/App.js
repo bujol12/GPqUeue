@@ -57,12 +57,12 @@ const NewExperiment = () => {
                     <div id="nameHelp" className="form-text">Give your experiment a good unique name so it&apos;s easy to find later.</div>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="script" className="form-label">Python / Bash Script*</label>
-                    <input type="file" className="form-control" id="script" disabled/>
+                    <label htmlFor="script" className="form-label">Python / Bash script*</label>
+                    <input type="file" className="form-control" id="script" />
                 </div>
                 <div className="mb-3">
                     <label htmlFor="arguments" className="form-label">Command line arguments</label>
-                    <input type="text" className="form-control" id="arguments" disabled/>
+                    <input type="text" className="form-control" id="arguments" />
                 </div>
                 <button type="submit" className="btn btn-primary">Submit</button>
             </form>
