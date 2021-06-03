@@ -2,12 +2,13 @@ import os
 from typing import *
 
 from flask import Flask
+from gpu import GPU
 from mocked_gpu import MockedGPU
 
 app = Flask(__name__)
 
 HAS_GPU = ((os.environ.get("gpu") or '').lower() in ('true', '1', 't'))
-GPU_DCT = {}
+GPU_DCT: Dict[str, GPU] = {}
 
 
 @app.before_first_request
@@ -48,9 +49,9 @@ def get_ongoing_jobs() -> Dict:
 
 def mock_available_gpus():
     global GPU_DCT
-    GPU_DCT= {
+    GPU_DCT.update({
         "0": MockedGPU(name="0", model="mockedGPU", total_memory_mib=12000),
         "1": MockedGPU(name="1", model="mockedGPU", total_memory_mib=10000),
         "2": MockedGPU(name="2", model="mockedGPU", total_memory_mib=8000),
         "3": MockedGPU(name="3", model="mockedGPU", total_memory_mib=16000)
-    }
+    })
