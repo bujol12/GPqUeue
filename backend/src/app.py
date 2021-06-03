@@ -1,13 +1,17 @@
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+from flask import Flask, request
 
-from flask import Flask
+from database import Database
+from enums.job_status import JobStatus
 from gpu import GPU
+from job import Job
 from mocked_gpu import MockedGPU
 
 app = Flask(__name__)
 
 HAS_GPU = ((os.environ.get("gpu") or '').lower() in ('true', '1', 't'))
+REDIS: Optional[Database] = None
 GPU_DCT: Dict[str, GPU] = {}
 
 
@@ -17,6 +21,12 @@ def get_gpus():
         mock_available_gpus()
     else:
         pass
+
+
+@app.before_first_request
+def setup_redis():
+    global REDIS
+    REDIS = Database()
 
 
 @app.route("/hello")
@@ -39,12 +49,25 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
 
 @app.route("/finished_jobs")
 def get_finished_jobs() -> Dict[str, Any]:
-    return {}
+    return {"jobs": REDIS.fetch_all_matching('status', JobStatus.COMPLETED.value)
+                    + REDIS.fetch_all_matching('status', JobStatus.FAILED.value)}
 
 
 @app.route("/ongoing_jobs")
 def get_ongoing_jobs() -> Dict[str, Any]:
-    return {}
+    return {"jobs": REDIS.fetch_all_matching('status', JobStatus.QUEUED.value)
+                    + REDIS.fetch_all_matching('status', JobStatus.RUNNING.value)}
+
+
+@app.route("/add_job", methods=['POST'])
+def add_new_job() -> Dict[str, Any]:
+    name = request.json.get('experiment_name')
+    script_path = request.json.get('script_path')
+    cli_args = request.json.get('cli_args')
+
+    job = Job(name, script_path, cli_args)
+    REDIS.add_key(name, job.to_dict())
+    return {"status": "success"}
 
 
 def mock_available_gpus():
