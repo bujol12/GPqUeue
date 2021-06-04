@@ -33,7 +33,7 @@ const GPUOverview = ({gpus}) => {
         <div>
             <div className="row">
                 <div className="col">
-                    <h2>GPU Loads !!</h2>
+                    <h2>GPU Loads</h2>
                 </div>
             </div>
             {gpuCards}
