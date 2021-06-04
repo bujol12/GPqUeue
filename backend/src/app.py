@@ -1,8 +1,9 @@
 import os
 from typing import Any, Dict, Optional
+
 from flask import Flask, request
 
-from src.database import Database
+from src.database import get_database, setup_database
 from src.enums.job_status import JobStatus
 from src.gpu import GPU
 from src.job import Job
@@ -11,7 +12,6 @@ from src.mocked_gpu import MockedGPU
 app = Flask(__name__)
 
 HAS_GPU = ((os.environ.get("gpu") or '').lower() in ('true', '1', 't'))
-REDIS: Optional[Database] = None
 GPU_DCT: Dict[str, GPU] = {}
 
 
@@ -25,8 +25,7 @@ def get_gpus():
 
 @app.before_first_request
 def setup_redis():
-    global REDIS
-    REDIS = Database()
+    setup_database()
 
 
 @app.route("/hello")
@@ -49,14 +48,14 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
 
 @app.route("/finished_jobs")
 def get_finished_jobs() -> Dict[str, Any]:
-    return {"jobs": REDIS.fetch_all_matching('status', JobStatus.COMPLETED.value)
-                    + REDIS.fetch_all_matching('status', JobStatus.FAILED.value)}
+    return {"jobs": get_database().fetch_all_matching('status', JobStatus.COMPLETED.value)
+            + get_database().fetch_all_matching('status', JobStatus.FAILED.value)}
 
 
 @app.route("/ongoing_jobs")
 def get_ongoing_jobs() -> Dict[str, Any]:
-    return {"jobs": REDIS.fetch_all_matching('status', JobStatus.QUEUED.value)
-                    + REDIS.fetch_all_matching('status', JobStatus.RUNNING.value)}
+    return {"jobs": get_database().fetch_all_matching('status', JobStatus.QUEUED.value)
+            + get_database().fetch_all_matching('status', JobStatus.RUNNING.value)}
 
 
 @app.route("/add_job", methods=['POST'])
@@ -66,7 +65,7 @@ def add_new_job() -> Dict[str, Any]:
     cli_args = request.json.get('cli_args')
 
     job = Job(name, script_path, cli_args)
-    REDIS.add_key(name, job.to_dict())
+    get_database().add_key(name, job.to_dict())
     return {"status": "success"}
 
 
