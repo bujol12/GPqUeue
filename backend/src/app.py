@@ -2,7 +2,7 @@ import os
 from typing import Any, Dict, Optional
 
 from flask import Flask, request
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required
 
 import src.auth
 from src.database import get_database, setup_database
@@ -60,18 +60,21 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
 
 
 @app.route("/finished_jobs")
+@login_required
 def get_finished_jobs() -> Dict[str, Any]:
     return {"jobs": get_database().fetch_all_matching('status', JobStatus.COMPLETED.value)
             + get_database().fetch_all_matching('status', JobStatus.FAILED.value)}
 
 
 @app.route("/ongoing_jobs")
+@login_required
 def get_ongoing_jobs() -> Dict[str, Any]:
     return {"jobs": get_database().fetch_all_matching('status', JobStatus.QUEUED.value)
             + get_database().fetch_all_matching('status', JobStatus.RUNNING.value)}
 
 
 @app.route("/add_job", methods=['POST'])
+@login_required
 def add_new_job() -> Dict[str, Any]:
     name = request.json.get('experiment_name')
     script_path = request.json.get('script_path')
