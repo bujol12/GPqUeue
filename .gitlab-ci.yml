@@ -1,8 +1,12 @@
 compile:
   stage: build
+  only:
+    - main
   script:
     - docker-compose build
 test:
+  only:
+    - main
   stage: test
   script:
     - ./test.sh
