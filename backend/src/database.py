@@ -28,6 +28,9 @@ class Database:
                 res.append(tmp)
         return res
 
+    def exists_key(self, key: str) -> int:
+        return self.r.exists(key)
+
 
 REDIS: Optional[Database] = None
 
