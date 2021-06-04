@@ -24,7 +24,7 @@ class Database:
 
             logger.warning(tmp.get('status'))
 
-            if tmp[field] == value:
+            if field in tmp and tmp[field] == value:
                 res.append(tmp)
         return res
 
