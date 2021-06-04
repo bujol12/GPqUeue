@@ -2,17 +2,30 @@ import os
 from typing import Any, Dict, Optional
 
 from flask import Flask, request
+from flask_login import LoginManager
 
+import src.auth
 from src.database import get_database, setup_database
 from src.enums.job_status import JobStatus
 from src.gpu import GPU
 from src.job import Job
 from src.mocked_gpu import MockedGPU
+from src.user import User
 
 app = Flask(__name__)
+app.secret_key = '0785f0f7-43fd-4148-917f-62f915d94e38'  # a random uuid4
+app.register_blueprint(src.auth.bp)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 HAS_GPU = ((os.environ.get("gpu") or '').lower() in ('true', '1', 't'))
 GPU_DCT: Dict[str, GPU] = {}
+
+
+@login_manager.user_loader
+def load_user(username) -> Optional[User]:
+    return User.load(username)
 
 
 @app.before_first_request
