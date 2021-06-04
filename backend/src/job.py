@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from enum import Enum
+from typing import List, Optional, Dict, Any, Union
 from uuid import uuid4
 
 import attr
@@ -11,34 +12,41 @@ from src.user import User
 
 @attr.define(slots=False, frozen=False)
 class Job:
-    uuid: str
     name: str
-    user: User
-    status: JobStatus
-    gpus_list: List[GPU]
-
     script_path: str
-    cli_args: str
+    cli_args: str = ''
+    uuid: str = attr.ib(factory=lambda: str(uuid4().hex))
 
-    start_time: datetime
+    user: Optional[User] = None
+    gpus_list: List[GPU] = []
+
+    start_time: Optional[datetime] = None
     finish_time: Optional[datetime] = None
     duration_ms: Optional[int] = None
 
-    def __init__(self, name: str, script_path: str, cli_args: str):
-        self.uuid = str(uuid4().hex)
-        self.name = name
-        self.script_path = script_path
-        self.cli_args = cli_args
-        self.status = JobStatus.QUEUED
+    status: JobStatus = attr.ib(
+        default=JobStatus.QUEUED,
+        converter=lambda v: JobStatus(v)
+    )
+
+    def job_start(self, time: Optional[datetime] = None):
+        self.start_time = time or datetime.now()
 
     def job_finished(self, time: datetime):
         self.finish_time = time
+        assert self.start_time is not None
         self.duration_ms = int((time - self.start_time).total_seconds())
 
-    def to_dict(self):
-        return {'uuid': self.uuid, 'status': self.status.value, 'name': self.name,
-                'script_path': self.script_path, 'cli_args': self.cli_args}
+    def to_dict(self) -> Dict[str, str]:
+        _dict: Dict[str, Union[str, Enum]] = attr.asdict(
+            self,
+            filter=lambda a, v: bool(v),
+        )
+        return dict([
+            (k, v.value if isinstance(v, Enum) else v)
+            for k, v in _dict.items()
+        ])
 
     @staticmethod
-    def from_dict(self, dict: Dict[str, Any]):
+    def from_dict(dict: Dict[str, Any]):
         return Job(**dict)
