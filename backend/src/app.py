@@ -1,18 +1,31 @@
 import os
 from typing import Any, Dict, Optional
-from flask import Flask, request
 
-from src.database import Database
+from flask import Flask, request
+from flask_login import LoginManager, login_required
+
+import src.auth
+from src.database import get_database, setup_database
 from src.enums.job_status import JobStatus
 from src.gpu import GPU
 from src.job import Job
 from src.mocked_gpu import MockedGPU
+from src.user import User
 
 app = Flask(__name__)
+app.secret_key = '0785f0f7-43fd-4148-917f-62f915d94e38'  # a random uuid4
+app.register_blueprint(src.auth.bp)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 HAS_GPU = ((os.environ.get("gpu") or '').lower() in ('true', '1', 't'))
-REDIS: Optional[Database] = None
 GPU_DCT: Dict[str, GPU] = {}
+
+
+@login_manager.user_loader
+def load_user(username) -> Optional[User]:
+    return User.load(username)
 
 
 @app.before_first_request
@@ -25,8 +38,7 @@ def get_gpus():
 
 @app.before_first_request
 def setup_redis():
-    global REDIS
-    REDIS = Database()
+    setup_database()
 
 
 @app.route("/hello")
@@ -48,25 +60,28 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
 
 
 @app.route("/finished_jobs")
+@login_required
 def get_finished_jobs() -> Dict[str, Any]:
-    return {"jobs": REDIS.fetch_all_matching('status', JobStatus.COMPLETED.value)
-                    + REDIS.fetch_all_matching('status', JobStatus.FAILED.value)}
+    return {"jobs": get_database().fetch_all_matching('status', JobStatus.COMPLETED.value)
+            + get_database().fetch_all_matching('status', JobStatus.FAILED.value)}
 
 
 @app.route("/ongoing_jobs")
+@login_required
 def get_ongoing_jobs() -> Dict[str, Any]:
-    return {"jobs": REDIS.fetch_all_matching('status', JobStatus.QUEUED.value)
-                    + REDIS.fetch_all_matching('status', JobStatus.RUNNING.value)}
+    return {"jobs": get_database().fetch_all_matching('status', JobStatus.QUEUED.value)
+            + get_database().fetch_all_matching('status', JobStatus.RUNNING.value)}
 
 
 @app.route("/add_job", methods=['POST'])
+@login_required
 def add_new_job() -> Dict[str, Any]:
     name = request.json.get('experiment_name')
     script_path = request.json.get('script_path')
     cli_args = request.json.get('cli_args')
 
     job = Job(name, script_path, cli_args)
-    REDIS.add_key(name, job.to_dict())
+    get_database().add_key(name, job.to_dict())
     return {"status": "success"}
 
 
