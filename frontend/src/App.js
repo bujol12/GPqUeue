@@ -1,5 +1,5 @@
 import React from "react";
-import {Route, BrowserRouter as Router, Link} from "react-router-dom";
+import { Route, BrowserRouter as Router, Link, useLocation } from "react-router-dom";
 import {Login, SignUp} from "./LoginSignUp.js";
 import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
@@ -16,6 +16,23 @@ const NavbarLink = ({to, text}) => {
 };
 
 const Navbar = () => {
+    const location = useLocation();
+    if (location.pathname === "/" ||
+        location.pathname === "/login" ||
+        location.pathname === "/signup") {
+        console.log(location.pathname);
+        return (
+            <React.Fragment>
+                <nav className="navbar navbar-expand-xxl navbar-light bg-light">
+                    <div className="container-fluid">
+                        <Link className="navbar-brand" to="/">GPqUeue</Link>
+                        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                        </div>
+                    </div>
+                </nav>
+            </React.Fragment>
+        );
+    }
     return (
         <React.Fragment>
             <nav className="navbar navbar-expand-xxl navbar-light bg-light">
