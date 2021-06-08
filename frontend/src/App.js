@@ -3,7 +3,7 @@ import {Route, BrowserRouter as Router, Link} from "react-router-dom";
 import {Login, SignUp} from "./LoginSignUp.js";
 import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
-import {Gpus} from "./Gpus.js";
+import Gpus from "./Gpus.js";
 import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
 import "./App.css";
 
