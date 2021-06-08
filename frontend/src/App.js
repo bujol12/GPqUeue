@@ -20,7 +20,6 @@ const Navbar = () => {
     if (location.pathname === "/" ||
         location.pathname === "/login" ||
         location.pathname === "/signup") {
-        console.log(location.pathname);
         return (
             <React.Fragment>
                 <nav className="navbar navbar-expand-xxl navbar-light bg-light">
