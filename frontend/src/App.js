@@ -22,7 +22,7 @@ const Navbar = () => {
         location.pathname === "/signup") {
         return (
             <React.Fragment>
-                <nav className="navbar navbar-expand-xxl navbar-light bg-light">
+                <nav className="navbar navbar-expand-sm navbar-light bg-light">
                     <div className="container-fluid">
                         <Link className="navbar-brand" to="/">GPqUeue</Link>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
@@ -34,7 +34,7 @@ const Navbar = () => {
     }
     return (
         <React.Fragment>
-            <nav className="navbar navbar-expand-xxl navbar-light bg-light">
+            <nav className="navbar navbar-expand-sm navbar-light bg-light">
                 <div className="container-fluid">
                     <Link className="navbar-brand" to="/">GPqUeue</Link>
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
