@@ -37,6 +37,9 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
         </li>
     );
 
+    const utilPercent = Math.floor(util * 100);
+    const memoryPercent = Math.floor((Number(memory) / Number(maxMemory)) * 100);
+
     return (
         <div className="row border mb-3">
             <div className="col pt-3">
@@ -45,12 +48,26 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
                         <img className="icon" src={icon} />
                     </div>
                     <div className="col text-start">
-                        <h3>GPU {index} - {name}</h3>
-                        <p>{userText}</p>
+                        <div className="row">
+                            <div className="col">
+                                <h3>GPU {index} - {name}</h3>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <p>{userText}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="col pe-0 text-end">
-                        <p>Utilisation: {(new Number(util * 100).toPrecision(3))}%</p>
-                        <p>Memory: {memory} / {maxMemory} MiB</p>
+                    <div className="col pe-0 text-start">
+                        <span>Utilisation</span>
+                        <div className="progress">
+                            <div className="progress-bar" role="progressbar" style={{width: utilPercent + "%"}} aria-valuenow={utilPercent} aria-valuemin="0" aria-valuemax="100">{utilPercent}%</div>
+                        </div>
+                        <span>Memory {memory} / {maxMemory} MiB</span>
+                        <div className="progress mb-4">
+                            <div className="progress-bar" role="progressbar" style={{width: memoryPercent + "%"}} aria-valuenow={memoryPercent} aria-valuemin="0" aria-valuemax="100">{memoryPercent}%</div>
+                        </div>
                     </div>
                 </button>
                 <div className="collapse row" id={collapseId}>
@@ -68,7 +85,7 @@ const GPUOverview = () => {
 
     useEffect(() => {
         getGpus(setGpus);
-        const interval = setInterval(() => getGpus(setGpus), 1500);
+        const interval = setInterval(() => getGpus(setGpus), 5000);
         return () => {
             clearInterval(interval);
         };
@@ -79,16 +96,7 @@ const GPUOverview = () => {
         <GPUCard key={index} index={index} {...data} />
     );
 
-    return (
-        <div>
-            <div className="row">
-                <div className="col">
-                    <h2>GPU Loads</h2>
-                </div>
-            </div>
-            {gpuCards}
-        </div>
-    );
+    return gpuCards;
 };
 
 const GPUs = () => {
