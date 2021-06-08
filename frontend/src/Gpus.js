@@ -6,3 +6,4 @@ const Gpus = () => {
     );
 };
 
+export default Gpus;
