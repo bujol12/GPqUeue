@@ -20,8 +20,8 @@ const getGpus = (setGpus) => {
 };
 
 const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
-    const icon = user === "" ? "" : "busy.png";
-    const userText = user === "" ? "Available" : user;
+    const icon = !user ? "available.png" : "busy.png";
+    const userText = !user ? "Available" : user;
 
     return (
         <div className="row border mb-3">
