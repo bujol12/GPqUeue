@@ -5,13 +5,16 @@ const secondsToHoursMinutesSeconds = (totalSeconds) => {
     const seconds = totalSeconds % 60;
     const minutes = Math.floor(totalSeconds / 60) % 60;
     const hours = Math.floor(totalSeconds / (60 * 60));
+    if (isNaN(seconds) || isNaN(minutes) || isNaN(hours)) {
+        return "Not Available";
+    }
     return `${hours}h ${minutes}m ${seconds}s`;
 };
 
 const getInfoText = (status, startTime, endTime) => {
     let infoText;
 
-    if (status === "QUEUED") {
+    if (status.toLowerCase() === "queued") {
         infoText = (
             <div className="col align-self-center pt-3 me-3 text-end">
                 <p>Queued</p>
@@ -53,13 +56,21 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset) => {
     const runtime = Math.floor((endTime - start) / 1000);
     const statusMap = { inprogress: "Running", queued: "Queuing", success: "Completed Successfully", failed: "Failed" };
 
+    const startDate = new Date(start);
+    let startTime;
+    if (isNaN(startDate.getTime())) {
+        startTime = "Not Available";
+    } else {
+        startTime = startDate.toString();
+    }
+
     return (
         <div>
             <p>
                 Runtime: {secondsToHoursMinutesSeconds(runtime)}
             </p>
             <p>
-                Started at: {new Date(start).toString()}
+                Started at: {startTime}
             </p>
             <p>
                 Status: {statusMap[status]}
