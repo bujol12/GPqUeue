@@ -48,9 +48,12 @@ const getInfoText = (status, startTime, endTime) => {
     return infoText;
 };
 
-const ExperimentCard = ({status, name, user, gpu, start, end}) => {
+const ExperimentCard = ({ status, name, user, gpu, start, end, index }) => {
     const icon = `${status ? status.toLowerCase() : ""}.png`;
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
+    const prefix = "experimentCard";
+    const id = `${prefix}-${index}`;
+    const label = `${prefix}-label-${index}`;
 
     useEffect(() => {
         const interval = setInterval(() => setInfoText(getInfoText(status, start, end)), 1000);
@@ -59,24 +62,36 @@ const ExperimentCard = ({status, name, user, gpu, start, end}) => {
         };
     }, []);
 
-
     return (
-        <div className="row border mb-3">
-            <div className="icon-col align-self-center pt-3 mb-3 me-3">
-                <img className="icon" src={icon} />
+        <div className="mb-3">
+            <div className="accordion-item">
+                <h2 className="accordion-header" id={label}>
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
+                        <div className="row w-100">
+                            <div className="icon-col align-self-center mb-- me-3">
+                                <img className="icon" src={icon} />
+                            </div>
+                            <div className="col pt-3 me-3 text-start">
+                                <h3>{name}</h3>
+                                <p>{user} {gpu}</p>
+                            </div>
+                            {infoText}
+                        </div>
+                    </button>
+                </h2>
+                <div styles id={id} className="accordion-collapse collapse" aria-labelledby={label}>
+                    <div className="accordion-body">
+                        <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                    </div>
+                </div>
             </div>
-            <div className="col pt-3">
-                <h3>{name}</h3>
-                <p>{user} {gpu}</p>
-            </div>
-            {infoText}
         </div>
     );
 };
 
 const Experiments = ({experiments, title}) => {
     const experimentCards = experiments.map((data, index) =>
-        <ExperimentCard key={index} {...data} />
+        <ExperimentCard key={index} index={index} {...data} />
     );
     const sortRules = [
         {text: "Newest", prop: "start", increasing: true},
@@ -95,9 +110,11 @@ const Experiments = ({experiments, title}) => {
                     <SortDropdown rules={sortRules} setRule={setSortRule} />
                 </div>
             </div>
-            <Sort {...sortRule}>
-                {experimentCards}
-            </Sort>
+            <div className="accordion" id={"Experiments-" + title}>
+                <Sort {...sortRule}>
+                    {experimentCards}
+                </Sort>
+            </div>
         </div>
     );
 };
