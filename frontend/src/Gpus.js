@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
+import {secondsToHoursMinutesSeconds} from "./util.js";
 
 const getGpus = (setGpus) => {
     axios.get("/api/gpu_stats").then(res => {
@@ -25,13 +26,13 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
     const collapseId = "gpuCardCollapse" + index;
 
     let currentExperiments = [
-        {user: "Delilah Han", name: "Colddog vs Hotdog classifer"},
+        {user: "Delilah Han", name: "Colddog vs Hotdog classifer", duration: 1204},
         {user: "Joe Stacey", name: "Muffins vs Dogs Detector"},
         {user: "Sherry Edwards", name: "Hotdog classifer"},
     ].map((data, index) =>
         <li key={index} className={"list-group-item" + (index == 0 ? " active" : "")}>
             <span className="d-inline-flex w-100 justify-content-between">
-                {data.name}
+                {data.name} {data.duration ? "- " + secondsToHoursMinutesSeconds(data.duration) : ""}
                 <small>{data.user}</small>
             </span>
         </li>
