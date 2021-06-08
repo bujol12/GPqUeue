@@ -48,6 +48,32 @@ const getInfoText = (status, startTime, endTime) => {
     return infoText;
 };
 
+const ExperimentCardDetails = (end, start, status, gpu, dataset) => {
+    const endTime = end ? end : new Date().getTime();
+    const runtime = Math.floor((endTime - start) / 1000);
+    const statusMap = { inprogress: "Running", queued: "Queuing", success: "Completed Successfully", failed: "Failed" };
+
+    return (
+        <div>
+            <p>
+                Runtime: {secondsToHoursMinutesSeconds(runtime)}
+            </p>
+            <p>
+                Started at: {new Date(start).toString()}
+            </p>
+            <p>
+                Status: {statusMap[status]}
+            </p>
+            <p>
+                GPU: {gpu}
+            </p>
+            <p>
+                Dataset: {dataset}
+            </p>
+        </div>
+    );
+};
+
 const ExperimentCard = ({ status, name, user, gpu, start, end, prefix, index }) => {
     const icon = `${status ? status.toLowerCase() : ""}.png`;
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
@@ -57,7 +83,10 @@ const ExperimentCard = ({ status, name, user, gpu, start, end, prefix, index }) 
     const label = `${_prefix}-label-${index}`;
 
     useEffect(() => {
-        const interval = setInterval(() => setInfoText(getInfoText(status, start, end)), 1000);
+        const interval = setInterval(() => {
+            setInfoText(getInfoText(status, start, end));
+            setDetails(ExperimentCardDetails(end, start, status, gpu, "/some/random/path/to/the/dataset/directory"));
+        }, 1000);
         return () => {
             clearInterval(interval);
         };
@@ -82,7 +111,7 @@ const ExperimentCard = ({ status, name, user, gpu, start, end, prefix, index }) 
                 </h2>
                 <div styles id={id} className="accordion-collapse collapse" aria-labelledby={label}>
                     <div className="accordion-body">
-                        <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+                        {details}
                     </div>
                 </div>
             </div>
