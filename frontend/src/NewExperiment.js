@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import axios from "axios";
 
@@ -16,18 +16,24 @@ const postNewJob = (history, name, command) => {
     });
 };
 
-const getCurrDir = () => {
-    axios.get("api/curr_dir").then(res => {
+const getCurrDir = (setCurrentDir) => {
+    axios.get("/api/curr_dir").then(res => {
         if (res.data.status === "success") {
-            return res.data.currDir;
+            setCurrentDir(res.data.currDir);
         }
     });
-    return "no directory";
 };
 
 const NewExperiment = () => {
     const [name, setName] = useState(undefined);
     const [command, setCommand] = useState(undefined);
+    const [currentDir, setCurrentDir] = useState("No directory");
+
+        useEffect(() => {
+            getCurrDir(setCurrentDir);
+        return () => {
+        };
+    }, []);
 
     const history = useHistory();
 
@@ -38,8 +44,6 @@ const NewExperiment = () => {
     const handleSubmit = () => {
         postNewJob(history, name, command);
     };
-
-    const currentDir = getCurrDir();
 
     return (
         <div className="container container-md-custom">
