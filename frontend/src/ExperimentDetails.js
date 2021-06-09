@@ -33,7 +33,7 @@ const ExperimentDetails = ({match}) => {
     return (
         <div className="container">
             <div className="row">
-                <h1 className="pt-4 mb-4">Experiment Details {match.params.id}</h1>
+                <h1 className="pt-4 mb-4">Details - {match.params.id}</h1>
             </div>
             <div className="row">
                 <div className="col">
