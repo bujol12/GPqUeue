@@ -89,6 +89,11 @@ def _load_str(arg: str, cls: Type[GPU]) -> Optional[GPU]:
     return cls(**_data)
 
 
+@load.register(dict)
+def _load_dict(arg: Dict[str, str], cls: Type[GPU]) -> GPU:
+    return cls(**arg)
+
+
 @load.register
-def _load_gpu(gpu: GPU, cls: Type[GPU]) -> Optional[GPU]:
+def _load_gpu(gpu: GPU, cls: Type[GPU]) -> GPU:
     return gpu

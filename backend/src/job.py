@@ -147,12 +147,12 @@ class Job(ABCJob):
 
 
 @singledispatch
-def load(arg: Any, cls: Type[GPU]) -> Optional[Job]:
+def load(arg: Any, cls: Type[Job]) -> Optional[Job]:
     raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
 
 
 @load.register(str)
-def _load_str(arg: str, cls: Type[GPU]) -> Optional[Job]:
+def _load_str(arg: str, cls: Type[Job]) -> Optional[Job]:
     key: str = cls._get_DB_key(arg)
     _data: Dict[str, Union[str, float, Optional[int]]]
     _data = get_database().fetch_key(key)
@@ -163,6 +163,11 @@ def _load_str(arg: str, cls: Type[GPU]) -> Optional[Job]:
     return cls(**_data)
 
 
+@load.register(dict)
+def _load_dict(arg: Dict[str, str], cls: Type[Job]) -> Job:
+    return cls(**arg)
+
+
 @load.register
-def _load_user(arg: Job, cls: Type[GPU]) -> Optional[Job]:
+def _load_job(arg: Job, cls: Type[Job]) -> Job:
     return arg
