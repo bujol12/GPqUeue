@@ -14,17 +14,20 @@ class User:
     first_name: str = ''
     surname: str = ''
 
-    @staticmethod
-    def is_authenticated() -> bool:
-        return True
-
-    @staticmethod
-    def is_active() -> bool:
-        return True
-
-    @staticmethod
-    def is_anonymous() -> bool:
+    def is_authenticated(self) -> bool:
+        if self.username:
+            return True
         return False
+
+    def is_active(self) -> bool:
+        if self.username:
+            return True
+        return False
+
+    def is_anonymous(self) -> bool:
+        if self.username:
+            return False
+        return True
 
     def get_id(self) -> str:
         return self.username
