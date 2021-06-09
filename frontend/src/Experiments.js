@@ -3,10 +3,22 @@ import {Sort, SortDropdown} from "./Sort.js";
 import {secondsToHoursMinutesSeconds} from "./util.js";
 
 
+const postCancelJob = (uuid) => {
+    axios.post("/api/cancel_job", { uuid: uuid }).then(
+        res => {
+            console.log(res);
+            // TODO: notify success / failed
+            if (res.data.status === "success") {
+                window.location.reload();
+            }
+        }
+    );
+};
+
 const getInfoText = (status, startTime, endTime) => {
     let infoText;
 
-    if (status === "QUEUED") {
+    if (status.toLowerCase() === "queued") {
         infoText = (
             <div className="col align-self-center pt-3 me-3 text-end">
                 <p>Queued</p>
@@ -43,35 +55,101 @@ const getInfoText = (status, startTime, endTime) => {
     return infoText;
 };
 
-const ExperimentCard = ({status, name, user, gpu, start, end}) => {
+const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
+    const endTime = end ? end : new Date().getTime();
+    const runtime = Math.floor((endTime - start) / 1000);
+    const statusMap = { inprogress: "Running", queued: "Queuing", success: "Completed Successfully", failed: "Failed" };
+
+    const startDate = new Date(start);
+    let startTime;
+    if (isNaN(startDate.getTime())) {
+        startTime = "Not Available";
+    } else {
+        startTime = startDate.toString();
+    }
+
+    const handleCancel = () => {
+        postCancelJob(uuid);
+    };
+
+    const cancelButton = (
+        <button type="button" className="btn btn-danger" onClick={handleCancel}>Cancel</button>
+    );
+
+    return (
+        <div>
+            <p>
+                Runtime: {secondsToHoursMinutesSeconds(runtime)}
+            </p>
+            <p>
+                Started at: {startTime}
+            </p>
+            <p>
+                Status: {statusMap[status]}
+            </p>
+            <p>
+                GPU: {gpu}
+            </p>
+            <p>
+                Dataset: {dataset}
+            </p>
+            <p>
+                Experiment ID: {uuid}
+            </p>
+            {cancelButton}
+        </div>
+    );
+};
+
+const ExperimentCard = ({ status, name, user, gpu, start, end, uuid, prefix, index }) => {
     const icon = `${status ? status.toLowerCase() : ""}.png`;
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
+    const [details, setDetails] = useState("");
+    const _prefix = `${prefix}-experimentCard`;
+    const id = `${_prefix}-${index}`;
+    const label = `${_prefix}-label-${index}`;
 
     useEffect(() => {
-        const interval = setInterval(() => setInfoText(getInfoText(status, start, end)), 1000);
+        const interval = setInterval(() => {
+            setInfoText(getInfoText(status, start, end));
+            setDetails(ExperimentCardDetails(end, start, status, gpu, "/some/random/path/to/the/dataset/directory", uuid));
+        }, 1000);
         return () => {
             clearInterval(interval);
         };
     }, []);
 
-
     return (
-        <div className="row border mb-3">
-            <div className="icon-col align-self-center pt-3 mb-3 me-3">
-                <img className="icon" src={icon} />
+        <div className="mb-3">
+            <div className="accordion-item">
+                <h2 className="accordion-header" id={label}>
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
+                        <div className="row w-100">
+                            <div className="icon-col align-self-center mb-- me-3">
+                                <img className="icon" src={icon} />
+                            </div>
+                            <div className="col pt-3 me-3 text-start">
+                                <h3>{name}</h3>
+                                <p>{user} {gpu}</p>
+                            </div>
+                            {infoText}
+                        </div>
+                    </button>
+                </h2>
+                <div styles id={id} className="accordion-collapse collapse" aria-labelledby={label}>
+                    <div className="accordion-body">
+                        {details}
+                    </div>
+                </div>
             </div>
-            <div className="col pt-3">
-                <h3>{name}</h3>
-                <p>{user} {gpu}</p>
-            </div>
-            {infoText}
         </div>
     );
 };
 
 const Experiments = ({experiments, title}) => {
+    const prefix = title.split(' ').join('_');
     const experimentCards = experiments.map((data, index) =>
-        <ExperimentCard key={index} {...data} />
+        <ExperimentCard key={index} prefix={prefix} index={index} {...data} />
     );
     const sortRules = [
         {text: "Newest", prop: "start", increasing: true},
@@ -90,9 +168,11 @@ const Experiments = ({experiments, title}) => {
                     <SortDropdown rules={sortRules} setRule={setSortRule} />
                 </div>
             </div>
-            <Sort {...sortRule}>
-                {experimentCards}
-            </Sort>
+            <div className="accordion" id={"Experiments-" + title}>
+                <Sort {...sortRule}>
+                    {experimentCards}
+                </Sort>
+            </div>
         </div>
     );
 };
