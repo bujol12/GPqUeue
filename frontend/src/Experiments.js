@@ -109,6 +109,9 @@ const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) 
     const _prefix = `${prefix}-experimentCard`;
     const id = `${_prefix}-${uuid}`;
     const label = `${_prefix}-label-${uuid}`;
+    if (gpus === undefined) {
+        gpus = "[]";
+    }
     const gpu = gpus.slice(1, -1);
 
     useEffect(() => {
