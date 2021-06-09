@@ -1,5 +1,6 @@
-import React, {useState, useEffect} from "react";
-import {Sort, SortDropdown} from "./Sort.js";
+import React, { useState, useEffect } from "react";
+import { Sort, SortDropdown } from "./Sort.js";
+import axios from "axios";
 
 const secondsToHoursMinutesSeconds = (totalSeconds) => {
     const seconds = totalSeconds % 60;
@@ -9,6 +10,18 @@ const secondsToHoursMinutesSeconds = (totalSeconds) => {
         return "Not Available";
     }
     return `${hours}h ${minutes}m ${seconds}s`;
+};
+
+const postCancelJob = (uuid) => {
+    axios.post("/api/cancel_job", { uuid: uuid }).then(
+        res => {
+            console.log(res);
+            // TODO: notify success / failed
+            if (res.data.status === "success") {
+                window.location.reload();
+            }
+        }
+    );
 };
 
 const getInfoText = (status, startTime, endTime) => {
@@ -51,7 +64,7 @@ const getInfoText = (status, startTime, endTime) => {
     return infoText;
 };
 
-const ExperimentCardDetails = (end, start, status, gpu, dataset) => {
+const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     const endTime = end ? end : new Date().getTime();
     const runtime = Math.floor((endTime - start) / 1000);
     const statusMap = { inprogress: "Running", queued: "Queuing", success: "Completed Successfully", failed: "Failed" };
@@ -63,6 +76,14 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset) => {
     } else {
         startTime = startDate.toString();
     }
+
+    const handleCancel = () => {
+        postCancelJob(uuid);
+    };
+
+    const cancelButton = (
+        <button type="button" className="btn btn-danger" onClick={handleCancel}>Cancel</button>
+    );
 
     return (
         <div>
@@ -81,11 +102,15 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset) => {
             <p>
                 Dataset: {dataset}
             </p>
+            <p>
+                Experiment ID: {uuid}
+            </p>
+            {cancelButton}
         </div>
     );
 };
 
-const ExperimentCard = ({ status, name, user, gpu, start, end, prefix, index }) => {
+const ExperimentCard = ({ status, name, user, gpu, start, end, uuid, prefix, index }) => {
     const icon = `${status ? status.toLowerCase() : ""}.png`;
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
     const [details, setDetails] = useState("");
@@ -96,7 +121,7 @@ const ExperimentCard = ({ status, name, user, gpu, start, end, prefix, index }) 
     useEffect(() => {
         const interval = setInterval(() => {
             setInfoText(getInfoText(status, start, end));
-            setDetails(ExperimentCardDetails(end, start, status, gpu, "/some/random/path/to/the/dataset/directory"));
+            setDetails(ExperimentCardDetails(end, start, status, gpu, "/some/random/path/to/the/dataset/directory", uuid));
         }, 1000);
         return () => {
             clearInterval(interval);
