@@ -2,10 +2,10 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {msToHoursMinutesSeconds, msToTimeString} from "./util.js";
 
-const getDetails = (jobId, setDetails) => {
+const getDetails = (name, setDetails) => {
     axios.get("/api/job_details", {
         params: {
-            jobid: jobId
+            name: name
         }
     }).then((res) => {
         setDetails(res.data);
@@ -16,7 +16,7 @@ const ExperimentDetails = ({match}) => {
     const [details, setDetails] = useState(null);
 
     useEffect(() => {
-        getDetails(match.params.id, setDetails);
+        getDetails(match.params.name, setDetails);
         return () => {};
     }, []);
 
@@ -29,6 +29,16 @@ const ExperimentDetails = ({match}) => {
     }
 
     const runtime = msToHoursMinutesSeconds(details.endTime - details.startTime);
+
+    let statusColour = "";
+
+    if (details.status === "SUCCESS") {
+        statusColour = "text-success";
+    } else if (details.status === "QUEUED") {
+        statusColour = "text-warning";
+    } else {
+        statusColour = "text-danger";
+    }
 
     return (
         <div className="container">
@@ -46,19 +56,23 @@ const ExperimentDetails = ({match}) => {
                             </tr>
                             <tr>
                                 <td>Status</td>
-                                <td className="text-success">{details.status}</td>
+                                <td className={statusColour}>{details.status.toLowerCase()}</td>
+                            </tr>
+                            <tr>
+                                <td>Arguments</td>
+                                <td>{details.cli_args !== "" ? (<code>{details.cli_args}</code>) : "-"}</td>
                             </tr>
                             <tr>
                                 <td>Runtime</td>
-                                <td>{runtime}</td>
+                                <td>{details.startTime ? runtime : "-"}</td>
                             </tr>
                             <tr>
                                 <td>Started</td>
-                                <td>{msToTimeString(details.startTime)}</td>
+                                <td>{details.startTime ? msToTimeString(details.startTime) : "-"}</td>
                             </tr>
                             <tr>
                                 <td>Finished</td>
-                                <td>{msToTimeString(details.endTime)}</td>
+                                <td>{details.endTime ? msToTimeString(details.endTime) : "-"}</td>
                             </tr>
                             <tr>
                                 <td>GPU</td>
