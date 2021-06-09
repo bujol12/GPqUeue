@@ -59,7 +59,13 @@ const getInfoText = (status, startTime, endTime) => {
 const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     const endTime = end ? end : new Date().getTime();
     const runtime = Math.floor((endTime - start) / 1000);
-    const statusMap = { inprogress: "Running", queued: "Queuing", success: "Completed Successfully", failed: "Failed" };
+    const statusMap = {
+        inprogress: "Running",
+        queued: "Queuing",
+        success: "Completed Successfully",
+        failed: "Failed",
+        cancelled: "Cancelled",
+    };
 
     const startDate = new Date(start);
     let startTime;
