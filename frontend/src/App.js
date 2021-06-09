@@ -19,13 +19,27 @@ const Navbar = () => {
     const location = useLocation();
     if (location.pathname === "/" ||
         location.pathname === "/login" ||
-        location.pathname === "/signup") {
+        location.pathname === "/signup" ||
+        location.pathname === "/logout"
+    ) {
         return (
             <React.Fragment>
                 <nav className="navbar navbar-expand-sm navbar-light bg-light">
                     <div className="container-fluid">
                         <Link className="navbar-brand" to="/">GPqUeue</Link>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                            </ul>
+                            <Link to="/login">
+                                <button className="btn btn-primary ms-3">
+                                    Log in
+                                </button>
+                            </Link>
+                            <Link to="/signup">
+                                <button className="btn btn-outline-primary ms-3">
+                                    Sign up
+                                </button>
+                            </Link>
                         </div>
                     </div>
                 </nav>
