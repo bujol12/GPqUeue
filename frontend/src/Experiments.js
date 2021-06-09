@@ -86,7 +86,7 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
                 Started at: {startTime}
             </p>
             <p>
-                Status: {statusMap[status]}
+                Status: {statusMap[status.toLowerCase()]}
             </p>
             <p>
                 GPU: {gpu}
@@ -137,7 +137,7 @@ const ExperimentCard = ({ status, name, user, gpu, start, end, uuid, prefix, ind
                         </div>
                     </button>
                 </h2>
-                <div styles id={id} className="accordion-collapse collapse" aria-labelledby={label}>
+                <div id={id} className="accordion-collapse collapse" aria-labelledby={label}>
                     <div className="accordion-body">
                         {details}
                     </div>
