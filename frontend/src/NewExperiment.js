@@ -24,14 +24,47 @@ const getCurrDir = (setCurrentDir) => {
     });
 };
 
+const getGpus = (setGpus) => {
+    axios.get("/api/gpu_stats").then(res => {
+        let tempGpus = [];
+        for (const key in Object.keys(res.data)) {
+            const data = res.data[key];
+            tempGpus.push({
+                index: data.name,
+                name: data.model,
+                user: data.last_user,
+                util: data.last_utilisation_pct,
+                memory: data.last_memory_used_mib,
+                maxMemory: data.total_memory_mib
+            });
+        }
+        setGpus(tempGpus);
+    });
+};
+
+const GPUCheckbox = ({user, index, name, util, memory, maxMemory}) => {
+    return (
+        <div className="form-check">
+            <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+                GPU {index} - {name} ( {memory} / {maxMemory} MiB )
+            </label>
+        </div>
+    )
+}
+
 const NewExperiment = () => {
     const [name, setName] = useState(undefined);
     const [command, setCommand] = useState(undefined);
     const [currentDir, setCurrentDir] = useState("No directory");
+    const [gpus, setGpus] = useState([]);
 
-        useEffect(() => {
-            getCurrDir(setCurrentDir);
+    useEffect(() => {
+        getCurrDir(setCurrentDir);
+        getGpus(setGpus);
+        const interval = setInterval(() => getGpus(setGpus), 1500);
         return () => {
+            clearInterval(interval);
         };
     }, []);
 
@@ -45,25 +78,66 @@ const NewExperiment = () => {
         postNewJob(history, name, command);
     };
 
+    const gpuCheckboxes = gpus.map((data, index) =>
+        <GPUCheckbox key={index} index={index} {...data} />
+    );
+
     return (
         <div className="container container-md-custom">
             <h1 className="pt-4 mb-4">Start new experiment</h1>
             <div>
                 <div className="mb-3">
-                    <label htmlFor="experiment_name" className="form-label">Experiment name*</label>
-                    <input type="text" className="form-control" id="experiment_name" aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer" onChange={handleChange(setName)}/>
-                    <div id="nameHelp" className="form-text">Give your experiment a good unique name so it&apos;s easy to find later.</div>
+
+                    <div className="mb-3">
+                        <div className="card">
+                            <div className="card-header">
+                                Experiment Name*
+                            </div>
+                            <div className="card-body">
+                                <input type="text" className="form-control" id="experiment_name"
+                                       aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer"
+                                       onChange={handleChange(setName)}/>
+                                <div id="nameHelp" className="form-text">Give your experiment a good unique name so
+                                    it&apos;s easy to find later.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="mb-3">
-                    <label className="form-label">Current Directory:</label>
-                     <div id="nameHelp2" className="form-text"><code id="currentDir">{currentDir}</code></div>
+                    <div className="card">
+                        <div className="card-header">
+                            Current Directory
+                        </div>
+                        <div className="card-body">
+                            <div id="nameHelp2" className="form-text"><code id="currentDir">{currentDir}</code></div>
+                        </div>
+                    </div>
                 </div>
                 <div className="mb-3">
-                    <label htmlFor="cli_command" className="form-label">Shell Command*</label>
-                    <input type="text" className="form-control" id="cli_command" onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3" />
-                    <div id="nameHelp" className="form-text">Examples:</div>
-                    <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
-                    <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python /.../model.py</code></div>
+                    <div className="card">
+                        <div className="card-header">
+                            Shell Command*
+                        </div>
+                        <div className="card-body">
+                            <input type="text" className="form-control" id="cli_command"
+                                   onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3"/>
+                            <div id="nameHelp" className="form-text">Examples:</div>
+                            <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
+                            <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python
+                                /.../model.py</code></div>
+                        </div>
+                    </div>
+                </div>
+                <div className="mb-3">
+                    <div className="card">
+                        <div className="card-header">
+                            Select GPUs*
+                        </div>
+                        <div className="card-body">
+                            {gpuCheckboxes}
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Submit</button>
             </div>
@@ -74,7 +148,7 @@ const NewExperiment = () => {
 
 const NewExperimentFailed = () => {
     return (
-        < div className="container container-md-custom" >
+        < div className="container container-md-custom">
             <h1 className="pt-4 mb-4">Uh oh</h1>
             <p>Experiment failed to start. Try again <Link to="/newexperiment">here.</Link></p>
         </div>
