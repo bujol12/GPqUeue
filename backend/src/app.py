@@ -1,10 +1,10 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from flask import Flask, request
 from flask_login import LoginManager, current_user, login_required
 from webargs import fields
-from webargs.flaskparser import use_kwargs
+from webargs.flaskparser import use_args, use_kwargs
 
 import src.auth
 from src.database import get_database, setup_database
@@ -61,18 +61,59 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
     return result
 
 
+def get_jobs(
+    status_list: List[JobStatus],
+    public: bool = False
+) -> List[Dict[str, Any]]:
+    job_dict_list: List[List[Dict[str, Any]]]
+    job_dict_list = [get_database().fetch_all_matching(
+        'status',
+        status.value
+    ) for status in status_list]
+    job_list: List[Job] = [job for job in
+                           [Job.load(_dict)
+                            for _list in job_dict_list
+                            for _dict in _list]
+                           if job is not None]
+
+    result_list: List[Dict[str, Any]]
+
+    if not public:
+        result_list = [job.to_dict()
+                       for job in job_list
+                       if job.user == current_user]
+    else:
+        result_list = [job.to_dict() for job in job_list]
+
+    return result_list
+
+
 @app.route("/finished_jobs")
 @login_required
-def get_finished_jobs() -> Dict[str, Any]:
-    return {"jobs": get_database().fetch_all_matching('status', JobStatus.COMPLETED.value)
-            + get_database().fetch_all_matching('status', JobStatus.FAILED.value)}
+@use_args({
+    'public': fields.Bool(required=False, default=False, missing=False),
+})
+def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    public: bool = args['public']
+
+    return {"jobs": get_jobs(
+        [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED],
+        public=public,
+    )}
 
 
 @app.route("/ongoing_jobs")
 @login_required
-def get_ongoing_jobs() -> Dict[str, Any]:
-    return {"jobs": get_database().fetch_all_matching('status', JobStatus.QUEUED.value)
-            + get_database().fetch_all_matching('status', JobStatus.RUNNING.value)}
+@use_args({
+    'public': fields.Bool(required=False, default=False, missing=False),
+})
+def get_ongoing_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    public: bool = args['public']
+
+    return {"jobs": get_jobs(
+        [JobStatus.QUEUED, JobStatus.RUNNING],
+        public=public
+    )}
 
 
 @app.route("/add_job", methods=['POST'])
