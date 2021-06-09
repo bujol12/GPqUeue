@@ -102,13 +102,14 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     );
 };
 
-const ExperimentCard = ({ status, name, user, gpu, start, end, uuid, prefix, index }) => {
+const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) => {
     const icon = `${status ? status.toLowerCase() : ""}.png`;
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
     const [details, setDetails] = useState("");
     const _prefix = `${prefix}-experimentCard`;
-    const id = `${_prefix}-${index}`;
-    const label = `${_prefix}-label-${index}`;
+    const id = `${_prefix}-${uuid}`;
+    const label = `${_prefix}-label-${uuid}`;
+    const gpu = gpus.slice(1, -1);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -150,7 +151,7 @@ const ExperimentCard = ({ status, name, user, gpu, start, end, uuid, prefix, ind
 const Experiments = ({experiments, title}) => {
     const prefix = title.split(' ').join('_');
     const experimentCards = experiments.map((data, index) =>
-        <ExperimentCard key={index} prefix={prefix} index={index} {...data} />
+        <ExperimentCard key={index} prefix={prefix} {...data} />
     );
     const sortRules = [
         {text: "Newest", prop: "start", increasing: true},
