@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from enum import Enum
 from functools import singledispatch
 from typing import Any, Dict, Optional, Type, Union
 from uuid import uuid4
@@ -52,11 +53,36 @@ class GPU(ABCGPU):
             value_serializer=_serializer,
         )
 
-    def to_dict(self) -> Dict[str, Union[str, int, float]]:
+    def to_dict(self) -> Dict[str, Union[str, int, float, Dict[str, Any]]]:
         return self.get_stats()
 
     def dump(self) -> Dict[str, Union[str, int, float]]:
-        return self.to_dict()
+        @singledispatch
+        def _converters(arg: Any) -> Union[str, float, Optional[int]]:
+            raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
+
+        @_converters.register(str)
+        @_converters.register(int)
+        @_converters.register(float)
+        def _converters_as_is(arg: Union[str, float, int]):
+            return arg
+
+        @_converters.register(Enum)
+        def _converters_enum(arg: Enum) -> str:
+            return arg.value
+
+        @_converters.register(User)
+        def _converters_user(arg: User) -> str:
+            return arg.get_id()
+
+        _dict: Dict[str, Union[str, int, float]] = attr.asdict(
+            self,
+            filter=lambda a, v: v is not None,
+            recurse=False,
+            value_serializer=lambda inst, a, v: _converters(v),
+        )
+
+        return _dict
 
     def get_id(self) -> str:
         return self.uuid
