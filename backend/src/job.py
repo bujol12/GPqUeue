@@ -88,15 +88,35 @@ class Job(ABCJob):
     def _get_DB_key(uuid: str) -> str:
         return f'-Job-{uuid}'
 
-    def to_dict(self) -> Dict[str, Union[str, int, Dict[str, Any]]]:
+    def to_dict(self) -> Dict[str, Union[str, float, int, Dict[str, Any]]]:
+        @singledispatch
+        def _convert(arg: Any) -> Union[str, float, int, Dict[str, Any]]:
+            raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
+
+        @_convert.register(str)
+        @_convert.register(int)
+        @_convert.register(float)
+        @_convert.register(list)
+        @_convert.register(dict)
+        def _convert_as_is(
+            arg: Union[str, float, int, Dict[str, Any]]
+        ) -> Union[str, float, int, Dict[str, Any]]:
+            return arg
+
+        @_convert.register(Enum)
+        def _convert_enum(arg: Enum) -> str:
+            return arg.value
+
+        @_convert.register(datetime)
+        def _covnert_datetime(arg: datetime) -> float:
+            return arg.timestamp()
+
         _dict: Dict[str, Union[str, Enum]] = attr.asdict(
             self,
             filter=lambda a, v: v is not None,
         )
-        return dict([
-            (k, v.value if isinstance(v, Enum) else v)
-            for k, v in _dict.items()
-        ])
+
+        return dict([(k, _convert(v)) for k, v in _dict.items()])
 
     def dump(self) -> Dict[str, Union[str, float, Optional[int]]]:
         @singledispatch
