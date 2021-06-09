@@ -3,6 +3,8 @@ from typing import Any, Dict, Optional
 
 from flask import Flask, request
 from flask_login import LoginManager, current_user, login_required
+from webargs import fields
+from webargs.flaskparser import use_kwargs
 
 import src.auth
 from src.database import get_database, setup_database
@@ -83,6 +85,32 @@ def add_new_job() -> Dict[str, Any]:
 
     job = Job(name, script_path, cli_args, user=user)
     get_database().add_key(job.get_DB_key(), job.dump())
+    return {"status": "success"}
+
+
+@app.route("/cancel_job", methods=['GET', 'POST'])
+@login_required
+@use_kwargs({
+    'uuid': fields.Str(required=True),
+}, location='json')
+def cancel_job(uuid: str) -> Dict[str, Any]:
+    job: Optional[Job] = Job.load(uuid)
+    user: User = current_user
+    print(f"Received cancelling request {job}.", flush=True)
+    if job is None:
+        return {
+            "status": "failed",
+            "code": 404,
+            "error": "Job not found.",
+        }
+    if job.user != user:
+        return {
+            "status": "failed",
+            "code": 501,
+            "error": "Unauthorised.",
+        }
+    # TODO: cancel job.
+    print(f"Cancelled {job}.", flush=True)
     return {"status": "success"}
 
 
