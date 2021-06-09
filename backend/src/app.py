@@ -2,7 +2,7 @@ import os
 from typing import Any, Dict, Optional
 
 from flask import Flask, request
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager, current_user, login_required
 
 import src.auth
 from src.database import get_database, setup_database
@@ -79,9 +79,10 @@ def add_new_job() -> Dict[str, Any]:
     name = request.json.get('experiment_name')
     script_path = request.json.get('script_path')
     cli_args = request.json.get('cli_args')
+    user: User = current_user
 
-    job = Job(name, script_path, cli_args)
-    get_database().add_key(name, job.to_dict())
+    job = Job(name, script_path, cli_args, user=user)
+    get_database().add_key(job.get_DB_key(), job.dump())
     return {"status": "success"}
 
 
