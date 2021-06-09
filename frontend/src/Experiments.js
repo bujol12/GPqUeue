@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {Sort, SortDropdown} from "./Sort.js";
-import { secondsToHoursMinutesSeconds } from "./util.js";
+import {msToHoursMinutesSeconds, msToTimeString} from "./util.js";
 import axios from "axios";
-
 
 const postCancelJob = (uuid) => {
     axios.post("/api/cancel_job", { uuid: uuid }).then(
@@ -17,43 +16,22 @@ const postCancelJob = (uuid) => {
 };
 
 const getInfoText = (status, startTime, endTime) => {
-    let infoText;
-
-    if (status.toLowerCase() === "queued") {
-        infoText = (
+    if (status === "QUEUED") {
+        return (
             <div className="col align-self-center pt-3 me-3 text-end">
                 <p>Queued</p>
             </div>
         );
-    } else {
-        const startDate = new Date(startTime);
-        const currentDate = new Date();
-        const millisecondsInADay = 1000 * 60 * 60 * 24;
-        const daysSinceStart = Math.floor((currentDate.getTime() - startDate.getTime()) / millisecondsInADay);
-        let startText = "";
-
-        if (daysSinceStart === 0) {
-            startText = `${startDate.getHours()}:${startDate.getMinutes()}`;
-        } else if (daysSinceStart === 1) {
-            startText = "Yesterday";
-        } else if (daysSinceStart < 7) {
-            startText = `${daysSinceStart} days ago`;
-        } else {
-            startText = `${startDate.getDate()}/${startDate.getMonth()}/${startDate.getFullYear()}`;
-        }
-
-        const endDate = endTime ? new Date(endTime) : currentDate;
-        const duration = Math.floor((endDate.getTime() - startDate.getTime()) / 1000);
-
-        infoText = (
-            <div className="col pt-3 me-3 text-end">
-                <p>{startText}</p>
-                <p>{secondsToHoursMinutesSeconds(duration)}</p>
-            </div>
-        );
     }
 
-    return infoText;
+    endTime = endTime ? endTime : Date.now();
+
+    return (
+        <div className="col pt-3 me-3 text-end">
+            <p>{msToTimeString(startTime)}</p>
+            <p>{msToHoursMinutesSeconds(endTime - startTime)}</p>
+        </div>
+    );
 };
 
 const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
@@ -86,7 +64,7 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     return (
         <div>
             <p>
-                Runtime: {secondsToHoursMinutesSeconds(runtime)}
+                Runtime: {msToHoursMinutesSeconds(runtime)}
             </p>
             <p>
                 Started at: {startTime}
@@ -158,7 +136,7 @@ const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) 
 };
 
 const Experiments = ({experiments, title}) => {
-    const prefix = title.split(' ').join('_');
+    const prefix = title.split(" ").join("_");
     const experimentCards = experiments.map((data, index) =>
         <ExperimentCard key={index} prefix={prefix} {...data} />
     );

@@ -1,4 +1,35 @@
+import React, {useEffect, useState} from "react";
+import axios from "axios";
+import {msToHoursMinutesSeconds, msToTimeString} from "./util.js";
+
+const getDetails = (jobId, setDetails) => {
+    axios.get("/api/job_details", {
+        params: {
+            jobid: jobId
+        }
+    }).then((res) => {
+        setDetails(res.data);
+    });
+};
+
 const ExperimentDetails = ({match}) => {
+    const [details, setDetails] = useState(null);
+
+    useEffect(() => {
+        getDetails(match.params.id, setDetails);
+        return () => {};
+    }, []);
+
+    if (details == null) {
+        return (
+            <div className="container">
+                <h1 className="pt-4 mb-4">No experiment found.</h1>
+            </div>
+        );
+    }
+
+    const runtime = msToHoursMinutesSeconds(details.endTime - details.startTime);
+
     return (
         <div className="container">
             <div className="row">
@@ -11,31 +42,31 @@ const ExperimentDetails = ({match}) => {
                         <tbody>
                             <tr>
                                 <td>Project</td>
-                                <td>BERT Explainability</td>
+                                <td>{details.name}</td>
                             </tr>
                             <tr>
                                 <td>Status</td>
-                                <td className="text-success">Success</td>
+                                <td className="text-success">{details.status}</td>
                             </tr>
                             <tr>
                                 <td>Runtime</td>
-                                <td>3h 40m 4s</td>
+                                <td>{runtime}</td>
                             </tr>
                             <tr>
-                                <td>Started at</td>
-                                <td>14:16</td>
+                                <td>Started</td>
+                                <td>{msToTimeString(details.startTime)}</td>
                             </tr>
                             <tr>
-                                <td>Finished at</td>
-                                <td>17:56</td>
+                                <td>Finished</td>
+                                <td>{msToTimeString(details.endTime)}</td>
                             </tr>
                             <tr>
                                 <td>GPU</td>
-                                <td>GPU 1 - RTX 3060</td>
+                                <td>{details.gpu}</td>
                             </tr>
                             <tr>
                                 <td>Dataset</td>
-                                <td><code>/home/kdb19/data/SST2</code></td>
+                                <td><code>{details.dataset}</code></td>
                             </tr>
                         </tbody>
                     </table>
