@@ -111,12 +111,15 @@ def cancel_job(uuid: str) -> Dict[str, Any]:
         }
     # TODO: cancel job.
     print(f"Cancelled {job}.", flush=True)
+    job.cancel_job()
     return {"status": "success"}
+
 
 @app.route("/curr_dir", methods=['GET'])
 @login_required
 def get_curr_dir() -> Dict[str, Any]:
     return {"status": "success", "currDir": os.getcwd()}
+
 
 def mock_available_gpus():
     global GPU_DCT
