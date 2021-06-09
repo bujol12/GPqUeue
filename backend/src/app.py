@@ -84,6 +84,10 @@ def add_new_job() -> Dict[str, Any]:
     get_database().add_key(name, job.to_dict())
     return {"status": "success"}
 
+@app.route("/curr_dir", methods=['GET'])
+@login_required
+def get_curr_dir() -> Dict[str, Any]:
+    return {"status": "success", "currDir": os.getcwd()}
 
 def mock_available_gpus():
     global GPU_DCT
