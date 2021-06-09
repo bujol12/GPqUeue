@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, BrowserRouter as Router, Link, useLocation } from "react-router-dom";
-import {Login, SignUp} from "./LoginSignUp.js";
+import { Login, Logout, SignUp } from "./LoginSignUp.js";
 import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
 import {GPUs} from "./Gpus.js";
@@ -48,6 +48,11 @@ const Navbar = () => {
                                 New Experiment
                             </button>
                         </Link>
+                        <Link to="/logout">
+                            <button className="btn btn-outline-secondary ms-3">
+                                Log out
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </nav>
@@ -62,6 +67,7 @@ const App = () => {
             <div className="container">
                 <Route exact path="/" component={Login}></Route>
                 <Route exact path="/login" component={Login}></Route>
+                <Route exact path="/logout" component={Logout}></Route>
                 <Route exact path="/signup" component={SignUp}></Route>
                 <Route exact path="/overview" component={Overview}></Route>
                 <Route exact path="/myexperiments" component={MyExperiments}></Route>

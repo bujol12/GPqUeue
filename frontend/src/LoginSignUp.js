@@ -82,4 +82,32 @@ const SignUp = () => {
     );
 };
 
-export { Login, SignUp };
+const Logout = () => {
+    const history = useHistory();
+    axios.get("/api/logout").then(res => {
+        if (res.data.status === "success") {
+            history.push("/login");
+        } else {
+            // TODO: else logout failed
+            history.push("/login");
+        }
+    });
+
+    return (
+        <div aria-live="polite" aria-atomic="true" className="d-flex justify-content-center align-items-center w-100">
+            <div className="position-absolute top-50" style={{ width: "60%" }}>
+                <div className="progress" style={{ height: "40px" }}>
+                    <div className="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style={{ width: "100%" }}>
+                        <div className="pt-2">
+                            <h5>
+                                Logging out...
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export { Login, SignUp, Logout };
