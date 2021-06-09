@@ -70,13 +70,33 @@ class Job(ABCJob):
         converter=lambda v: JobStatus(v)
     )
 
-    def job_start(self, time: Optional[datetime] = None):
+    def start_job(self, time: Optional[datetime] = None):
         self.start_time = time or datetime.now()
+        self.status = JobStatus.RUNNING
 
-    def job_finished(self, time: datetime):
+        self.commit()
+
+    def complete_job(self, time: datetime, success: bool = True):
         self.finish_time = time
         assert self.start_time is not None
         self.duration_ms = int((time - self.start_time).total_seconds())
+        if success:
+            self.status = JobStatus.COMPLETED
+        else:
+            self.status = JobStatus.FAILED
+
+        self.commit()
+
+    def cancel_job(self, time: Optional[datetime] = None):
+        self.finish_time = time or datetime.now()
+        if self.status == JobStatus.RUNNING:
+            assert self.start_time is not None
+            self.duration_ms = int(
+                (self.finish_time - self.start_time).total_seconds())
+
+        self.status = JobStatus.CANCELLED
+
+        self.commit()
 
     def get_id(self) -> str:
         return self.uuid
@@ -140,7 +160,6 @@ class Job(ABCJob):
         @_converters.register(list)
         def _converters_list(args: List[GPU]) -> str:
             _list: List[str] = [arg.get_id() for arg in args]
-            print(f"_converters_list({_list})")
             return json.dumps(_list)
 
         @_converters.register(User)
@@ -156,6 +175,9 @@ class Job(ABCJob):
         )
 
         return _dict
+
+    def commit(self) -> bool:
+        return get_database().add_key(self.get_DB_key(), self.dump())
 
     @staticmethod
     def from_dict(dict: Dict[str, Any]):
