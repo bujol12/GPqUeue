@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
+import {secondsToHoursMinutesSeconds} from "./util.js";
 
 const getGpus = (setGpus) => {
     axios.get("/api/gpu_stats").then(res => {
@@ -20,21 +21,61 @@ const getGpus = (setGpus) => {
 };
 
 const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
-    const icon = user === "" ? "" : "busy.png";
-    const userText = user === "" ? "Available" : user;
+    const icon = !user ? "available.png" : "busy.png";
+    const userText = !user ? "Available" : user;
+    const collapseId = "gpuCardCollapse" + index;
+
+    let currentExperiments = [
+        {user: "Delilah Han", name: "Colddog vs Hotdog classifer", duration: 1204},
+        {user: "Joe Stacey", name: "Muffins vs Dogs Detector"},
+        {user: "Sherry Edwards", name: "Hotdog classifer"},
+    ].map((data, index) =>
+        <li key={index} className={"list-group-item" + (index == 0 ? " active" : "")}>
+            <span className="d-inline-flex w-100 justify-content-between">
+                {data.name} {data.duration ? "- " + secondsToHoursMinutesSeconds(data.duration) : ""}
+                <small>{data.user}</small>
+            </span>
+        </li>
+    );
+
+    const utilPercent = Math.floor(util * 100);
+    const memoryPercent = Math.floor((Number(memory) / Number(maxMemory)) * 100);
 
     return (
         <div className="row border mb-3">
-            <div className="icon-col align-self-center pt-3 mb-3 me-3">
-                <img className="icon" src={icon} />
-            </div>
             <div className="col pt-3">
-                <h3>GPU {index} - {name}</h3>
-                <p>{userText}</p>
-            </div>
-            <div className="col pt-3 me-3 text-end">
-                <p>Utilisation: {(new Number(util * 100).toPrecision(3))}%</p>
-                <p>Memory: {memory} / {maxMemory} MiB</p>
+                <button className="row gpu-card" data-bs-toggle="collapse" data-bs-target={"#" + collapseId} aria-expanded="false" aria-controls="collapseOne">
+                    <div className="icon-col align-self-center mb-3 me-3">
+                        <img className="icon" src={icon} />
+                    </div>
+                    <div className="col text-start">
+                        <div className="row">
+                            <div className="col">
+                                <h3>GPU {index} - {name}</h3>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <p>{userText}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col pe-0 text-start">
+                        <span>Utilisation</span>
+                        <div className="progress">
+                            <div className="progress-bar" role="progressbar" style={{width: utilPercent + "%"}} aria-valuenow={utilPercent} aria-valuemin="0" aria-valuemax="100">{utilPercent}%</div>
+                        </div>
+                        <span>Memory {memory} / {maxMemory} MiB</span>
+                        <div className="progress mb-4">
+                            <div className="progress-bar" role="progressbar" style={{width: memoryPercent + "%"}} aria-valuenow={memoryPercent} aria-valuemin="0" aria-valuemax="100">{memoryPercent}%</div>
+                        </div>
+                    </div>
+                </button>
+                <div className="collapse row" id={collapseId}>
+                    <ul className="list-group pe-0 list-group-flush">
+                        {currentExperiments}
+                    </ul>
+                </div>
             </div>
         </div>
     );
@@ -45,7 +86,7 @@ const GPUOverview = () => {
 
     useEffect(() => {
         getGpus(setGpus);
-        const interval = setInterval(() => getGpus(setGpus), 1500);
+        const interval = setInterval(() => getGpus(setGpus), 5000);
         return () => {
             clearInterval(interval);
         };
@@ -56,16 +97,7 @@ const GPUOverview = () => {
         <GPUCard key={index} index={index} {...data} />
     );
 
-    return (
-        <div>
-            <div className="row">
-                <div className="col">
-                    <h2>GPU Loads</h2>
-                </div>
-            </div>
-            {gpuCards}
-        </div>
-    );
+    return gpuCards;
 };
 
 const GPUs = () => {

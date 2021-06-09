@@ -40,8 +40,14 @@ class GPU:
 
             return value
 
-        return attr.asdict(
+        data = attr.asdict(
             self,
             recurse=True,
             value_serializer=_serializer,
         )
+
+        if data['last_user'] != None:
+            # Only need username of user
+            data['last_user'] = data['last_user']['username']
+
+        return data

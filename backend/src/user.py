@@ -34,11 +34,7 @@ class User:
 
     def to_dict(self, include_pw: bool = False) -> Dict[str, str]:
         def _filter(_attr: attr.Attribute, value: str) -> bool:
-            if include_pw:
-                return True
-            if _attr.name == 'hashed_pw':
-                return False
-            return True
+            return include_pw or _attr.name != 'hashed_pw'
 
         return attr.asdict(self, filter=_filter)
 
