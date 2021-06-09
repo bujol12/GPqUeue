@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -11,17 +12,21 @@ class Database:
         host='db', port=6379, db=0, charset="utf-8", decode_responses=True)
 
     def add_key(self, key: str, value: Dict[str, Any]) -> bool:
-        self.r.hmset(key, value)
+        _value: Dict[str, str] = dict(
+            [(k, json.dumps(v)) for k, v in value.items()])
+        self.r.hmset(key, _value)
+
         return True
 
     def fetch_key(self, key: str) -> Dict[str, Any]:
-        return self.r.hgetall(key)
+        _dict: Dict[str, str] = self.r.hgetall(key)
 
-    def fetch_all_matching(self, field: str, value) -> List:
+        return dict([(k, json.loads(v)) for k, v in _dict.items()])
+
+    def fetch_all_matching(self, field: str, value: Any) -> List[Any]:
         res = []
         for key in self.r.scan_iter("*"):
-            tmp = self.fetch_key(key)
-
+            tmp: Dict[str, str] = self.fetch_key(key)
             if field in tmp and tmp[field] == value:
                 res.append(tmp)
         return res
