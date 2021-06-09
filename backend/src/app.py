@@ -155,6 +155,19 @@ def cancel_job(uuid: str) -> Dict[str, Any]:
     job.cancel_job()
     return {"status": "success"}
 
+@app.route("/job_details")
+@login_required
+def get_job_details() -> Dict[str, Any]:
+    job_id = request.args.get("jobid")
+    return {
+        "job_id": job_id,
+        "name": "BERT Explainability",
+        "status": "success",
+        "start_time": 1623239004820,
+        "end_time": 1623240004820,
+        "gpu": "GPU 1 - RTX 3060",
+        "dataset": "/home/kdb19/data/SST2"
+    }
 
 @app.route("/curr_dir", methods=['GET'])
 @login_required
