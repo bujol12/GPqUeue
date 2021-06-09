@@ -48,7 +48,7 @@ class Job(ABCJob):
 
     user: Optional[User] = attr.ib(
         default=None,
-        converter=User.load,
+        converter=attr.converters.optional(User.load),
     )
     gpus_list: List[GPU] = attr.ib(
         default=[],

@@ -1,27 +1,11 @@
 from datetime import datetime
 from functools import singledispatchmethod
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 from src.types import ABCGPU, ABCJob, ABCUser
-from src.user import User
 
 
 class Converters:
-    @singledispatchmethod
-    @classmethod
-    def user_converter(cls, arg: Any) -> ABCUser:
-        raise NotImplementedError(f"Expect Dict or User, received {type(arg)}")
-
-    @user_converter.register(dict)
-    @classmethod
-    def _user_converter_dict(cls, arg: Dict[str, str]) -> ABCUser:
-        return User(**arg)
-
-    @user_converter.register(ABCUser)
-    @classmethod
-    def _user_converter_user(cls, arg: ABCUser) -> ABCUser:
-        return arg
-
     @singledispatchmethod
     @classmethod
     def to_redis(cls, arg: Any) -> str:

@@ -6,7 +6,6 @@ from uuid import uuid4
 
 import attr
 
-from src.converters import Converters
 from src.database import get_database
 from src.enums.gpu_status import GpuStatus
 from src.types import ABCGPU
@@ -27,7 +26,7 @@ class GPU(ABCGPU):
     )
     last_user: Optional[User] = attr.ib(
         default=None,
-        converter=attr.converters.optional(Converters.user_converter),
+        converter=attr.converters.optional(User.load),
         metadata={'serializer': lambda x: x if x is None else attr.asdict(x)}
     )
 

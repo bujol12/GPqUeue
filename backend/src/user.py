@@ -76,6 +76,11 @@ def _load_str(username: str, cls: Type[User]) -> Optional[User]:
     return cls(**_data)
 
 
+@load.register(dict)
+def _load_dict(arg: Dict[str, str], cls: Type[User]) -> User:
+    return cls(**arg)
+
+
 @load.register
-def _load_user(user: User, cls: Type[User]) -> Optional[User]:
+def _load_user(user: User, cls: Type[User]) -> User:
     return user
