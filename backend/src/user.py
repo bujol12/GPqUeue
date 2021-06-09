@@ -1,13 +1,16 @@
 from __future__ import annotations
-from typing import Dict, Optional
+
+from functools import singledispatch
+from typing import Any, Dict, Optional, Type
 
 import attr
 
 from src.database import get_database
+from src.types import ABCUser
 
 
 @attr.define()
-class User:
+class User(ABCUser):
     username: str
     hashed_pw: str
     email: str = ''
@@ -33,7 +36,7 @@ class User:
         return self.username
 
     def get_DB_key(self) -> str:
-        return f'-User-{self.username}'
+        return self._get_DB_key(self.username)
 
     def to_dict(self, include_pw: bool = False) -> Dict[str, str]:
         def _filter(_attr: attr.Attribute, value: str) -> bool:
@@ -45,16 +48,34 @@ class User:
 
         return attr.asdict(self, filter=_filter)
 
+    def dump(self) -> Dict[str, str]:
+        return self.to_dict(include_pw=True)
+
     @staticmethod
     def _get_DB_key(username: str) -> str:
         return f'-User-{username}'
 
     @classmethod
-    def load(cls, username: str) -> Optional[User]:
-        key: str = cls._get_DB_key(username)
-        _data: Dict[str, str] = get_database().fetch_key(key)
+    def load(cls, arg: Any) -> Optional[User]:
+        return load(arg, cls)
 
-        if _data == {}:
-            return None
 
-        return cls(**_data)
+@singledispatch
+def load(arg: Any, cls: Type[User]) -> Optional[User]:
+    raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
+
+
+@load.register(str)
+def _load_str(username: str, cls: Type[User]) -> Optional[User]:
+    key: str = cls._get_DB_key(username)
+    _data: Dict[str, str] = get_database().fetch_key(key)
+
+    if _data == {}:
+        return None
+
+    return cls(**_data)
+
+
+@load.register
+def _load_user(user: User, cls: Type[User]) -> Optional[User]:
+    return user
