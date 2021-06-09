@@ -71,11 +71,11 @@ const ExperimentDetails = ({match}) => {
                         </tbody>
                     </table>
                     <h3>Configuration</h3>
-                    <textarea style={{resize: "none", width: "100%"}} readOnly></textarea>
+                    <textarea style={{resize: "none", width: "100%"}} rows="9" readOnly>{details.configuration}</textarea>
                 </div>
                 <div className="col">
                     <h3>Log</h3>
-                    <textarea style={{resize: "none", width: "100%"}} readOnly></textarea>
+                    <textarea style={{resize: "none", width: "100%"}} rows="23" readOnly>{details.log}</textarea>
                 </div>
             </div>
         </div>

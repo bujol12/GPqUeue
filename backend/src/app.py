@@ -166,7 +166,9 @@ def get_job_details() -> Dict[str, Any]:
         "startTime": 1623239004820,
         "endTime": 1623240004820,
         "gpu": "GPU 1 - RTX 3060",
-        "dataset": "/home/kdb19/data/SST2"
+        "dataset": "/home/kdb19/data/SST2",
+        "log": "stdout blah blah",
+        "configuration": "config stuff",
     }
 
 @app.route("/curr_dir", methods=['GET'])
