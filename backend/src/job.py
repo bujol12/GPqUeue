@@ -184,7 +184,10 @@ def _load_str(arg: str, cls: Type[Job]) -> Optional[Job]:
 
 
 @load.register(dict)
-def _load_dict(arg: Dict[str, str], cls: Type[Job]) -> Job:
+def _load_dict(
+    arg: Dict[str, Union[str, float, Optional[int]]],
+    cls: Type[Job]
+) -> Job:
     return cls(**arg)
 
 
