@@ -29,7 +29,7 @@ def _load_gpus_list_as_is(arg: List[GPU]) -> List[GPU]:
 
 @_load_gpus_list.register(str)
 def _load_gpus_list_json_string(arg: str) -> List[GPU]:
-    res: Any = json.dumps(arg)
+    res: Any = json.loads(arg)
     if isinstance(res, list):
         _list: List[GPU] = [gpu
                             for gpu in map(GPU.load, res)
