@@ -14,15 +14,13 @@ class Database:
         self.r.hmset(key, value)
         return True
 
-    def fetch_key(self, key: str) -> Dict:
+    def fetch_key(self, key: str) -> Dict[str, Any]:
         return self.r.hgetall(key)
 
     def fetch_all_matching(self, field: str, value) -> List:
         res = []
         for key in self.r.scan_iter("*"):
             tmp = self.fetch_key(key)
-
-            logger.warning(tmp.get('status'))
 
             if field in tmp and tmp[field] == value:
                 res.append(tmp)
@@ -40,5 +38,9 @@ def setup_database() -> None:
     REDIS = Database()
 
 
-def get_database() -> Optional[Database]:
+def get_database() -> Database:
+    if REDIS is None:
+        setup_database()
+
+    assert REDIS is not None
     return REDIS
