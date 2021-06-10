@@ -155,7 +155,7 @@ const getExperiments = (setExperiments, endpoint) => {
                 status: res.data.jobs[key].status,
                 gpus: res.data.jobs[key].gpus_list,
                 start: res.data.jobs[key].start_time,
-                end: res.data.jobs[key].end_time,
+                end: res.data.jobs[key].finish_time,
             });
         }
         setExperiments(tempExperiments);
