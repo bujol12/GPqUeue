@@ -158,8 +158,25 @@ def cancel_job(uuid: str) -> Dict[str, Any]:
 @app.route("/job_details")
 @login_required
 def get_job_details() -> Dict[str, Any]:
-    name = request.args.get("name")
-    return get_database().fetch_key(name)
+    uuid = request.args.get("uuid")
+
+    if uuid is None:
+        return {
+            "status": "failed",
+            "code": 400,
+            "error": "UUID not supplied.",
+        }
+
+    job: Optional[Job] = Job.load(uuid)
+
+    if job is None:
+        return {
+            "status": "failed",
+            "code": 404,
+            "error": "Job not found.",
+        }
+
+    return job.to_dict()
 
 @app.route("/curr_dir", methods=['GET'])
 @login_required
