@@ -83,6 +83,10 @@ const ExperimentDetails = ({match}) => {
                                 <td>Dataset</td>
                                 <td><code>TODO</code></td>
                             </tr>
+                            <tr>
+                                <td>UUID</td>
+                                <td>{match.params.uuid}</td>
+                            </tr>
                         </tbody>
                     </table>
                     <h3>Configuration</h3>
