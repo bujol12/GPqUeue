@@ -60,15 +60,15 @@ const NewExperiment = () => {
     }, []);
 
     const GPUCheckbox = ({user, index, name, util, memory, maxMemory}) => {
-    return (
-        <div className="form-check">
-            <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" onChange={addToList(setChosenGpus)}/>
-            <label className="form-check-label" htmlFor="flexCheckDefault">
+        return (
+            <div className="form-check">
+                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" onChange={addToList(setChosenGpus)}/>
+                <label className="form-check-label" htmlFor="flexCheckDefault">
                 GPU {index} - {name} ( {memory} / {maxMemory} MiB )
-            </label>
-        </div>
-    )
-}
+                </label>
+            </div>
+        );
+    };
 
     const history = useHistory();
 
@@ -78,7 +78,7 @@ const NewExperiment = () => {
 
     const addToList = (setter, getter) => (e) => {
         setter(getter.push(e.target.value));
-    }
+    };
 
     const handleSubmit = () => {
         postNewJob(history, name, command, chosenGpus);
@@ -101,8 +101,8 @@ const NewExperiment = () => {
                             </div>
                             <div className="card-body">
                                 <input type="text" className="form-control" id="experiment_name"
-                                       aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer"
-                                       onChange={handleChange(setName)}/>
+                                    aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer"
+                                    onChange={handleChange(setName)}/>
                                 <div id="nameHelp" className="form-text">Give your experiment a good unique name so
                                     it&apos;s easy to find later.
                                 </div>
@@ -127,7 +127,7 @@ const NewExperiment = () => {
                         </div>
                         <div className="card-body">
                             <input type="text" className="form-control" id="cli_command"
-                                   onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3"/>
+                                onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3"/>
                             <div id="nameHelp" className="form-text">Examples:</div>
                             <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
                             <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python
