@@ -14,6 +14,8 @@ const postNewJob = (history, name, command, chosenGpus) => {
         } else {
             history.push("/newexperiment/failed");
         }
+    }).catch(_err => {
+        history.push("/newexperiment/failed");
     });
 };
 
