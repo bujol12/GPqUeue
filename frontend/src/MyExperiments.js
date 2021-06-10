@@ -7,10 +7,14 @@ const getExperiments = (setExperiments, endpoint) => {
         let tempExperiments = [];
         for (const key in Object.keys(res.data.jobs)) {
             tempExperiments.push({
-                status: res.data.jobs[key].status,
                 name: res.data.jobs[key].name,
-                gpu: "TODO",
-                queueing: "queued",
+                path: res.data.jobs[key].script_path,
+                uuid: res.data.jobs[key].uuid,
+                user: `${res.data.jobs[key].user.username}`,
+                status: res.data.jobs[key].status,
+                gpus: res.data.jobs[key].gpus_list,
+                start: res.data.jobs[key].start_time,
+                end: res.data.jobs[key].end_time,
             });
         }
         setExperiments(tempExperiments);

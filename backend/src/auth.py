@@ -26,7 +26,7 @@ def signup(args):
             "error": "user-exists",
         }
 
-    get_database().add_key(key, user.to_dict(include_pw=True))
+    get_database().add_key(key, user.dump())
     login_user(user)
 
     return {"status": "success"}

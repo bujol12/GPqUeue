@@ -1,10 +1,11 @@
 import React from "react";
 import { Route, BrowserRouter as Router, Link, useLocation } from "react-router-dom";
-import {Login, SignUp} from "./LoginSignUp.js";
+import { Login, Logout, SignUp } from "./LoginSignUp.js";
 import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
 import {GPUs} from "./Gpus.js";
 import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
+import ExperimentDetails from "./ExperimentDetails.js";
 import "./App.css";
 
 const NavbarLink = ({to, text}) => {
@@ -19,13 +20,27 @@ const Navbar = () => {
     const location = useLocation();
     if (location.pathname === "/" ||
         location.pathname === "/login" ||
-        location.pathname === "/signup") {
+        location.pathname === "/signup" ||
+        location.pathname === "/logout"
+    ) {
         return (
             <React.Fragment>
                 <nav className="navbar navbar-expand-sm navbar-light bg-light">
                     <div className="container-fluid">
                         <Link className="navbar-brand" to="/">GPqUeue</Link>
                         <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                            </ul>
+                            <Link to="/login">
+                                <button className="btn btn-primary ms-3">
+                                    Log in
+                                </button>
+                            </Link>
+                            <Link to="/signup">
+                                <button className="btn btn-outline-primary ms-3">
+                                    Sign up
+                                </button>
+                            </Link>
                         </div>
                     </div>
                 </nav>
@@ -48,6 +63,11 @@ const Navbar = () => {
                                 New Experiment
                             </button>
                         </Link>
+                        <Link to="/logout">
+                            <button className="btn btn-outline-secondary ms-3">
+                                Log out
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </nav>
@@ -62,9 +82,11 @@ const App = () => {
             <div className="container">
                 <Route exact path="/" component={Login}></Route>
                 <Route exact path="/login" component={Login}></Route>
+                <Route exact path="/logout" component={Logout}></Route>
                 <Route exact path="/signup" component={SignUp}></Route>
                 <Route exact path="/overview" component={Overview}></Route>
                 <Route exact path="/myexperiments" component={MyExperiments}></Route>
+                <Route exact path="/myexperiments/:uuid" component={ExperimentDetails}></Route>
                 <Route exact path="/gpus" component={GPUs}></Route>
                 <Route exact path="/newexperiment" component={NewExperiment}></Route>
                 <Route exact path="/newexperiment/failed" component={NewExperimentFailed}></Route>

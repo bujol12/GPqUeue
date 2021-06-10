@@ -1,8 +1,10 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from flask import Flask, request
-from flask_login import LoginManager, login_required
+from flask_login import LoginManager, current_user, login_required
+from webargs import fields
+from webargs.flaskparser import use_args, use_kwargs
 
 import src.auth
 from src.database import get_database, setup_database
@@ -59,18 +61,59 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
     return result
 
 
+def get_jobs(
+    status_list: List[JobStatus],
+    public: bool = False
+) -> List[Dict[str, Any]]:
+    job_dict_list: List[List[Dict[str, Any]]]
+    job_dict_list = [get_database().fetch_all_matching(
+        'status',
+        status.value
+    ) for status in status_list]
+    job_list: List[Job] = [job for job in
+                           [Job.load(_dict)
+                            for _list in job_dict_list
+                            for _dict in _list]
+                           if job is not None]
+
+    result_list: List[Dict[str, Any]]
+
+    if not public:
+        result_list = [job.to_dict()
+                       for job in job_list
+                       if job.user == current_user]
+    else:
+        result_list = [job.to_dict() for job in job_list]
+
+    return result_list
+
+
 @app.route("/finished_jobs")
 @login_required
-def get_finished_jobs() -> Dict[str, Any]:
-    return {"jobs": get_database().fetch_all_matching('status', JobStatus.COMPLETED.value)
-            + get_database().fetch_all_matching('status', JobStatus.FAILED.value)}
+@use_args({
+    'public': fields.Bool(required=False, default=False, missing=False),
+})
+def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    public: bool = args['public']
+
+    return {"jobs": get_jobs(
+        [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED],
+        public=public,
+    )}
 
 
 @app.route("/ongoing_jobs")
 @login_required
-def get_ongoing_jobs() -> Dict[str, Any]:
-    return {"jobs": get_database().fetch_all_matching('status', JobStatus.QUEUED.value)
-            + get_database().fetch_all_matching('status', JobStatus.RUNNING.value)}
+@use_args({
+    'public': fields.Bool(required=False, default=False, missing=False),
+})
+def get_ongoing_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    public: bool = args['public']
+
+    return {"jobs": get_jobs(
+        [JobStatus.QUEUED, JobStatus.RUNNING],
+        public=public
+    )}
 
 
 @app.route("/add_job", methods=['POST'])
@@ -79,16 +122,74 @@ def add_new_job() -> Dict[str, Any]:
     name = request.json.get('experiment_name')
     script_path = request.json.get('script_path')
     cli_args = request.json.get('cli_args')
+<<<<<<< HEAD
     gpus = request.json.get('gpus')
 
     job = Job(name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus)
     get_database().add_key(name, job.to_dict())
+=======
+    user: User = current_user
+
+    job = Job(name, script_path, cli_args, user=user)
+    get_database().add_key(job.get_DB_key(), job.dump())
+>>>>>>> main
     return {"status": "success"}
+
+
+@app.route("/cancel_job", methods=['GET', 'POST'])
+@login_required
+@use_kwargs({
+    'uuid': fields.Str(required=True),
+}, location='json')
+def cancel_job(uuid: str) -> Dict[str, Any]:
+    job: Optional[Job] = Job.load(uuid)
+    user: User = current_user
+    print(f"Received cancelling request {job}.", flush=True)
+    if job is None:
+        return {
+            "status": "failed",
+            "code": 404,
+            "error": "Job not found.",
+        }
+    if job.user != user:
+        return {
+            "status": "failed",
+            "code": 501,
+            "error": "Unauthorised.",
+        }
+    # TODO: cancel job.
+    print(f"Cancelled {job}.", flush=True)
+    job.cancel_job()
+    return {"status": "success"}
+
+@app.route("/job_details")
+@login_required
+def get_job_details() -> Dict[str, Any]:
+    uuid = request.args.get("uuid")
+
+    if uuid is None:
+        return {
+            "status": "failed",
+            "code": 400,
+            "error": "UUID not supplied.",
+        }
+
+    job: Optional[Job] = Job.load(uuid)
+
+    if job is None:
+        return {
+            "status": "failed",
+            "code": 404,
+            "error": "Job not found.",
+        }
+
+    return job.to_dict()
 
 @app.route("/curr_dir", methods=['GET'])
 @login_required
 def get_curr_dir() -> Dict[str, Any]:
     return {"status": "success", "currDir": os.getcwd()}
+
 
 def mock_available_gpus():
     global GPU_DCT
