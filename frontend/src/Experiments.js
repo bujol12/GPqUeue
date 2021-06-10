@@ -143,6 +143,25 @@ const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) 
     );
 };
 
+const getExperiments = (setExperiments, endpoint) => {
+    axios.get(`/api/${endpoint}`).then(res => {
+        let tempExperiments = [];
+        for (const key in Object.keys(res.data.jobs)) {
+            tempExperiments.push({
+                name: res.data.jobs[key].name,
+                path: res.data.jobs[key].script_path,
+                uuid: res.data.jobs[key].uuid,
+                user: `${res.data.jobs[key].user.username}`,
+                status: res.data.jobs[key].status,
+                gpus: res.data.jobs[key].gpus_list,
+                start: res.data.jobs[key].start_time,
+                end: res.data.jobs[key].end_time,
+            });
+        }
+        setExperiments(tempExperiments);
+    });
+};
+
 const Experiments = ({experiments, title}) => {
     const prefix = title.split(" ").join("_");
     const experimentCards = experiments.map((data, index) =>
@@ -174,4 +193,4 @@ const Experiments = ({experiments, title}) => {
     );
 };
 
-export default Experiments;
+export {Experiments, getExperiments};
