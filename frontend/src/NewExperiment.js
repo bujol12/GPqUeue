@@ -48,7 +48,7 @@ const NewExperiment = () => {
     const [command, setCommand] = useState(undefined);
     const [currentDir, setCurrentDir] = useState("No directory");
     const [gpus, setGpus] = useState([]);
-    const [chosenGpus, setChosenGpus] = useState([]);
+    const [chosenGpus, setChosenGpus] = useState(new Set());
 
     useEffect(() => {
         getCurrDir(setCurrentDir);
@@ -59,33 +59,35 @@ const NewExperiment = () => {
         };
     }, []);
 
-    const GPUCheckbox = ({user, index, name, util, memory, maxMemory}) => {
-        return (
-            <div className="form-check">
-                <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" onChange={addToList(setChosenGpus)}/>
-                <label className="form-check-label" htmlFor="flexCheckDefault">
-                GPU {index} - {name} ( {memory} / {maxMemory} MiB )
-                </label>
-            </div>
-        );
-    };
-
     const history = useHistory();
+
+    const updateChosenGpus = (index) => () => {
+        let newChosenGpus = new Set(chosenGpus);
+
+        if (chosenGpus.has(index)) {
+            newChosenGpus.delete(index);
+        } else {
+            newChosenGpus.add(index);
+        }
+
+        setChosenGpus(newChosenGpus);
+    };
 
     const handleChange = (setter) => (e) => {
         setter(e.target.value);
     };
 
-    const addToList = (setter, getter) => (e) => {
-        setter(getter.push(e.target.value));
-    };
-
     const handleSubmit = () => {
-        postNewJob(history, name, command, chosenGpus);
+        postNewJob(history, name, command, [...chosenGpus]);
     };
 
     const gpuCheckboxes = gpus.map((data, index) =>
-        <GPUCheckbox key={index} index={index} {...data} />
+        <div key={index} className="form-check">
+            <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" onChange={updateChosenGpus(data.index)} />
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+            GPU {data.index} - {data.name} ( {data.memory} / {data.maxMemory} MiB )
+            </label>
+        </div>
     );
 
     return (
