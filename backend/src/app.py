@@ -122,17 +122,12 @@ def add_new_job() -> Dict[str, Any]:
     name = request.json.get('experiment_name')
     script_path = request.json.get('script_path')
     cli_args = request.json.get('cli_args')
-<<<<<<< HEAD
-    gpus = request.json.get('gpus')
+    gpus = list(map(lambda x: GPU_DCT.get(x, None), request.json.get('gpus')))
 
     job = Job(name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus)
-    get_database().add_key(name, job.to_dict())
-=======
-    user: User = current_user
-
-    job = Job(name, script_path, cli_args, user=user)
     get_database().add_key(job.get_DB_key(), job.dump())
->>>>>>> main
+    get_database().add_key(name, job.to_dict())
+
     return {"status": "success"}
 
 
