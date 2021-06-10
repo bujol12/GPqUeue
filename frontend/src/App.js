@@ -5,6 +5,7 @@ import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
 import {GPUs} from "./Gpus.js";
 import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
+import ExperimentDetails from "./ExperimentDetails.js";
 import "./App.css";
 
 const NavbarLink = ({to, text}) => {
@@ -85,6 +86,7 @@ const App = () => {
                 <Route exact path="/signup" component={SignUp}></Route>
                 <Route exact path="/overview" component={Overview}></Route>
                 <Route exact path="/myexperiments" component={MyExperiments}></Route>
+                <Route exact path="/myexperiments/:uuid" component={ExperimentDetails}></Route>
                 <Route exact path="/gpus" component={GPUs}></Route>
                 <Route exact path="/newexperiment" component={NewExperiment}></Route>
                 <Route exact path="/newexperiment/failed" component={NewExperimentFailed}></Route>

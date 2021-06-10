@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
-import {secondsToHoursMinutesSeconds} from "./util.js";
+import {msToHoursMinutesSeconds} from "./util.js";
 
 const getGpus = (setGpus) => {
     axios.get("/api/gpu_stats").then(res => {
@@ -32,7 +32,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
     ].map((data, index) =>
         <li key={index} className={"list-group-item" + (index == 0 ? " active" : "")}>
             <span className="d-inline-flex w-100 justify-content-between">
-                {data.name} {data.duration ? "- " + secondsToHoursMinutesSeconds(data.duration) : ""}
+                {data.name} {data.duration ? "- " + msToHoursMinutesSeconds(data.duration) : ""}
                 <small>{data.user}</small>
             </span>
         </li>

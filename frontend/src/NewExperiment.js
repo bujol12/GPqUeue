@@ -29,8 +29,8 @@ const NewExperiment = () => {
     const [command, setCommand] = useState(undefined);
     const [currentDir, setCurrentDir] = useState("No directory");
 
-        useEffect(() => {
-            getCurrDir(setCurrentDir);
+    useEffect(() => {
+        getCurrDir(setCurrentDir);
         return () => {
         };
     }, []);
@@ -56,7 +56,7 @@ const NewExperiment = () => {
                 </div>
                 <div className="mb-3">
                     <label className="form-label">Current Directory:</label>
-                     <div id="nameHelp2" className="form-text"><code id="currentDir">{currentDir}</code></div>
+                    <div id="nameHelp2" className="form-text"><code id="currentDir">{currentDir}</code></div>
                 </div>
                 <div className="mb-3">
                     <label htmlFor="cli_command" className="form-label">Shell Command*</label>
