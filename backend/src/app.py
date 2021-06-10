@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import Any, Dict, List, Optional
 
 from flask import Flask, request
@@ -18,6 +19,7 @@ app = Flask(__name__)
 app.secret_key = '0785f0f7-43fd-4148-917f-62f915d94e38'  # a random uuid4
 app.register_blueprint(src.auth.bp)
 
+logger = logging.getLogger(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -124,7 +126,8 @@ def add_new_job() -> Dict[str, Any]:
     cli_args = request.json.get('cli_args')
     user: User = current_user
 
-    job = Job(name, script_path, cli_args, user=user)
+    job = Job(name, script_path, cli_args, user=user, gpus_list=list(GPU_DCT.values()))
+    job.run_job()
     get_database().add_key(job.get_DB_key(), job.dump())
     return {"status": "success"}
 
