@@ -29,4 +29,18 @@ const msToTimeString = (ms) => {
     return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
 };
 
-export {msToHoursMinutesSeconds, msToTimeString};
+const localUserStorageKey = "__GPqUeue_User_token__";
+
+function setLocalUser(user) {
+    window.localStorage.setItem(localUserStorageKey, JSON.stringify(user));
+}
+
+function getLocalUser() {
+    return JSON.parse(window.localStorage.getItem(localUserStorageKey));
+}
+
+function removeLocalUser() {
+    window.localStorage.removeItem(localUserStorageKey);
+}
+
+export { msToHoursMinutesSeconds, msToTimeString, setLocalUser, getLocalUser, removeLocalUser };

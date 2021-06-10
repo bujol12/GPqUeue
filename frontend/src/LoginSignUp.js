@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
+import { setLocalUser, removeLocalUser } from "./util";
 
 import "./LoginSignUp.css";
 
@@ -10,8 +11,10 @@ const postForm = (history, type, name, pw) => {
         password: pw,
     }).then(res => {
         if (res.data.status === "success") {
+            setLocalUser(res.data.user);
             history.push("/overview");
         } else {
+            removeLocalUser();
             history.push("/" + type);
         }
     });
@@ -85,6 +88,7 @@ const SignUp = () => {
 const Logout = () => {
     const history = useHistory();
     axios.get("/api/logout").then(res => {
+        removeLocalUser();
         if (res.data.status === "success") {
             history.push("/login");
         } else {
