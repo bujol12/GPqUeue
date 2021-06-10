@@ -7,6 +7,7 @@ import {GPUs} from "./Gpus.js";
 import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
 import ExperimentDetails from "./ExperimentDetails.js";
 import "./App.css";
+import { getLocalUser } from "./util.js";
 
 const NavbarLink = ({to, text}) => {
     return (
@@ -47,6 +48,12 @@ const Navbar = () => {
             </React.Fragment>
         );
     }
+
+    const user = () => {
+        const user = getLocalUser();
+        return user ? `Welcome, ${user.username}` : "Loading User Info...";
+    };
+
     return (
         <React.Fragment>
             <nav className="navbar navbar-expand-sm navbar-light bg-light">
@@ -54,12 +61,15 @@ const Navbar = () => {
                     <Link className="navbar-brand" to="/">GPqUeue</Link>
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                            <NavbarLink to="/overview" text="Overview"/>
-                            <NavbarLink to="/myexperiments" text="My Experiments"/>
+                            <NavbarLink to="/overview" text="Overview" />
+                            <NavbarLink to="/myexperiments" text="My Experiments" />
                             <NavbarLink to="/gpus" text="GPUs" />
                         </ul>
+                        <div className="ms-3">
+                            {user()}
+                        </div>
                         <Link to="/newexperiment">
-                            <button className="btn btn-primary">
+                            <button className="btn btn-primary ms-3">
                                 New Experiment
                             </button>
                         </Link>

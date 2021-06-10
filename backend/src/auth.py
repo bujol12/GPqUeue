@@ -29,7 +29,10 @@ def signup(args):
     get_database().add_key(key, user.dump())
     login_user(user)
 
-    return {"status": "success"}
+    return {
+        "status": "success",
+        "user": user.to_dict(),
+    }
 
 
 @bp.route("/login", methods=['GET', 'POST'])
@@ -49,7 +52,10 @@ def login(args):
     if user.hashed_pw == password:
         login_user(user)
 
-        return {"status": "success"}
+        return {
+            "status": "success",
+            "user": user.to_dict(),
+        }
     else:
         return {
             "status": "failed",
