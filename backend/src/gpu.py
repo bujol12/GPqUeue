@@ -96,6 +96,9 @@ class GPU(ABCGPU):
     def get_DB_key(self) -> str:
         return self._get_DB_key(self.uuid)
 
+    def get_name(self) -> str:
+        return self.name
+
     @staticmethod
     def _get_DB_key(uuid: str) -> str:
         return f'-GPU-{uuid}'
@@ -103,6 +106,7 @@ class GPU(ABCGPU):
     @classmethod
     def load(cls, arg: Any) -> Optional[GPU]:
         return load(arg, cls)
+
 
 
 @singledispatch
