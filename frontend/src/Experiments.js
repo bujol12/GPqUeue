@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from "react";
+import {Link} from "react-router-dom";
 import {Sort, SortDropdown} from "./Sort.js";
 import {msToHoursMinutesSeconds, msToTimeString} from "./util.js";
 import axios from "axios";
@@ -57,6 +58,10 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
         postCancelJob(uuid);
     };
 
+    const detailsButton = (
+        <Link to={"/myexperiments/" + uuid}><button type="button" className="btn btn-primary">More Details</button></Link>
+    );
+
     const cancelButton = (
         <button type="button" className="btn btn-danger" onClick={handleCancel}>Cancel</button>
     );
@@ -81,7 +86,10 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
             <p>
                 Experiment ID: {uuid}
             </p>
-            {cancelButton}
+            <div className="d-flex justify-content-between">
+                {detailsButton}
+                {cancelButton}
+            </div>
         </div>
     );
 };
