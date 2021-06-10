@@ -86,7 +86,6 @@ def get_jobs(
                        if job.user == current_user]
     else:
         result_list = [job.to_dict() for job in job_list]
-
     return result_list
 
 
@@ -97,11 +96,14 @@ def get_jobs(
 })
 def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
     public: bool = args['public']
-
-    return {"jobs": get_jobs(
+    jobs =  {"jobs": get_jobs(
         [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED],
         public=public,
     )}
+
+    logger.warning(jobs)
+
+    return jobs
 
 
 @app.route("/ongoing_jobs")
@@ -126,7 +128,7 @@ def add_new_job() -> Dict[str, Any]:
     cli_args = request.json.get('cli_args')
     gpus = list(map(lambda x: GPU_DCT.get(x, None), request.json.get('gpus')))
 
-    job = Job(name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus)
+    job = Job(name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus, user=current_user)
     job.run_job()
     
     get_database().add_key(job.get_DB_key(), job.dump())
