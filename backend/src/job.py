@@ -89,7 +89,7 @@ class Job(ABCJob):
         if available_gpus != "":
             logger.warning("Running new process")
             subprocess.call(f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path, shell=True)
-            self.status = JobStatus.COMPLETED
+            self.complete_job(datetime.now(), success=True)
 
 
     def complete_job(self, time: datetime, success: bool = True):
