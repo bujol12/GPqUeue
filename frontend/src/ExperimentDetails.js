@@ -2,10 +2,10 @@ import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {msToHoursMinutesSeconds, msToTimeString} from "./util.js";
 
-const getDetails = (name, setDetails) => {
+const getDetails = (uuid, setDetails) => {
     axios.get("/api/job_details", {
         params: {
-            name: name
+            uuid: uuid
         }
     }).then((res) => {
         setDetails(res.data);
@@ -16,7 +16,7 @@ const ExperimentDetails = ({match}) => {
     const [details, setDetails] = useState(null);
 
     useEffect(() => {
-        getDetails(match.params.name, setDetails);
+        getDetails(match.params.uuid, setDetails);
         return () => {};
     }, []);
 
@@ -24,6 +24,7 @@ const ExperimentDetails = ({match}) => {
         return (
             <div className="container">
                 <h1 className="pt-4 mb-4">No experiment found.</h1>
+                <small>UUID: {match.params.uuid}</small>
             </div>
         );
     }
@@ -43,7 +44,7 @@ const ExperimentDetails = ({match}) => {
     return (
         <div className="container">
             <div className="row">
-                <h1 className="pt-4 mb-4">Details - {match.params.id}</h1>
+                <h1 className="pt-4 mb-4">Details - {details.name}</h1>
             </div>
             <div className="row">
                 <div className="col">
@@ -76,11 +77,11 @@ const ExperimentDetails = ({match}) => {
                             </tr>
                             <tr>
                                 <td>GPU</td>
-                                <td>{details.gpu}</td>
+                                <td>TODO</td>
                             </tr>
                             <tr>
                                 <td>Dataset</td>
-                                <td><code>{details.dataset}</code></td>
+                                <td><code>TODO</code></td>
                             </tr>
                         </tbody>
                     </table>
