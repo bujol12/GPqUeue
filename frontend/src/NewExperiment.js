@@ -2,11 +2,12 @@ import React, {useEffect, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import axios from "axios";
 
-const postNewJob = (history, name, command) => {
+const postNewJob = (history, name, command, chosenGpus) => {
     axios.post("/api/add_job", {
         experiment_name: name,
         script_path: command,
         cli_args: null,
+        gpus: chosenGpus,
     }).then(res => {
         if (res.data.status === "success") {
             history.push("/myexperiments");
@@ -42,22 +43,12 @@ const getGpus = (setGpus) => {
     });
 };
 
-const GPUCheckbox = ({user, index, name, util, memory, maxMemory}) => {
-    return (
-        <div className="form-check">
-            <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
-            <label className="form-check-label" htmlFor="flexCheckDefault">
-                GPU {index} - {name} ( {memory} / {maxMemory} MiB )
-            </label>
-        </div>
-    )
-}
-
 const NewExperiment = () => {
     const [name, setName] = useState(undefined);
     const [command, setCommand] = useState(undefined);
     const [currentDir, setCurrentDir] = useState("No directory");
     const [gpus, setGpus] = useState([]);
+    const [chosenGpus, setChosenGpus] = useState([]);
 
     useEffect(() => {
         getCurrDir(setCurrentDir);
@@ -68,14 +59,29 @@ const NewExperiment = () => {
         };
     }, []);
 
+    const GPUCheckbox = ({user, index, name, util, memory, maxMemory}) => {
+    return (
+        <div className="form-check">
+            <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" onChange={addToList(setChosenGpus)}/>
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+                GPU {index} - {name} ( {memory} / {maxMemory} MiB )
+            </label>
+        </div>
+    )
+}
+
     const history = useHistory();
 
     const handleChange = (setter) => (e) => {
         setter(e.target.value);
     };
 
+    const addToList = (setter, getter) => (e) => {
+        setter(getter.push(e.target.value));
+    }
+
     const handleSubmit = () => {
-        postNewJob(history, name, command);
+        postNewJob(history, name, command, chosenGpus);
     };
 
     const gpuCheckboxes = gpus.map((data, index) =>

@@ -79,8 +79,9 @@ def add_new_job() -> Dict[str, Any]:
     name = request.json.get('experiment_name')
     script_path = request.json.get('script_path')
     cli_args = request.json.get('cli_args')
+    gpus = request.json.get('gpus')
 
-    job = Job(name, script_path, cli_args)
+    job = Job(name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus)
     get_database().add_key(name, job.to_dict())
     return {"status": "success"}
 
