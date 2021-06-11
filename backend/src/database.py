@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class Database:
     r: redis.StrictRedis = redis.StrictRedis(
-        host='db', port=6379, db=0, charset="utf-8", decode_responses=True)
+        host='db', port=6379, db=0, encoding="utf-8", decode_responses=True)
 
     def add_key(self, key: str, value: Dict[str, Any]) -> bool:
         _value: Dict[str, str] = dict(

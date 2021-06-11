@@ -13,5 +13,5 @@ class TestJob:
         assert dct_res.get('script_path', '') == 'xyz/hjk'
         assert dct_res.get('cli_args', '') == '-x'
 
-        assert len(dct_res.keys()) == 5
+        assert len(dct_res.keys()) == 6
         assert 'uuid' in dct_res.keys()
