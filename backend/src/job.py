@@ -144,8 +144,8 @@ class Job(ABCJob):
             return arg.value
 
         @_convert.register(datetime)
-        def _covnert_datetime(arg: datetime) -> float:
-            return arg.timestamp()
+        def _convert_datetime(arg: datetime) -> int:
+            return int(arg.timestamp() * 1000)
 
         _dict: Dict[str, Union[str, Enum]] = attr.asdict(
             self,
@@ -170,8 +170,8 @@ class Job(ABCJob):
             return arg.value
 
         @_converters.register(datetime)
-        def _converters_datetime(arg: datetime) -> float:
-            return arg.timestamp()
+        def _converters_datetime(arg: datetime) -> int:
+            return int(arg.timestamp() * 1000)
 
         @_converters.register(list)
         def _converters_list(args: List[GPU]) -> str:

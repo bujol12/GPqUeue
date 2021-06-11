@@ -40,11 +40,10 @@ class Converters:
     ) -> Optional[datetime]:
         return arg
 
-    @optional_datetime.register(float)
     @optional_datetime.register(int)
     @classmethod
     def _optional_datetime_float_or_int(
         cls,
         arg: Union[float, int]
     ) -> Optional[datetime]:
-        return datetime.fromtimestamp(arg)
+        return datetime.fromtimestamp(arg / 1000)
