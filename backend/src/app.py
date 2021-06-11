@@ -88,6 +88,7 @@ def get_jobs(
         result_list = [job.to_dict() for job in job_list]
 
     logger.warning("jobs: " + str(job_list))
+    logger.warning("current user: " + str(current_user))
     return result_list
 
 
