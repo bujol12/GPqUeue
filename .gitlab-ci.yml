@@ -3,6 +3,7 @@ compile:
   only:
     - main
   script:
+    - docker system prune -f --all
     - docker-compose build
 test:
   only:
