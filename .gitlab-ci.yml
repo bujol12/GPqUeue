@@ -3,17 +3,17 @@ compile:
   only:
     - main
   script:
-    - docker system prune -f --all
-    - docker-compose build
+    - sudo docker system prune -f --all
+    - sudo docker-compose build
 test:
   only:
     - main
   stage: test
   script:
-    - ./test.sh
+    - sudo ./test.sh
 deploy:
   only:
     - main
   stage: deploy
   script:
-    - ./start-stag.sh
+    - sudo ./start-stag.sh
