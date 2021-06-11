@@ -86,6 +86,9 @@ def get_jobs(
                        if job.user == current_user]
     else:
         result_list = [job.to_dict() for job in job_list]
+
+    logger.warning("jobs: " + str(job_list))
+    logger.warning("current user: " + str(current_user))
     return result_list
 
 
