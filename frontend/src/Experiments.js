@@ -59,7 +59,7 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     };
 
     const detailsButton = (
-        <Link to={"/myexperiments/" + uuid}><button type="button" className="btn btn-primary">More Details</button></Link>
+        <Link to={"/myexperiments/0/" + uuid}><button type="button" className="btn btn-primary">More Details</button></Link>
     );
 
     const cancelButton = (
