@@ -126,11 +126,17 @@ const NewExperiment = () => {
                 </div>
 
                 <div className="mb-3">
-                    <label htmlFor="cli_command" className="form-label">Shell Command*</label>
-                    <input type="text" className="form-control" id="cli_command" onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3" />
-                    <div id="nameHelp" className="form-text">Examples:</div>
-                    <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
-                    <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python /.../model.py</code></div>
+                    <div className="card">
+                        <div className="card-header">
+                            <label htmlFor="cli_command" className="form-label">Shell Command*</label>
+                        </div>
+                        <div className="card-body">
+                            <input type="text" className="form-control" id="cli_command" onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3" />
+                            <div id="nameHelp" className="form-text">Examples:</div>
+                            <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
+                            <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python /.../model.py</code></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="mb-3">
