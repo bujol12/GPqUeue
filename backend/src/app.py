@@ -205,8 +205,14 @@ def get_curr_dir() -> Dict[str, Any]:
 @app.route("/projects", methods=['GET'])
 @login_required
 def get_projects() -> Dict[str, Any]:
-    jobs = get_database().fetch_all_matching("user", current_user)
-    return {}
+    jobs = get_database().fetch_all_matching("user", current_user.username)
+    projectsSet = set([j['project'] for j in jobs])
+    projects = sorted(list(projectsSet))
+    projects.remove("General")
+    projects.insert(0, "General")
+    return {
+            "projects": projects
+    }
 
 def mock_available_gpus():
     global GPU_DCT

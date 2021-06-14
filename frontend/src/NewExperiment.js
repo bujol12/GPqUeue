@@ -20,6 +20,14 @@ const postNewJob = (history, project, name, command, chosenGpus) => {
     });
 };
 
+const getProjects = (setProjects) => {
+    axios.get("/api/projects").then((res) => {
+        if (res.data.projects) {
+            setProjects(res.data.projects);
+        }
+    });
+};
+
 const getCurrDir = (setCurrentDir) => {
     axios.get("/api/curr_dir").then(res => {
         if (res.data.status === "success") {
@@ -54,6 +62,15 @@ const NewExperiment = () => {
     const [chosenGpus, setChosenGpus] = useState(new Set());
     const [textProjectName, setTextProjectName] = useState("");
     const [dropProjectName, setDropProjectName] = useState("General");
+    const [projects, setProjects] = useState([]);
+
+    useEffect(() => {
+        getProjects(setProjects);
+    }, []);
+
+    const projectsDropdownLinks = projects.map((p, i) =>
+        <li key={i}><button className="dropdown-item" onClick={() => setDropProjectName(p)}>{p}</button></li>
+    );
 
     useEffect(() => {
         getCurrDir(setCurrentDir);
@@ -121,10 +138,7 @@ const NewExperiment = () => {
                                         {dropProjectName}
                                     </button>
                                     <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                        <li><button className="dropdown-item" onClick={() => setDropProjectName("General")}>General</button></li>
-                                        <li><button className="dropdown-item" onClick={() => setDropProjectName("Food / Animal Classifers")}>Food / Animal Classifers</button></li>
-                                        <li><button className="dropdown-item" onClick={() => setDropProjectName("Game Differentiators")}>Game Differentiators</button></li>
-                                        <li><button className="dropdown-item" onClick={() => setDropProjectName("Face Identifiers")}>Face Identifiers</button></li>
+                                        {projectsDropdownLinks}
                                     </ul>
                                 </div>
                             </div>

@@ -1,4 +1,5 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
+import axios from "axios";
 import Experiments from "./Experiments.js";
 
 const Project = ({name, project, setProject}) => {
@@ -14,19 +15,32 @@ const Project = ({name, project, setProject}) => {
     );
 };
 
+const getProjects = (setProjects) => {
+    axios.get("/api/projects").then((res) => {
+        if (res.data.projects) {
+            setProjects(res.data.projects);
+        }
+    });
+};
+
 const MyExperiments = () => {
     const [project, setProject] = useState("General");
+    const [projects, setProjects] = useState([]);
 
+    useEffect(() => {
+        getProjects(setProjects);
+    }, []);
+
+    const projectLinks = projects.map((p, i) =>
+        <Project key={i} name={p} project={project} setProject={setProject} />
+    );
 
     return (
         <div className="container row">
             <div className="col-3">
                 <h1 className="pt-4 mb-4">Projects</h1>
                 <ul className="list-group">
-                    <Project name="General" project={project} setProject={setProject} />
-                    <Project name="Food / Animal Classifers" project={project} setProject={setProject} />
-                    <Project name="Game Differentiators" project={project} setProject={setProject} />
-                    <Project name="Face Identifiers" project={project} setProject={setProject} />
+                    {projectLinks}
                 </ul>
             </div>
             <div className="col">

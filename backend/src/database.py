@@ -27,6 +27,8 @@ class Database:
         res = []
         for key in self.r.scan_iter("*"):
             tmp: Dict[str, str] = self.fetch_key(key)
+            if field in tmp:
+                logger.warning(tmp[field])
             if field in tmp and tmp[field] == value:
                 res.append(tmp)
         return res
