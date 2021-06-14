@@ -59,7 +59,7 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     };
 
     const detailsButton = (
-        <Link to={"/myexperiments/0/" + uuid}><button type="button" className="btn btn-primary">More Details</button></Link>
+        <Link to={"/myexperiments/" + uuid}><button type="button" className="btn btn-primary">More Details</button></Link>
     );
 
     const cancelButton = (
@@ -95,7 +95,7 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
 };
 
 const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) => {
-    const icon = `${status ? status.toLowerCase() : ""}.png`;
+    const icon = `/${status ? status.toLowerCase() : ""}.png`;
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
     const [details, setDetails] = useState("");
     const _prefix = `${prefix}-experimentCard`;
@@ -143,11 +143,16 @@ const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) 
     );
 };
 
-const getExperiments = (setExperiments, endpoint) => {
-    axios.get(`/api/${endpoint}`).then(res => {
+const getExperiments = (setExperiments, endpoint, project) => {
+    axios.get(`/api/${endpoint}`, {
+        params: {
+            project: project
+        }
+    }).then(res => {
         let tempExperiments = [];
         for (const key in Object.keys(res.data.jobs)) {
             tempExperiments.push({
+                project: project,
                 name: res.data.jobs[key].name,
                 path: res.data.jobs[key].script_path,
                 uuid: res.data.jobs[key].uuid,
@@ -162,8 +167,14 @@ const getExperiments = (setExperiments, endpoint) => {
     });
 };
 
-const Experiments = ({experiments, title}) => {
-    const prefix = title.split(" ").join("_");
+const Experiments = ({endpoint, project, title}) => {
+    const prefix = title.replace(" ", "_");
+    const [experiments, setExperiments] = useState([]);
+
+    useEffect(() => {
+        getExperiments(setExperiments, endpoint, project);
+    }, [project]);
+
     const experimentCards = experiments.map((data, index) =>
         <ExperimentCard key={index} prefix={prefix} {...data} />
     );
@@ -193,4 +204,4 @@ const Experiments = ({experiments, title}) => {
     );
 };
 
-export {Experiments, getExperiments};
+export default Experiments;

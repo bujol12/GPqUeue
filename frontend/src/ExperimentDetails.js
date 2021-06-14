@@ -53,6 +53,10 @@ const ExperimentDetails = ({match}) => {
                         <tbody>
                             <tr>
                                 <td>Project</td>
+                                <td>{details.project}</td>
+                            </tr>
+                            <tr>
+                                <td>Experiment Name</td>
                                 <td>{details.name}</td>
                             </tr>
                             <tr>

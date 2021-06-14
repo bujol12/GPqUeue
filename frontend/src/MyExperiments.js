@@ -1,41 +1,38 @@
-import React, {useState, useEffect} from "react";
-import {Link} from "react-router-dom";
-import {Experiments, getExperiments} from "./Experiments.js";
+import React, {useState} from "react";
+import Experiments from "./Experiments.js";
 
-const Project = ({id, name}) => {
+const Project = ({name, project, setProject}) => {
+    const isActive = name === project;
+    const classes = "list-group-item " + (isActive ? "active" : "");
+
     return (
-        <Link className="project" to={"myexperiments/" + id}>
-            <li className="list-group-item">
+        <button className="project" onClick={() => setProject(name)}>
+            <li className={classes}>
                 {name}
             </li>
-        </Link>
+        </button>
     );
 };
 
 const MyExperiments = () => {
-    const [ongoingExperiments, setOngoingExperiments] = useState([]);
-    const [finishedExperiments, setFinishedExperiments] = useState([]);
+    const [project, setProject] = useState("General");
 
-    useEffect(() => {
-        getExperiments(setOngoingExperiments, "ongoing_jobs");
-        getExperiments(setFinishedExperiments, "finished_jobs");
-    }, []);
 
     return (
         <div className="container row">
             <div className="col-3">
                 <h1 className="pt-4 mb-4">Projects</h1>
                 <ul className="list-group">
-                    <Project id={0} name="General" />
-                    <Project id={1} name="Food / Animal Classifers" />
-                    <Project id={2} name="Game Differentiators" />
-                    <Project id={3} name="Face Identifiers" />
+                    <Project name="General" project={project} setProject={setProject} />
+                    <Project name="Food / Animal Classifers" project={project} setProject={setProject} />
+                    <Project name="Game Differentiators" project={project} setProject={setProject} />
+                    <Project name="Face Identifiers" project={project} setProject={setProject} />
                 </ul>
             </div>
             <div className="col">
                 <h1 className="pt-4 mb-4">My Experiments</h1>
-                <Experiments className="mb-4" experiments={ongoingExperiments} title="Ongoing Experiments" />
-                <Experiments className="mb-4" experiments={finishedExperiments} title="Finished Experiments" />
+                <Experiments className="mb-4" endpoint="/ongoing_jobs" project={project} title="Ongoing Experiments" />
+                <Experiments className="mb-4" endpoint="/finished_jobs" project={project} title="Finished Experiments" />
             </div>
         </div>
     );

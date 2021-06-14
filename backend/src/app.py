@@ -65,6 +65,7 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
 
 def get_jobs(
     status_list: List[JobStatus],
+    project: str,
     public: bool = False
 ) -> List[Dict[str, Any]]:
     job_dict_list: List[List[Dict[str, Any]]]
@@ -83,24 +84,28 @@ def get_jobs(
     if not public:
         result_list = [job.to_dict()
                        for job in job_list
-                       if job.user == current_user]
+                       if job.user == current_user and job.project == project]
     else:
         result_list = [job.to_dict() for job in job_list]
 
     logger.warning("jobs: " + str(job_list))
     logger.warning("current user: " + str(current_user))
+    logger.warning("project: " + str(project))
     return result_list
 
 
 @app.route("/finished_jobs")
 @login_required
 @use_args({
+    'project': fields.Str(required=True),
     'public': fields.Bool(required=False, default=False, missing=False),
-})
+}, location='query')
 def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    project: str = args['project']
     public: bool = args['public']
     jobs =  {"jobs": get_jobs(
         [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED],
+        project,
         public=public,
     )}
 
@@ -112,13 +117,16 @@ def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
 @app.route("/ongoing_jobs")
 @login_required
 @use_args({
+    'project': fields.Str(required=True),
     'public': fields.Bool(required=False, default=False, missing=False),
-})
+}, location='query')
 def get_ongoing_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    project: str = args['project']
     public: bool = args['public']
 
     return {"jobs": get_jobs(
         [JobStatus.QUEUED, JobStatus.RUNNING],
+        project,
         public=public
     )}
 
@@ -126,14 +134,15 @@ def get_ongoing_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
 @app.route("/add_job", methods=['POST'])
 @login_required
 def add_new_job() -> Dict[str, Any]:
+    project = request.json.get('project')
     name = request.json.get('experiment_name')
     script_path = request.json.get('script_path')
     cli_args = request.json.get('cli_args')
     gpus = list(map(lambda x: GPU_DCT.get(x, None), request.json.get('gpus')))
 
-    job = Job(name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus, user=current_user)
+    job = Job(project=project, name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus, user=current_user)
     job.run_job()
-    
+
     get_database().add_key(job.get_DB_key(), job.dump())
 
     return {"status": "success"}
@@ -193,6 +202,11 @@ def get_job_details() -> Dict[str, Any]:
 def get_curr_dir() -> Dict[str, Any]:
     return {"status": "success", "currDir": os.getcwd()}
 
+@app.route("/projects", methods=['GET'])
+@login_required
+def get_projects() -> Dict[str, Any]:
+    jobs = get_database().fetch_all_matching("user", current_user)
+    return {}
 
 def mock_available_gpus():
     global GPU_DCT
