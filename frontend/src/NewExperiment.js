@@ -2,8 +2,9 @@ import React, {useEffect, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import axios from "axios";
 
-const postNewJob = (history, name, command, chosenGpus) => {
+const postNewJob = (history, project, name, command, chosenGpus) => {
     axios.post("/api/add_job", {
+        project: project,
         experiment_name: name,
         script_path: command,
         cli_args: null,
@@ -82,7 +83,8 @@ const NewExperiment = () => {
     };
 
     const handleSubmit = () => {
-        postNewJob(history, name, command, [...chosenGpus]);
+        const project = textProjectName !== "" ? textProjectName : dropProjectName;
+        postNewJob(history, project, name, command, [...chosenGpus]);
     };
 
     const gpuCheckboxes = gpus.map((data, index) =>
@@ -128,7 +130,7 @@ const NewExperiment = () => {
                             </div>
                         </div>
                         <div className="row pt-4">
-                            <p>Experiment will be added to <code>{textProjectName != "" ? textProjectName : dropProjectName}</code></p>
+                            <p>Experiment will be added to <code>{textProjectName !== "" ? textProjectName : dropProjectName}</code></p>
                         </div>
                     </div>
                 </div>
