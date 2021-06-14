@@ -2,8 +2,9 @@ import React, {useEffect, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import axios from "axios";
 
-const postNewJob = (history, name, command, chosenGpus) => {
+const postNewJob = (history, project, name, command, chosenGpus) => {
     axios.post("/api/add_job", {
+        project: project,
         experiment_name: name,
         script_path: command,
         cli_args: null,
@@ -16,6 +17,14 @@ const postNewJob = (history, name, command, chosenGpus) => {
         }
     }).catch(_err => {
         history.push("/newexperiment/failed");
+    });
+};
+
+const getProjects = (setProjects) => {
+    axios.get("/api/projects").then((res) => {
+        if (res.data.projects) {
+            setProjects(res.data.projects);
+        }
     });
 };
 
@@ -51,6 +60,17 @@ const NewExperiment = () => {
     const [currentDir, setCurrentDir] = useState("No directory");
     const [gpus, setGpus] = useState([]);
     const [chosenGpus, setChosenGpus] = useState(new Set());
+    const [textProjectName, setTextProjectName] = useState("");
+    const [dropProjectName, setDropProjectName] = useState("General");
+    const [projects, setProjects] = useState([]);
+
+    useEffect(() => {
+        getProjects(setProjects);
+    }, []);
+
+    const projectsDropdownLinks = projects.map((p, i) =>
+        <li key={i}><button className="dropdown-item" onClick={() => setDropProjectName(p)}>{p}</button></li>
+    );
 
     useEffect(() => {
         getCurrDir(setCurrentDir);
@@ -80,7 +100,8 @@ const NewExperiment = () => {
     };
 
     const handleSubmit = () => {
-        postNewJob(history, name, command, [...chosenGpus]);
+        const project = textProjectName !== "" ? textProjectName : dropProjectName;
+        postNewJob(history, project, name, command, [...chosenGpus]);
     };
 
     const gpuCheckboxes = gpus.map((data, index) =>
@@ -96,54 +117,82 @@ const NewExperiment = () => {
         <div className="container container-md-custom">
             <h1 className="pt-4 mb-4">Start new experiment</h1>
             <div>
-                <div className="mb-3">
 
-                    <div className="mb-3">
-                        <div className="card">
-                            <div className="card-header">
-                                Experiment Name*
+                <div className="card mb-3">
+                    <div className="card-header">
+                        Project*
+                    </div>
+                    <div className="card-body">
+                        <div className="row">
+                            <div className="col text-center">
+                                <p>Create a new project</p>
+                                <input type="text" className="form-control" placeholder="Enter a new project name" onChange={handleChange(setTextProjectName)} />
                             </div>
-                            <div className="card-body">
-                                <input type="text" className="form-control" id="experiment_name"
-                                    aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer"
-                                    onChange={handleChange(setName)}/>
-                                <div id="nameHelp" className="form-text">Give your experiment a good unique name so
-                                    it&apos;s easy to find later.
+                            <div className="col-1 text-center">
+                                <p>or</p>
+                            </div>
+                            <div className="col text-center">
+                                <p>Select an existing project</p>
+                                <div className="dropdown">
+                                    <button className="btn btn-primary dropdown-toggle w-100" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {dropProjectName}
+                                    </button>
+                                    <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                        {projectsDropdownLinks}
+                                    </ul>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div className="mb-3">
-                    <div className="card">
-                        <div className="card-header">
-                            Current Directory
-                        </div>
-                        <div className="card-body">
-                            <div id="nameHelp2" className="form-text"><code id="currentDir">{currentDir}</code></div>
+                        <div className="row pt-4">
+                            <p>Experiment will be added to <code>{textProjectName !== "" ? textProjectName : dropProjectName}</code></p>
                         </div>
                     </div>
                 </div>
 
-                <div className="mb-3">
-                    <label htmlFor="cli_command" className="form-label">Shell Command*</label>
-                    <input type="text" className="form-control" id="cli_command" onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3" />
-                    <div id="nameHelp" className="form-text">Examples:</div>
-                    <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
-                    <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python /.../model.py</code></div>
+                <div className="card mb-3">
+                    <div className="card-header">
+                        Experiment Name*
+                    </div>
+                    <div className="card-body">
+                        <input type="text" className="form-control" id="experiment_name"
+                            aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer"
+                            onChange={handleChange(setName)}/>
+                        <div id="nameHelp" className="form-text">Give your experiment a good unique name so
+                                    it&apos;s easy to find later.
+                        </div>
+                    </div>
                 </div>
 
-                <div className="mb-3">
+                <div className="card mb-3">
+                    <div className="card-header">
+                        Current Directory
+                    </div>
+                    <div className="card-body">
+                        <div id="nameHelp2" className="form-text"><code id="currentDir">{currentDir}</code></div>
+                    </div>
+                </div>
 
-                    <div className="card">
-                        <div className="card-header">
+                <div className="card mb-3">
+                    <div className="card-header">
+                        <label htmlFor="cli_command" className="form-label">Shell Command*</label>
+                    </div>
+                    <div className="card-body">
+                        <input type="text" className="form-control" id="cli_command" onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3" />
+                        <div id="nameHelp" className="form-text">Examples:</div>
+                        <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
+                        <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python /.../model.py</code></div>
+                    </div>
+                </div>
+
+                <div className="card mb-3">
+                    <div className="card-header">
                             Select GPUs*
-                        </div>
-                        <div className="card-body">
-                            {gpuCheckboxes}
-                        </div>
+                    </div>
+                    <div className="card-body">
+                        {gpuCheckboxes}
                     </div>
                 </div>
+
                 <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Submit</button>
             </div>
         </div>

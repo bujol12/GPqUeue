@@ -45,15 +45,15 @@ def _load_gpus_list_json_string(arg: str) -> List[GPU]:
 
 @attr.define(slots=False, frozen=False)
 class Job(ABCJob):
+    project: str
     name: str
     script_path: str
     cli_args: str = ''
-    uuid: str = attr.ib(factory=lambda: str(uuid4().hex))
-
-    user: Optional[User] = attr.ib(
+    user: User = attr.ib(
         default=None,
-        converter=attr.converters.optional(User.load),
+        converter=attr.converters.optional(User.load)
     )
+    uuid: str = attr.ib(factory=lambda: str(uuid4().hex))
     gpus_list: List[GPU] = attr.ib(
         default=[],
         converter=_load_gpus_list

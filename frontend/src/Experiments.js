@@ -38,13 +38,6 @@ const getInfoText = (status, startTime, endTime) => {
 const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     const endTime = end ? end : new Date().getTime();
     const runtime = Math.floor((endTime - start) / 1000);
-    const statusMap = {
-        inprogress: "Running",
-        queued: "Queuing",
-        success: "Completed Successfully",
-        failed: "Failed",
-        cancelled: "Cancelled",
-    };
 
     const startDate = new Date(start);
     let startTime;
@@ -75,7 +68,7 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
                 Started at: {startTime}
             </p>
             <p>
-                Status: {statusMap[status.toLowerCase()]}
+                Status: {status.toLowerCase()}
             </p>
             <p>
                 GPU: {gpu}
@@ -94,17 +87,17 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     );
 };
 
-const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) => {
-    const icon = `${status ? status.toLowerCase() : ""}.png`;
+const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, prefix }) => {
+    const icon = `/${status ? status.toLowerCase() : ""}.png`;
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
     const [details, setDetails] = useState("");
     const _prefix = `${prefix}-experimentCard`;
     const id = `${_prefix}-${uuid}`;
     const label = `${_prefix}-label-${uuid}`;
     if (gpus === undefined) {
-        gpus = "[]";
+        gpus = [];
     }
-    const gpu = gpus.slice(1, -1);
+    const gpu = gpus;
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -127,7 +120,7 @@ const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) 
                             </div>
                             <div className="col pt-3 me-3 text-start">
                                 <h3>{name}</h3>
-                                <p>{user} {gpu}</p>
+                                <p>{project}</p>
                             </div>
                             {infoText}
                         </div>
@@ -143,11 +136,17 @@ const ExperimentCard = ({ status, name, user, gpus, start, end, uuid, prefix }) 
     );
 };
 
-const getExperiments = (setExperiments, endpoint) => {
-    axios.get(`/api/${endpoint}`).then(res => {
+const getExperiments = (setExperiments, endpoint, project) => {
+    axios.get(`/api/${endpoint}`, {
+        params: {
+            project: project
+        }
+    }).then(res => {
         let tempExperiments = [];
         for (const key in Object.keys(res.data.jobs)) {
+            console.log(res.data.jobs[key]);
             tempExperiments.push({
+                project: project,
                 name: res.data.jobs[key].name,
                 path: res.data.jobs[key].script_path,
                 uuid: res.data.jobs[key].uuid,
@@ -162,8 +161,14 @@ const getExperiments = (setExperiments, endpoint) => {
     });
 };
 
-const Experiments = ({experiments, title}) => {
-    const prefix = title.split(" ").join("_");
+const Experiments = ({endpoint, project, title}) => {
+    const prefix = title.replace(" ", "_");
+    const [experiments, setExperiments] = useState([]);
+
+    useEffect(() => {
+        getExperiments(setExperiments, endpoint, project);
+    }, [project]);
+
     const experimentCards = experiments.map((data, index) =>
         <ExperimentCard key={index} prefix={prefix} {...data} />
     );
@@ -193,4 +198,4 @@ const Experiments = ({experiments, title}) => {
     );
 };
 
-export {Experiments, getExperiments};
+export default Experiments;
