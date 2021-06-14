@@ -21,3 +21,15 @@
   outline: inherit;
   width: 100%;
 }
+
+.project {
+  text-decoration: none;
+  border: none;
+  box-shadow: none;
+  background-color: none;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
