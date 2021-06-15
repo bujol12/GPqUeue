@@ -42,7 +42,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
     const memoryPercent = Math.floor((Number(memory) / Number(maxMemory)) * 100);
 
     return (
-        <div className="accordion border mb-3">
+        <div className="accordion mb-3">
             <div className="accordion-item">
                 <div className="accordion-header">
                     <button className="accordion-button collapsed gpu-card pt-3 ps-3 pe-3" data-bs-toggle="collapse" data-bs-target={"#" + collapseId} aria-expanded="false" aria-controls="collapseOne">
