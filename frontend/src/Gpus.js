@@ -30,7 +30,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
         {user: "Joe Stacey", name: "Muffins vs Dogs Detector"},
         {user: "Sherry Edwards", name: "Hotdog classifer"},
     ].map((data, index) =>
-        <li key={index} className={"list-group-item" + (index == 0 ? " active" : "")}>
+        <li key={index} className={"list-group-item" + (index == 0 ? " text-primary" : "")}>
             <span className="d-inline-flex w-100 justify-content-between">
                 {data.name} {data.duration ? "- " + msToHoursMinutesSeconds(data.duration) : ""}
                 <small>{data.user}</small>
@@ -74,7 +74,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
                     </button>
                 </div>
                 <div className="accordian-body collapse" id={collapseId}>
-                    <ul className="list-group pe-0 pt-1 list-group-flush">
+                    <ul className="list-group pe-0 list-group-flush">
                         {currentExperiments}
                     </ul>
                 </div>
