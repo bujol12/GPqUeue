@@ -74,6 +74,11 @@ class Job(ABCJob):
         converter=lambda v: JobStatus(v)
     )
 
+    def add_to_queue(self, gpu: GPU):
+        curr_queue = gpu.fetch_queue()
+        curr_queue.append(self)
+        gpu.set_queue(curr_queue)
+
     def start_job(self, time: Optional[datetime] = None):
         self.start_time = time or datetime.now()
         self.status = JobStatus.RUNNING

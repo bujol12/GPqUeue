@@ -141,7 +141,11 @@ def add_new_job() -> Dict[str, Any]:
     gpus = list(map(lambda x: GPU_DCT.get(x, None), request.json.get('gpus')))
 
     job = Job(project=project, name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus, user=current_user)
-    job.run_job()
+
+    for gpu in gpus:
+        job.add_to_queue(gpu)
+
+    #job.run_job()
 
     get_database().add_key(job.get_DB_key(), job.dump())
 

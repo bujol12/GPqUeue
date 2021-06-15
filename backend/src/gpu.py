@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from functools import singledispatch
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, Optional, Type, Union, List
 from uuid import uuid4
 
 import attr
@@ -33,6 +33,15 @@ class GPU(ABCGPU):
 
     last_utilisation_pct: float = 0.0
     last_memory_used_mib: float = 0.0
+
+    def get_queue_key(self):
+        return "gpu_queue_" + self.name
+
+    def set_queue(self, new_queue: List[Any]):
+        return
+
+    def fetch_queue(self):
+        return []
 
     def get_stats(self):
         def _serializer(
