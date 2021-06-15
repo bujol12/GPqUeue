@@ -37,7 +37,7 @@ const getInfoText = (status, startTime, endTime) => {
 
 const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     const endTime = end ? end : new Date().getTime();
-    const runtime = Math.floor((endTime - start) / 1000);
+    const runtime = Math.floor((endTime - start));
 
     const startDate = new Date(start);
     let startTime;
@@ -59,26 +59,46 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
         <button type="button" className="btn btn-danger" onClick={handleCancel}>Cancel</button>
     );
 
+    let statusColour = "";
+
+    if (status === "COMPLETED") {
+        statusColour = "text-success";
+    } else if (status === "QUEUED") {
+        statusColour = "text-warning";
+    } else {
+        statusColour = "text-danger";
+    }
+
     return (
         <div>
-            <p>
-                Runtime: {msToHoursMinutesSeconds(runtime)}
-            </p>
-            <p>
-                Started at: {startTime}
-            </p>
-            <p>
-                Status: {status.toLowerCase()}
-            </p>
-            <p>
-                GPU: {gpu}
-            </p>
-            <p>
-                Dataset: {dataset}
-            </p>
-            <p>
-                Experiment ID: {uuid}
-            </p>
+            <table className="table">
+                <tbody>
+                    <tr>
+                        <td>Runtime</td>
+                        <td>{msToHoursMinutesSeconds(runtime)}</td>
+                    </tr>
+                    <tr>
+                        <td>Started</td>
+                        <td>{startTime}</td>
+                    </tr>
+                    <tr>
+                        <td>td> Status</td>
+                        <td className={statusColour}>{status.toLowerCase()}</td>
+                    </tr>
+                    <tr>
+                        <td>GPU</td>
+                        <td>TODO</td>
+                    </tr>
+                    <tr>
+                        <td>Dataset</td>
+                        <td><code>{dataset}</code></td>
+                    </tr>
+                    <tr>
+                        <td>UUID</td>
+                        <td>{uuid}</td>
+                    </tr>
+                </tbody>
+            </table>
             <div className="d-flex justify-content-between">
                 {detailsButton}
                 {cancelButton}
