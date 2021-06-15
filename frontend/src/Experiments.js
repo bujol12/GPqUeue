@@ -179,6 +179,20 @@ const Experiments = ({endpoint, project, title}) => {
     ];
     const [sortRule, setSortRule] = useState(sortRules[0]);
 
+    let contents;
+
+    if (experimentCards.length === 0) {
+        contents = (
+            <h4 className="p-1 ms-2 text-muted">No {title.toLowerCase()}</h4>
+        );
+    } else {
+        contents = (
+            <Sort {...sortRule}>
+                {experimentCards}
+            </Sort>
+        );
+    }
+
     return (
         <div>
             <div className="row">
@@ -189,11 +203,7 @@ const Experiments = ({endpoint, project, title}) => {
                     <SortDropdown rules={sortRules} setRule={setSortRule} />
                 </div>
             </div>
-            <div className="accordion" id={"Experiments-" + title}>
-                <Sort {...sortRule}>
-                    {experimentCards}
-                </Sort>
-            </div>
+            {contents}
         </div>
     );
 };
