@@ -212,7 +212,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Submit</button>
+                <button type="submit" className="btn btn-primary w-100" onClick={handleSubmit}>Submit</button>
             </div>
         </div>
     );
