@@ -14,14 +14,19 @@ class Database:
     def add_key(self, key: str, value: Dict[str, Any]) -> bool:
         _value: Dict[str, str] = dict(
             [(k, json.dumps(v)) for k, v in value.items()])
-        self.r.hmset(key, _value)
+        self.r.set(key, json.dumps(value))
+        logger.warning("value: " + json.dumps(value))
 
         return True
 
     def fetch_key(self, key: str) -> Dict[str, Any]:
-        _dict: Dict[str, str] = self.r.hgetall(key)
+        #_dict: Dict[str, str] = self.r.get(key)
+        v = self.r.get(key)
+        if v is None:
+            return {}
+        return json.loads(self.r.get(key))
 
-        return dict([(k, json.loads(v)) for k, v in _dict.items()])
+        #return dict([(k, json.loads(v)) for k, v in _dict.items()])
 
     def fetch_all_matching(self, field: str, value: Any) -> List[Any]:
         res = []

@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 @singledispatch
 def _load_gpus_list(arg: Any) -> List[GPU]:
-    raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
+    return arg
 
 
 @_load_gpus_list.register(list)
@@ -74,9 +74,12 @@ class Job(ABCJob):
         converter=lambda v: JobStatus(v)
     )
 
+    process: Optional[subprocess.Popen] = None
+
     def add_to_queue(self, gpu: GPU):
         curr_queue = gpu.fetch_queue()
         curr_queue.append(self)
+        logger.warning(curr_queue)
         gpu.set_queue(curr_queue)
 
     def start_job(self, time: Optional[datetime] = None):
@@ -92,10 +95,16 @@ class Job(ABCJob):
         available_gpus = ",".join(map(lambda obj: obj.get_name(), self.gpus_list))
 
         if available_gpus != "":
+            for gpu in self.gpus_list:
+                gpu.set_busy()
             logger.warning("Running new process")
-            subprocess.call(f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path, shell=True)
-            self.complete_job(datetime.now(), success=True)
+            self.process = subprocess.Popen([f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path])
 
+    def is_finished(self):
+        if self.process is not None and self.process.poll() is not None:
+            logger.warning("JOB FINISHED")
+            return True
+        return False
 
     def complete_job(self, time: datetime, success: bool = True):
         self.finish_time = time
@@ -105,6 +114,9 @@ class Job(ABCJob):
             self.status = JobStatus.COMPLETED
         else:
             self.status = JobStatus.FAILED
+
+        for gpu in self.gpus_list:
+            gpu.set_idle()
 
         self.commit()
 
@@ -180,7 +192,7 @@ class Job(ABCJob):
 
         @_converters.register(list)
         def _converters_list(args: List[GPU]) -> str:
-            _list: List[str] = [arg.get_id() for arg in args]
+            _list: List[str] = [arg.get_name() for arg in args]
             return json.dumps(_list)
 
         @_converters.register(User)

@@ -22,7 +22,6 @@ class MockedGPU(GPU):
         return super().get_stats()
 
     def fetch_stats(self) -> None:
-        self.last_status = random.choice([e.value for e in JobStatus])
         if random.random() < 0.5:
             self.last_user = None
         else:

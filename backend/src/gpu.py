@@ -21,9 +21,8 @@ class GPU(ABCGPU):
     model: str
     total_memory_mib: int
     uuid: str = attr.ib(factory=lambda: str(uuid4().hex))
-
     last_status: Optional[GpuStatus] = attr.ib(
-        default=None,
+        default=GpuStatus.IDLE,
         converter=attr.converters.optional(lambda x: GpuStatus(x)),
         metadata={'serializer': lambda x: x if x is None else str(x)}
     )
@@ -42,10 +41,22 @@ class GPU(ABCGPU):
     def set_queue(self, new_queue: List[Any]):
         get_database().add_key(self.get_queue_key(), {'queue': [v.dump() for v in new_queue]})
 
+    def is_idle(self):
+        BUSY_PCT_THRESHOLD = 0.10
+        self.get_stats()
+        return self.last_status == GpuStatus.IDLE
+        #and (self.last_memory_used_mib / self.total_memory_mib) < BUSY_PCT_THRESHOLD
+
     def fetch_queue(self):
         queue = get_database().fetch_key(self.get_queue_key()).get('queue', [])
-        logger.warning("queue: " + str(queue))
         return queue
+
+    def set_idle(self):
+        self.last_status = GpuStatus.IDLE
+
+
+    def set_busy(self):
+        self.last_status = GpuStatus.BUSY
 
     def get_stats(self):
         def _serializer(
