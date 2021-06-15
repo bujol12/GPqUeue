@@ -144,7 +144,7 @@ const NewExperiment = () => {
             <h1 className="pt-4 mb-4">Start new experiment</h1>
             <div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                         Project*
                     </div>
@@ -168,7 +168,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                         Experiment Name*
                     </div>
@@ -182,7 +182,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                         Current Directory
                     </div>
@@ -191,7 +191,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                         <label htmlFor="cli_command" className="form-label">Shell Command*</label>
                     </div>
@@ -203,7 +203,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                             Select GPUs*
                     </div>
