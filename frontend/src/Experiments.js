@@ -82,7 +82,7 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
                         <td>{startTime}</td>
                     </tr>
                     <tr>
-                        <td>td> Status</td>
+                        <td>Status</td>
                         <td className={statusColour}>{status.toLowerCase()}</td>
                     </tr>
                     <tr>
