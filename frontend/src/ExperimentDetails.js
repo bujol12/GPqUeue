@@ -33,7 +33,7 @@ const ExperimentDetails = ({match}) => {
 
     let statusColour = "";
 
-    if (details.status === "SUCCESS") {
+    if (details.status === "COMPLETED") {
         statusColour = "text-success";
     } else if (details.status === "QUEUED") {
         statusColour = "text-warning";
