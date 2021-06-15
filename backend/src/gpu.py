@@ -6,12 +6,14 @@ from typing import Any, Dict, Optional, Type, Union, List
 from uuid import uuid4
 
 import attr
+import logging
 
 from src.database import get_database
 from src.enums.gpu_status import GpuStatus
 from src.types import ABCGPU
 from src.user import User
 
+logger = logging.getLogger(__name__)
 
 @attr.define(slots=False)
 class GPU(ABCGPU):
@@ -38,10 +40,12 @@ class GPU(ABCGPU):
         return "gpu_queue_" + self.name
 
     def set_queue(self, new_queue: List[Any]):
-        return
+        get_database().add_key(self.get_queue_key(), {'queue': [v.dump() for v in new_queue]})
 
     def fetch_queue(self):
-        return []
+        queue = get_database().fetch_key(self.get_queue_key()).get('queue', [])
+        logger.warning("queue: " + str(queue))
+        return queue
 
     def get_stats(self):
         def _serializer(
