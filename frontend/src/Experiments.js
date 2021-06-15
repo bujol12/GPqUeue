@@ -219,7 +219,7 @@ const Experiments = ({endpoint, project, title}) => {
                 <div className="col">
                     <h2>{title}</h2>
                 </div>
-                <div className="col-2 text-end">
+                <div className="col-3 text-end">
                     <SortDropdown rules={sortRules} setRule={setSortRule} />
                 </div>
             </div>
