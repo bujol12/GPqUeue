@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
-import { setLocalUser, removeLocalUser } from "./util";
+import { setLocalUser, removeLocalUser, getLocalUser } from "./util";
 
 import "./LoginSignUp.css";
 
@@ -26,10 +26,13 @@ const handleChange = (setter) => (e) => {
 
 
 const Login = () => {
+    const history = useHistory();
+    if (getLocalUser()) {
+        history.replace("/overview");
+    }
+
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
-    const history = useHistory();
 
     const handleSubmit = () => {
         postForm(history, "login", username, password);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Link, useLocation } from "react-router-dom";
 import { Login, Logout, SignUp } from "./LoginSignUp.js";
 import Overview from "./Overview.js";
@@ -17,43 +17,33 @@ const NavbarLink = ({to, text}) => {
     );
 };
 
-const Navbar = () => {
-    const location = useLocation();
-    if (location.pathname === "/" ||
-        location.pathname === "/login" ||
-        location.pathname === "/signup" ||
-        location.pathname === "/logout"
-    ) {
-        return (
-            <React.Fragment>
-                <nav className="navbar navbar-expand-sm navbar-light bg-light">
-                    <div className="container-fluid">
-                        <Link className="navbar-brand" to="/">GPqUeue</Link>
-                        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                            </ul>
-                            <Link to="/login">
-                                <button className="btn btn-primary ms-3">
-                                    Log in
-                                </button>
-                            </Link>
-                            <Link to="/signup">
-                                <button className="btn btn-outline-primary ms-3">
-                                    Sign up
-                                </button>
-                            </Link>
-                        </div>
+function UnauthorisedNavbar() {
+    return (
+        <React.Fragment>
+            <nav className="navbar navbar-expand-sm navbar-light bg-light">
+                <div className="container-fluid">
+                    <Link className="navbar-brand" to="/">GPqUeue</Link>
+                    <div className="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                        </ul>
+                        <Link to="/login">
+                            <button className="btn btn-primary ms-3">
+                                Log in
+                            </button>
+                        </Link>
+                        <Link to="/signup">
+                            <button className="btn btn-outline-primary ms-3">
+                                Sign up
+                            </button>
+                        </Link>
                     </div>
-                </nav>
-            </React.Fragment>
-        );
-    }
+                </div>
+            </nav>
+        </React.Fragment>
+    );
+}
 
-    const user = () => {
-        const user = getLocalUser();
-        return user ? `Welcome, ${user.username}` : "Loading User Info...";
-    };
-
+function AuthorisedNavbar(user) {
     return (
         <React.Fragment>
             <nav className="navbar navbar-expand-sm navbar-light bg-light">
@@ -66,7 +56,8 @@ const Navbar = () => {
                             <NavbarLink to="/gpus" text="GPUs" />
                         </ul>
                         <div className="ms-3">
-                            {user()}
+                            {user ? `Welcome, ${user.username}` : "Loading User Info..."
+                            }
                         </div>
                         <Link to="/newexperiment">
                             <button className="btn btn-primary ms-3">
@@ -83,7 +74,19 @@ const Navbar = () => {
             </nav>
         </React.Fragment>
     );
-};
+}
+
+function Navbar() {
+    const [user, setUser] = useState(getLocalUser());
+    const location = useLocation();
+
+    useEffect(
+        () => setUser(getLocalUser()),
+        [location],
+    );
+
+    return user ? AuthorisedNavbar(user) : UnauthorisedNavbar(user);
+}
 
 const App = () => {
     const routing = (
