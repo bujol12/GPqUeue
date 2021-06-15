@@ -9,6 +9,7 @@ pytest = "*"
 redis = "*"
 webargs = "*"
 flask-login = "*"
+APScheduler = "*"
 
 [dev-packages]
 
