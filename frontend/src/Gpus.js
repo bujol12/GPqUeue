@@ -42,37 +42,39 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
     const memoryPercent = Math.floor((Number(memory) / Number(maxMemory)) * 100);
 
     return (
-        <div className="row border mb-3">
-            <div className="col pt-3">
-                <button className="row gpu-card" data-bs-toggle="collapse" data-bs-target={"#" + collapseId} aria-expanded="false" aria-controls="collapseOne">
-                    <div className="icon-col align-self-center mb-3 me-3">
-                        <img className="icon" src={icon} />
-                    </div>
-                    <div className="col text-start">
-                        <div className="row">
-                            <div className="col">
-                                <h3>GPU {index} - {name}</h3>
+        <div className="accordion border mb-3">
+            <div className="accordion-item">
+                <div className="accordion-header">
+                    <button className="accordion-button collapsed gpu-card pt-3 ps-3 pe-3" data-bs-toggle="collapse" data-bs-target={"#" + collapseId} aria-expanded="false" aria-controls="collapseOne">
+                        <div className="icon-col align-self-center mb-3 me-3">
+                            <img className="icon" src={icon} />
+                        </div>
+                        <div className="col text-start">
+                            <div className="row">
+                                <div className="col">
+                                    <h3>GPU {index} - {name}</h3>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <p>{userText}</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="row">
-                            <div className="col">
-                                <p>{userText}</p>
+                        <div className="col pe-3 text-start">
+                            <span>Utilisation</span>
+                            <div className="progress">
+                                <div className="progress-bar" role="progressbar" style={{width: utilPercent + "%"}} aria-valuenow={utilPercent} aria-valuemin="0" aria-valuemax="100">{utilPercent}%</div>
+                            </div>
+                            <span>Memory {memory} / {maxMemory} MiB</span>
+                            <div className="progress mb-4">
+                                <div className="progress-bar" role="progressbar" style={{width: memoryPercent + "%"}} aria-valuenow={memoryPercent} aria-valuemin="0" aria-valuemax="100">{memoryPercent}%</div>
                             </div>
                         </div>
-                    </div>
-                    <div className="col pe-0 text-start">
-                        <span>Utilisation</span>
-                        <div className="progress">
-                            <div className="progress-bar" role="progressbar" style={{width: utilPercent + "%"}} aria-valuenow={utilPercent} aria-valuemin="0" aria-valuemax="100">{utilPercent}%</div>
-                        </div>
-                        <span>Memory {memory} / {maxMemory} MiB</span>
-                        <div className="progress mb-4">
-                            <div className="progress-bar" role="progressbar" style={{width: memoryPercent + "%"}} aria-valuenow={memoryPercent} aria-valuemin="0" aria-valuemax="100">{memoryPercent}%</div>
-                        </div>
-                    </div>
-                </button>
-                <div className="collapse row" id={collapseId}>
-                    <ul className="list-group pe-0 list-group-flush">
+                    </button>
+                </div>
+                <div className="accordian-body collapse" id={collapseId}>
+                    <ul className="list-group pe-0 pt-1 list-group-flush">
                         {currentExperiments}
                     </ul>
                 </div>
