@@ -3,7 +3,7 @@ from src.job import Job
 from src.enums.job_status import JobStatus
 
 class TestJob:
-    job = Job(name="abc", script_path="xyz/hjk", cli_args="-x")
+    job = Job(project="General", name="abc", script_path="xyz/hjk", cli_args="-x")
 
     def test_job_to_dict(self):
         dct_res = self.job.to_dict()
