@@ -208,7 +208,8 @@ def get_projects() -> Dict[str, Any]:
     jobs = get_database().fetch_all_matching("user", current_user.username)
     projectsSet = set([j['project'] for j in jobs])
     projects = sorted(list(projectsSet))
-    projects.remove("General")
+    if "General" in projects:
+        projects.remove("General")
     projects.insert(0, "General")
     return {
             "projects": projects
