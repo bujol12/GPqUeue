@@ -97,8 +97,9 @@ class Job(ABCJob):
         if available_gpus != "":
             for gpu in self.gpus_list:
                 gpu.set_busy()
-            logger.warning("Running new process")
-            self.process = subprocess.Popen([f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path])
+            logger.warning("Running new process " + str(datetime.now()))
+            self.process = subprocess.Popen([f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path], shell=True)
+            logger.warning("Done new process " + str(datetime.now()))
 
     def is_finished(self):
         if self.process is not None and self.process.poll() is not None:
@@ -175,6 +176,10 @@ class Job(ABCJob):
         @singledispatch
         def _converters(arg: Any) -> Union[str, float, Optional[int]]:
             raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
+
+        @_converters.register(subprocess.Popen)
+        def _converters_as_ignore(arg: subprocess.Popen):
+            return {}
 
         @_converters.register(str)
         @_converters.register(int)
