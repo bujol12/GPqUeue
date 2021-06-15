@@ -42,7 +42,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
     const memoryPercent = Math.floor((Number(memory) / Number(maxMemory)) * 100);
 
     return (
-        <div className="accordion mb-3">
+        <div className="shadow-sm accordion mb-3">
             <div className="accordion-item">
                 <div className="accordion-header">
                     <button className="accordion-button collapsed gpu-card pt-3 ps-3 pe-3" data-bs-toggle="collapse" data-bs-target={"#" + collapseId} aria-expanded="false" aria-controls="collapseOne">
@@ -99,16 +99,12 @@ const GPUOverview = () => {
         <GPUCard key={index} index={index} {...data} />
     );
 
-    return gpuCards;
-};
-
-const GPUs = () => {
     return (
-        <div className="container container-md-custom">
-            <h1 className="pt-4 mb-4">GPUs</h1>
-            <GPUOverview />
+        <div className="border rounded shadow p-3 mb-3">
+            <h2 className="">GPUs</h2>
+            {gpuCards}
         </div>
     );
 };
 
-export {GPUs, GPUOverview};
+export default GPUOverview;

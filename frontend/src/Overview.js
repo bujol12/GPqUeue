@@ -1,5 +1,5 @@
 import Experiments from "./Experiments.js";
-import {GPUOverview} from "./Gpus.js";
+import GPUOverview from "./Gpus.js";
 
 const Overview = () => {
     return (

@@ -7,7 +7,7 @@ const Project = ({name, project, setProject}) => {
     const classes = "list-group-item " + (isActive ? "active" : "");
 
     return (
-        <button className="project" onClick={() => setProject(name)}>
+        <button className="project shadow bg-transparent rounded mb-1" onClick={() => setProject(name)}>
             <li className={classes}>
                 {name}
             </li>
@@ -39,7 +39,7 @@ const MyExperiments = () => {
         <div className="container row">
             <div className="col-3">
                 <h1 className="pt-4 mb-4">Projects</h1>
-                <ul className="list-group">
+                <ul className="p-0">
                     {projectLinks}
                 </ul>
             </div>

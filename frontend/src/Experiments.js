@@ -130,7 +130,7 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
     }, []);
 
     return (
-        <div className="mb-3">
+        <div className="shadow-sm mb-3">
             <div className="accordion-item">
                 <h2 className="accordion-header" id={label}>
                     <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
@@ -214,7 +214,7 @@ const Experiments = ({endpoint, project, title}) => {
     }
 
     return (
-        <div>
+        <div className="border shadow rounded p-3 mb-3">
             <div className="row">
                 <div className="col">
                     <h2>{title}</h2>
