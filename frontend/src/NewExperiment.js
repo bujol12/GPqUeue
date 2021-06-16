@@ -57,6 +57,59 @@ const getGpus = (setGpus) => {
     });
 };
 
+function cliArgLists({ setYaml }) {
+    const [argNames, setArgNames] = useState([]);
+    const [options, setOptions] = useState([]);
+
+    const handleFormInput = (setter, i, prev) => (e) => {
+        setter([...prev.slice(0, i), e.target.value, ...prev.slice(i + 1)]);
+    };
+
+    const [display, setDisplay] = useState([]);
+    const getInput = (array, index) => array[index];
+
+    const addArg = () => {
+        setArgNames([...argNames, ""]);
+        setOptions([...options, ""]);
+        setDisplay(argNames.map((name, index) =>
+            <div key={`Arg#${index}`} className="text-left" >
+                <p>Argument # {options.length}</p>
+                <div className="input-group">
+                    <input
+                        type="text" className="col form-control"
+                        placeholder="Enter argument name, E.g, --count"
+                        value={getInput.bind(argNames, index)}
+                        onChange={
+                            handleFormInput.bind(setArgNames, index, argNames)
+                        }
+                    />
+                    <span className="input-group-text">=</span>
+                    <input
+                        type="text" className="col form-control"
+                        placeholder="Enter comma separated a list of possible values. E.g., 1, 2, 3"
+                        value={getInput.bind(options, index)}
+                        onChange={
+                            handleFormInput.bind(setOptions, index, options)
+                        }
+                    />
+                    <button className="btn btn-outline-danger">-</button>
+                </div>
+            </div >
+        ));
+    };
+
+    const addArgButton = (
+        <button type="button" class="btn btn-light" onClick={addArg}>+</button>
+    );
+
+    return (
+        <div>
+            {addArgButton}
+            {display}
+        </div>
+    )
+}
+
 function AdvancedOptions({ setYaml }) {
     const label = "advanced-options";
     const id = "advanced-options-id";
@@ -151,6 +204,10 @@ function AdvancedOptions({ setYaml }) {
                             </div>
                             {yamlTextArea}
                             {yamlExamples}
+                            {/* <div className="mt-3">
+                                Or add one by one:
+                                {cliArgLists(setYaml)}
+                            </div> */}
                         </div>
                     </div>
                 </div>
