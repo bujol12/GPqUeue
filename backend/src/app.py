@@ -104,7 +104,7 @@ def get_jobs(
 def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
     project: str = args['project']
     public: bool = args['public']
-    jobs =  {"jobs": get_jobs(
+    jobs = {"jobs": get_jobs(
         [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED],
         project,
         public=public,
@@ -195,6 +195,7 @@ def cancel_job(uuid: str) -> Dict[str, Any]:
     job.cancel_job()
     return {"status": "success"}
 
+
 @app.route("/job_details")
 @login_required
 def get_job_details() -> Dict[str, Any]:
@@ -218,10 +219,12 @@ def get_job_details() -> Dict[str, Any]:
 
     return job.to_dict()
 
+
 @app.route("/curr_dir", methods=['GET'])
 @login_required
 def get_curr_dir() -> Dict[str, Any]:
     return {"status": "success", "currDir": os.getcwd()}
+
 
 @app.route("/projects", methods=['GET'])
 @login_required
@@ -233,8 +236,9 @@ def get_projects() -> Dict[str, Any]:
         projects.remove("General")
     projects.insert(0, "General")
     return {
-            "projects": projects
+        "projects": projects
     }
+
 
 def mock_available_gpus():
     global GPU_DCT
