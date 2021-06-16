@@ -140,9 +140,7 @@ function AdvancedOptions({ setYaml }) {
     const yamlExampleCode = (
         `argument:
   number: [1, 2]
-  batch:
-    - 4
-    - 5`
+  batch: [4, 5]`
     );
     const yamlExampleCommands = [
         "python3 test -n 1 -b 4",
