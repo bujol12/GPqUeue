@@ -7,7 +7,8 @@ import {GPUs} from "./Gpus.js";
 import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
 import ExperimentDetails from "./ExperimentDetails.js";
 import "./App.css";
-import { getLocalUser } from "./util.js";
+import { getLocalUser, responseErrorHandler, responseSuccessHandler } from "./util.js";
+import axios from "axios";
 
 const NavbarLink = ({to, text}) => {
     return (
@@ -89,6 +90,11 @@ function Navbar() {
 }
 
 const App = () => {
+    axios.interceptors.response.use(
+        response => responseSuccessHandler(response),
+        error => responseErrorHandler(error),
+    );
+
     const routing = (
         <Router>
             <Navbar/>

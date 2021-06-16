@@ -1,3 +1,6 @@
+import { useEffect, useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
+
 const msToHoursMinutesSeconds = (totalMs) => {
     const totalSeconds = Math.floor(totalMs / 1000);
     const seconds = totalSeconds % 60;
@@ -18,7 +21,7 @@ const msToTimeString = (ms) => {
     if (daysSinceStart === 0) {
         return date.toLocaleTimeString(navigator.language, {
             hour: "2-digit",
-            minute:"2-digit"
+            minute: "2-digit"
         });
     } else if (daysSinceStart === 1) {
         return "Yesterday";
@@ -27,6 +30,18 @@ const msToTimeString = (ms) => {
     }
 
     return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
+};
+
+const responseSuccessHandler = response => response;
+
+const responseErrorHandler = error => {
+    const history = useHistory();
+    if (error.response.status === 401) {
+        removeLocalUser();
+        history.push("/login");
+    }
+
+    return Promise.reject(error);
 };
 
 const localUserStorageKey = "__GPqUeue_User_token__";
