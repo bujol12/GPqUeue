@@ -1,14 +1,17 @@
 import React, {useEffect, useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import axios from "axios";
+import { ImportFromFileBodyComponent, readFileAsync } from "./FileReader";
+import { AutoTextArea } from "./util";
 
-const postNewJob = (history, project, name, command, chosenGpus) => {
+const postNewJob = (history, project, name, command, chosenGpus, yaml) => {
     axios.post("/api/add_job", {
         project: project,
         experiment_name: name,
         script_path: command,
         cli_args: null,
         gpus: chosenGpus,
+        yaml: yaml,
     }).then(res => {
         if (res.data.status === "success") {
             history.push("/myexperiments");
@@ -54,6 +57,64 @@ const getGpus = (setGpus) => {
     });
 };
 
+function AdvancedOptions({ setYaml }) {
+    const label = "advanced-options";
+    const id = "advanced-options-id";
+
+    const ext = ".yaml";
+    const [_yaml, _setYaml] = useState("");
+    const handleFileChosen = (
+        (file) => readFileAsync(file)
+            .then((content) => {
+                _setYaml(content);
+                setYaml(content);
+            })
+    );
+
+    const handleChange = (setters) => (e) =>
+        setters.map((setter, _) => setter(e.target.value));
+
+    const yaml = (
+        <ImportFromFileBodyComponent
+            ext={ext}
+            handleFileChosen={handleFileChosen}
+        />
+    );
+
+    const yamlTextArea = AutoTextArea({ onChange: handleChange([setYaml, _setYaml]) });
+
+    return (
+        <div className="mb-3">
+            <div className="accordion-item">
+                <div className="panel panel-primary bg-light">
+                    <h2 className="accordion-header ms-2" id={label}>
+                        <button className="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
+                            <div className="row w-100">
+                                Advanced Options
+                            </div>
+                        </button>
+                    </h2>
+                </div>
+                <div id={id} className="accordion-collapse collapse" aria-labelledby={label}>
+                    <div className="accordion-body">
+                        <div>
+                            <h3>Batch Running</h3>
+                            <div className="mt-3">
+                                Import YAML configs from file:
+                            </div>
+                            {yaml}
+                            <div className="mt-3">
+                                Or type here:
+                            </div>
+                            {yamlTextArea}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div >
+    );
+}
+
 const NewExperiment = () => {
     const [name, setName] = useState(undefined);
     const [command, setCommand] = useState(undefined);
@@ -63,6 +124,10 @@ const NewExperiment = () => {
     const [textProjectName, setTextProjectName] = useState("");
     const [dropProjectName, setDropProjectName] = useState("General");
     const [projects, setProjects] = useState([]);
+
+    const [yaml, setYaml] = useState(undefined);
+
+    const advancedOptions = AdvancedOptions({ setYaml: setYaml });
 
     useEffect(() => {
         getProjects(setProjects);
@@ -101,7 +166,7 @@ const NewExperiment = () => {
 
     const handleSubmit = () => {
         const project = textProjectName !== "" ? textProjectName : dropProjectName;
-        postNewJob(history, project, name, command, [...chosenGpus]);
+        postNewJob(history, project, name, command, [...chosenGpus], yaml);
     };
 
     const gpuCheckboxes = gpus.map((data, index) =>
@@ -192,6 +257,8 @@ const NewExperiment = () => {
                         {gpuCheckboxes}
                     </div>
                 </div>
+
+                {advancedOptions}
 
                 <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Submit</button>
             </div>
