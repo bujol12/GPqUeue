@@ -2,16 +2,18 @@ from __future__ import annotations
 
 from enum import Enum
 from functools import singledispatch
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, Optional, Type, Union, List
 from uuid import uuid4
 
 import attr
+import logging
 
 from src.database import get_database
 from src.enums.gpu_status import GpuStatus
 from src.types import ABCGPU
 from src.user import User
 
+logger = logging.getLogger(__name__)
 
 @attr.define(slots=False)
 class GPU(ABCGPU):
@@ -19,9 +21,8 @@ class GPU(ABCGPU):
     model: str
     total_memory_mib: int
     uuid: str = attr.ib(factory=lambda: str(uuid4().hex))
-
     last_status: Optional[GpuStatus] = attr.ib(
-        default=None,
+        default=GpuStatus.IDLE,
         converter=attr.converters.optional(lambda x: GpuStatus(x)),
         metadata={'serializer': lambda x: x if x is None else str(x)}
     )
@@ -33,6 +34,29 @@ class GPU(ABCGPU):
 
     last_utilisation_pct: float = 0.0
     last_memory_used_mib: float = 0.0
+
+    def get_queue_key(self):
+        return "gpu_queue_" + self.name
+
+    def set_queue(self, new_queue: List[Any]):
+        get_database().add_key(self.get_queue_key(), {'queue': [v.dump() for v in new_queue]})
+
+    def is_idle(self):
+        BUSY_PCT_THRESHOLD = 0.10
+        self.get_stats()
+        return self.last_status == GpuStatus.IDLE
+        #and (self.last_memory_used_mib / self.total_memory_mib) < BUSY_PCT_THRESHOLD
+
+    def fetch_queue(self):
+        queue = get_database().fetch_key(self.get_queue_key()).get('queue', [])
+        return queue
+
+    def set_idle(self):
+        self.last_status = GpuStatus.IDLE
+
+
+    def set_busy(self):
+        self.last_status = GpuStatus.BUSY
 
     def get_stats(self):
         def _serializer(

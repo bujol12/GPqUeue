@@ -30,7 +30,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
         {user: "Joe Stacey", name: "Muffins vs Dogs Detector"},
         {user: "Sherry Edwards", name: "Hotdog classifer"},
     ].map((data, index) =>
-        <li key={index} className={"list-group-item" + (index == 0 ? " active" : "")}>
+        <li key={index} className={"list-group-item" + (index == 0 ? " text-primary" : "")}>
             <span className="d-inline-flex w-100 justify-content-between">
                 {data.name} {data.duration ? "- " + msToHoursMinutesSeconds(data.duration) : ""}
                 <small>{data.user}</small>
@@ -42,36 +42,38 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
     const memoryPercent = Math.floor((Number(memory) / Number(maxMemory)) * 100);
 
     return (
-        <div className="row border mb-3">
-            <div className="col pt-3">
-                <button className="row gpu-card" data-bs-toggle="collapse" data-bs-target={"#" + collapseId} aria-expanded="false" aria-controls="collapseOne">
-                    <div className="icon-col align-self-center mb-3 me-3">
-                        <img className="icon" src={icon} />
-                    </div>
-                    <div className="col text-start">
-                        <div className="row">
-                            <div className="col">
-                                <h3>GPU {index} - {name}</h3>
+        <div className="shadow-sm accordion mb-3">
+            <div className="accordion-item">
+                <div className="accordion-header">
+                    <button className="accordion-button collapsed gpu-card pt-3 ps-3 pe-3" data-bs-toggle="collapse" data-bs-target={"#" + collapseId} aria-expanded="false" aria-controls="collapseOne">
+                        <div className="icon-col align-self-center mb-3 me-3">
+                            <img className="icon" src={icon} />
+                        </div>
+                        <div className="col text-start">
+                            <div className="row">
+                                <div className="col">
+                                    <h3>GPU {index} - {name}</h3>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <p>{userText}</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="row">
-                            <div className="col">
-                                <p>{userText}</p>
+                        <div className="col pe-3 text-start">
+                            <span>Utilisation</span>
+                            <div className="progress">
+                                <div className="progress-bar" role="progressbar" style={{width: utilPercent + "%"}} aria-valuenow={utilPercent} aria-valuemin="0" aria-valuemax="100">{utilPercent}%</div>
+                            </div>
+                            <span>Memory {memory} / {maxMemory} MiB</span>
+                            <div className="progress mb-4">
+                                <div className="progress-bar" role="progressbar" style={{width: memoryPercent + "%"}} aria-valuenow={memoryPercent} aria-valuemin="0" aria-valuemax="100">{memoryPercent}%</div>
                             </div>
                         </div>
-                    </div>
-                    <div className="col pe-0 text-start">
-                        <span>Utilisation</span>
-                        <div className="progress">
-                            <div className="progress-bar" role="progressbar" style={{width: utilPercent + "%"}} aria-valuenow={utilPercent} aria-valuemin="0" aria-valuemax="100">{utilPercent}%</div>
-                        </div>
-                        <span>Memory {memory} / {maxMemory} MiB</span>
-                        <div className="progress mb-4">
-                            <div className="progress-bar" role="progressbar" style={{width: memoryPercent + "%"}} aria-valuenow={memoryPercent} aria-valuemin="0" aria-valuemax="100">{memoryPercent}%</div>
-                        </div>
-                    </div>
-                </button>
-                <div className="collapse row" id={collapseId}>
+                    </button>
+                </div>
+                <div className="accordian-body collapse" id={collapseId}>
                     <ul className="list-group pe-0 list-group-flush">
                         {currentExperiments}
                     </ul>
@@ -97,16 +99,12 @@ const GPUOverview = () => {
         <GPUCard key={index} index={index} {...data} />
     );
 
-    return gpuCards;
-};
-
-const GPUs = () => {
     return (
-        <div className="container container-md-custom">
-            <h1 className="pt-4 mb-4">GPUs</h1>
-            <GPUOverview />
+        <div className="border rounded shadow p-3 mb-3">
+            <h2 className="">GPUs</h2>
+            {gpuCards}
         </div>
     );
 };
 
-export {GPUs, GPUOverview};
+export default GPUOverview;

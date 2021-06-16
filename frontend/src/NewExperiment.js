@@ -277,12 +277,38 @@ const NewExperiment = () => {
         </div>
     );
 
+    let projectDropdown;
+
+    if (textProjectName === "") {
+        projectDropdown = (
+            <div className="dropdown">
+                <button className="btn btn-primary dropdown-toggle w-100" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    {dropProjectName}
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    {projectsDropdownLinks}
+                </ul>
+            </div>
+        );
+    } else {
+        projectDropdown = (
+            <div className="dropdown">
+                <button className="btn btn-primary dropdown-toggle w-100" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" disabled>
+                    {dropProjectName}
+                </button>
+                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    {projectsDropdownLinks}
+                </ul>
+            </div>
+        );
+    }
+
     return (
         <div className="container container-md-custom">
             <h1 className="pt-4 mb-4">Start new experiment</h1>
             <div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                         Project*
                     </div>
@@ -297,14 +323,7 @@ const NewExperiment = () => {
                             </div>
                             <div className="col text-center">
                                 <p>Select an existing project</p>
-                                <div className="dropdown">
-                                    <button className="btn btn-primary dropdown-toggle w-100" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                        {dropProjectName}
-                                    </button>
-                                    <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                        {projectsDropdownLinks}
-                                    </ul>
-                                </div>
+                                {projectDropdown}
                             </div>
                         </div>
                         <div className="row pt-4">
@@ -313,7 +332,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                         Experiment Name*
                     </div>
@@ -327,7 +346,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                         Current Directory
                     </div>
@@ -336,7 +355,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                         <label htmlFor="cli_command" className="form-label">Shell Command*</label>
                     </div>
@@ -351,7 +370,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3">
+                <div className="card mb-3 shadow">
                     <div className="card-header">
                             Select GPUs*
                     </div>
@@ -360,7 +379,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Submit</button>
+                <button type="submit" className="btn btn-primary w-100" onClick={handleSubmit}>Submit</button>
             </div>
         </div>
     );

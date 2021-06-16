@@ -1,7 +1,11 @@
+import atexit
+import json
 import logging
 import os
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, request
 from flask_login import LoginManager, current_user, login_required
 from webargs import fields
@@ -21,11 +25,60 @@ app.secret_key = '0785f0f7-43fd-4148-917f-62f915d94e38'  # a random uuid4
 app.register_blueprint(src.auth.bp)
 
 logger = logging.getLogger(__name__)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 HAS_GPU = ((os.environ.get("gpu") or '').lower() in ('true', '1', 't'))
 GPU_DCT: Dict[str, GPU] = {}
+
+running_jobs = []
+
+
+def check_running_jobs():
+    to_remove = []
+
+    for job in running_jobs:
+        logger.warning(f"checking job: {job}")
+        if job.is_finished():
+            to_remove.append(job)
+            success = True
+            if job.process.returncode != 0:
+                success = False
+
+            job.complete_job(datetime.now(), success=success)
+            get_database().add_key(job.get_DB_key(), job.dump())
+
+    for job in to_remove:
+        running_jobs.remove(job)
+
+
+def run_new_jobs():
+    for idx, gpu in GPU_DCT.items():
+        logger.warning(f"Checking gpu {gpu.get_name()}")
+        logger.warning(gpu)
+        if gpu.is_idle():
+            logger.warning(f"GPU idle {gpu.get_name()}")
+            queue = gpu.fetch_queue()
+            logger.warning(queue)
+            if len(queue) > 0:
+                queue[0]["gpus_list"] = list(map(lambda x: GPU_DCT.get(x, None), json.loads(queue[0].get("gpus_list"))))
+                job = Job.from_dict(queue[0])
+                logger.warning("queue0" + str(job))
+                job.run_job()
+                get_database().add_key(job.get_DB_key(), job.dump())
+                running_jobs.append(job)
+                gpu.set_queue(queue[1:])
+
+
+def check_job_status_and_run_new():
+    check_running_jobs()
+    run_new_jobs()
+
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=check_job_status_and_run_new, trigger="interval", seconds=10)
+scheduler.start()
 
 
 @login_manager.user_loader
@@ -89,9 +142,6 @@ def get_jobs(
     else:
         result_list = [job.to_dict() for job in job_list]
 
-    logger.warning("jobs: " + str(job_list))
-    logger.warning("current user: " + str(current_user))
-    logger.warning("project: " + str(project))
     return result_list
 
 
@@ -109,8 +159,6 @@ def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
         project,
         public=public,
     )}
-
-    logger.warning(jobs)
 
     return jobs
 
@@ -151,7 +199,10 @@ def add_new_job() -> Dict[str, Any]:
             gpus_list=gpus,
             user=current_user,
         )
-        job.run_job()
+        for gpu in gpus:
+            job.add_to_queue(gpu)
+
+        #job.run_job()
 
         get_database().add_key(job.get_DB_key(), job.dump())
 
@@ -248,3 +299,6 @@ def mock_available_gpus():
         "2": MockedGPU(name="2", model="mockedGPU", total_memory_mib=8000),
         "3": MockedGPU(name="3", model="mockedGPU", total_memory_mib=16000)
     })
+
+
+atexit.register(lambda: scheduler.shutdown())

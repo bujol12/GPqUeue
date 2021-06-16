@@ -3,7 +3,6 @@ import { Route, BrowserRouter as Router, Link, useLocation } from "react-router-
 import { Login, Logout, SignUp } from "./LoginSignUp.js";
 import Overview from "./Overview.js";
 import MyExperiments from "./MyExperiments.js";
-import {GPUs} from "./Gpus.js";
 import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
 import ExperimentDetails from "./ExperimentDetails.js";
 import "./App.css";
@@ -54,7 +53,6 @@ function AuthorisedNavbar(user) {
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                             <NavbarLink to="/overview" text="Overview" />
                             <NavbarLink to="/myexperiments" text="My Experiments" />
-                            <NavbarLink to="/gpus" text="GPUs" />
                         </ul>
                         <div className="ms-3">
                             {user ? `Welcome, ${user.username}` : "Loading User Info..."
@@ -106,7 +104,6 @@ const App = () => {
                 <Route exact path="/overview" component={Overview}></Route>
                 <Route exact path="/myexperiments" component={MyExperiments}></Route>
                 <Route exact path="/myexperiments/:uuid" component={ExperimentDetails}></Route>
-                <Route exact path="/gpus" component={GPUs}></Route>
                 <Route exact path="/newexperiment" component={NewExperiment}></Route>
                 <Route exact path="/newexperiment/failed" component={NewExperimentFailed}></Route>
             </div>
