@@ -131,15 +131,13 @@ function AdvancedOptions({ setYaml }) {
     return (
         <div className="mb-3">
             <div className="accordion-item">
-                <div className="panel panel-primary bg-light">
-                    <h2 className="accordion-header ms-2" id={label}>
-                        <button className="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
-                            <div className="row w-100">
-                                Advanced Options
-                            </div>
-                        </button>
-                    </h2>
-                </div>
+                <h2 className="accordion-header ms-2" id={label}>
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
+                        <div className="row w-100">
+                            Advanced Options
+                        </div>
+                    </button>
+                </h2>
                 <div id={id} className="accordion-collapse collapse" aria-labelledby={label}>
                     <div className="accordion-body">
                         <div>
@@ -292,6 +290,9 @@ const NewExperiment = () => {
                         <div id="nameHelp" className="form-text">Examples:</div>
                         <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
                         <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python /.../model.py</code></div>
+                        <div className="mt-3">
+                            {advancedOptions}
+                        </div>
                     </div>
                 </div>
 
@@ -303,8 +304,6 @@ const NewExperiment = () => {
                         {gpuCheckboxes}
                     </div>
                 </div>
-
-                {advancedOptions}
 
                 <button type="submit" className="btn btn-primary" onClick={handleSubmit}>Submit</button>
             </div>
