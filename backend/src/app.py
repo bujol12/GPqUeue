@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 from typing import Any, Dict, List, Optional
 
 from flask import Flask, request
@@ -13,6 +13,7 @@ from src.enums.job_status import JobStatus
 from src.gpu import GPU
 from src.job import Job
 from src.mocked_gpu import MockedGPU
+from src.param_parsing import parametric_cli
 from src.user import User
 
 app = Flask(__name__)
@@ -134,16 +135,36 @@ def get_ongoing_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
 @app.route("/add_job", methods=['POST'])
 @login_required
 def add_new_job() -> Dict[str, Any]:
+    yaml = request.json.get('yaml')
     project = request.json.get('project')
     name = request.json.get('experiment_name')
     script_path = request.json.get('script_path')
     cli_args = request.json.get('cli_args')
     gpus = list(map(lambda x: GPU_DCT.get(x, None), request.json.get('gpus')))
 
-    job = Job(project=project, name=name, script_path=script_path, cli_args=cli_args, gpus_list=gpus, user=current_user)
-    job.run_job()
+    def add_job(_script_path: str):
+        job = Job(
+            project=project,
+            name=name,
+            script_path=_script_path,
+            cli_args=cli_args,
+            gpus_list=gpus,
+            user=current_user,
+        )
+        job.run_job()
 
-    get_database().add_key(job.get_DB_key(), job.dump())
+        get_database().add_key(job.get_DB_key(), job.dump())
+
+    if yaml:
+        args: List[Dict[str, Any]] = parametric_cli(
+            cli=script_path,
+            yaml_str=yaml,
+        )
+        for arg_dict in args:
+            command: str = arg_dict['command']
+            add_job(command)
+    else:
+        add_job(cli_args)
 
     return {"status": "success"}
 
