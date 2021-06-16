@@ -83,6 +83,51 @@ function AdvancedOptions({ setYaml }) {
 
     const yamlTextArea = AutoTextArea({ onChange: handleChange([setYaml, _setYaml]) });
 
+    const commandExample = "python3 test -n {{ number }} -b {{ batch }}";
+    const yamlExampleCode = (
+        `argument:
+  number: [1, 2]
+  batch:
+    - 4
+    - 5`
+    );
+    const yamlExampleCommands = [
+        "python3 test -n 1 -b 4",
+        "python3 test -n 1 -b 5",
+        "python3 test -n 2 -b 4",
+        "python3 test -n 2 -b 5",
+    ];
+    const yamlExampleCommandDisplay = yamlExampleCommands.map((command, i) => (
+        <div id="nameHelp2" className="form-text">
+            <code>
+                {command}
+            </code>
+        </div>
+    ));
+
+
+    const yamlExamples = (
+        <div>
+            <div id="nameHelp" className="form-text">
+                {"Example YAML file for command "}
+                <code>
+                    &quot;{commandExample}&quot;
+                </code>
+            </div>
+            <div id="nameHelp2" className="form-text">
+                <code>
+                    <pre>
+                        {yamlExampleCode}
+                    </pre>
+                </code>
+            </div>
+            <div id="nameHelp" className="form-text">
+                will be interpreted as
+            </div>
+            {yamlExampleCommandDisplay}
+        </div>
+    );
+
     return (
         <div className="mb-3">
             <div className="accordion-item">
@@ -107,6 +152,7 @@ function AdvancedOptions({ setYaml }) {
                                 Or type here:
                             </div>
                             {yamlTextArea}
+                            {yamlExamples}
                         </div>
                     </div>
                 </div>
