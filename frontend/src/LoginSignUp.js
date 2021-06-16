@@ -90,15 +90,17 @@ const SignUp = () => {
 
 const Logout = () => {
     const history = useHistory();
-    axios.get("/api/logout").then(res => {
-        removeLocalUser();
-        if (res.data.status === "success") {
-            history.push("/login");
-        } else {
-            // TODO: else logout failed
-            history.push("/login");
-        }
-    });
+    axios.get("/api/logout").finally(() => removeLocalUser())
+        .then(res => {
+            if (res.data.status === "success") {
+                history.push("/login");
+            } else {
+                // TODO: else logout failed
+                history.push("/login");
+            }
+        }).catch((e) => {
+            console.log(`Error in logout: ${e}`);
+        });
 
     return (
         <div aria-live="polite" aria-atomic="true" className="d-flex justify-content-center align-items-center w-100">
