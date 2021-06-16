@@ -9,6 +9,8 @@ pytest = "*"
 redis = "*"
 webargs = "*"
 flask-login = "*"
+jinja2 = "*"
+pyyaml = "*"
 APScheduler = "*"
 
 [dev-packages]

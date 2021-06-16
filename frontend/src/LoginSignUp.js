@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
-import { setLocalUser, removeLocalUser } from "./util";
+import { setLocalUser, removeLocalUser, getLocalUser } from "./util";
 
 import "./LoginSignUp.css";
 
@@ -26,10 +26,13 @@ const handleChange = (setter) => (e) => {
 
 
 const Login = () => {
+    const history = useHistory();
+    if (getLocalUser()) {
+        history.replace("/overview");
+    }
+
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
-    const history = useHistory();
 
     const handleSubmit = () => {
         postForm(history, "login", username, password);
@@ -87,15 +90,17 @@ const SignUp = () => {
 
 const Logout = () => {
     const history = useHistory();
-    axios.get("/api/logout").then(res => {
-        removeLocalUser();
-        if (res.data.status === "success") {
-            history.push("/login");
-        } else {
-            // TODO: else logout failed
-            history.push("/login");
-        }
-    });
+    axios.get("/api/logout").finally(() => removeLocalUser())
+        .then(res => {
+            if (res.data.status === "success") {
+                history.push("/login");
+            } else {
+                // TODO: else logout failed
+                history.push("/login");
+            }
+        }).catch((e) => {
+            console.log(`Error in logout: ${e}`);
+        });
 
     return (
         <div aria-live="polite" aria-atomic="true" className="d-flex justify-content-center align-items-center w-100">
