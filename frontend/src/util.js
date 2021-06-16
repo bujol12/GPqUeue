@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
 
 const msToHoursMinutesSeconds = (totalMs) => {
     const totalSeconds = Math.floor(totalMs / 1000);
@@ -35,10 +34,9 @@ const msToTimeString = (ms) => {
 const responseSuccessHandler = response => response;
 
 const responseErrorHandler = error => {
-    const history = useHistory();
     if (error.response.status === 401) {
         removeLocalUser();
-        history.push("/login");
+        this.props.history.push("/login");
     }
 
     return Promise.reject(error);
