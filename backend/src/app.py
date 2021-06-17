@@ -21,6 +21,7 @@ from src.param_parsing import parametric_cli
 from src.user import User
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 app.secret_key = '0785f0f7-43fd-4148-917f-62f915d94e38'  # a random uuid4
 app.register_blueprint(src.auth.bp)
 
@@ -128,7 +129,7 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
     'statuses[]': fields.List(fields.Str(), required=False, default=[], missing=[]),
     'gpu': fields.Str(required=False, default="", missing=""),
     'count': fields.Int(required=False, default=10, missing=5),
-    'sortby': fields.Str(required=False, default="newest", missing="newest"),
+    'sortBy': fields.Str(required=False, default="newest", missing="newest"),
     'project': fields.Str(required=False, default="", missing=""),
     'public': fields.Bool(required=False, default=False, missing=False),
 }, location="query")
@@ -136,7 +137,7 @@ def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
     raw_statuses: List[str] = args["statuses[]"]
     gpu: str = args["gpu"]
     count: int = args["count"]
-    sortby: str = args["sortby"]
+    sortBy: str = args["sortBy"]
     project: str = args['project']
     public: bool = args['public']
     statuses = []
@@ -187,12 +188,12 @@ def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
         jobs = temp_jobs
 
     # sort jobs
-    if sortby == "newest":
+    if sortBy == "newest":
         jobs = sorted(jobs, key=lambda j: j.start_time, reverse=True)
-    elif sortby == "oldest":
-        jobs = sorted(jobs, key=lambda j: j.start_time, reverse=True)
-    elif sortby == "duration":
-        jobs = sorted(jobs, key=lambda j: j.finish_time - j.start_time, reverse=True)
+    elif sortBy == "oldest":
+        jobs = sorted(jobs, key=lambda j: j.start_time, reverse=False)
+    elif sortBy == "duration":
+        jobs = sorted(jobs, key=lambda j: j.finish_time - j.start_time if j.finish_time != None else datetime.now() - j.start_time, reverse=True)
 
     job_dicts = map(lambda j: j.dump(), jobs)
 

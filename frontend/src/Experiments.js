@@ -15,26 +15,7 @@ const postCancelJob = (uuid) => {
     );
 };
 
-const getInfoText = (status, startTime, endTime) => {
-    if (status === "QUEUED") {
-        return (
-            <div className="col align-self-center pt-3 me-3 text-end">
-                <p>Queued</p>
-            </div>
-        );
-    }
-
-    endTime = endTime ? endTime : Date.now();
-
-    return (
-        <div className="col pt-3 me-3 text-end">
-            <p>{msToTimeString(startTime)}</p>
-            <p>{msToHoursMinutesSeconds(endTime - startTime)}</p>
-        </div>
-    );
-};
-
-const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
+const ExperimentCardDetails = ({end, start, status, gpu, dataset, uuid}) => {
     const endTime = end ? end : new Date().getTime();
     const runtime = Math.floor((endTime - start));
 
@@ -121,8 +102,6 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
         );
     }
 
-    const [infoText, setInfoText] = useState(getInfoText(status, start, end));
-    const [details, setDetails] = useState("");
     const _prefix = `${prefix}-experimentCard`;
     const id = `${_prefix}-${uuid}`;
     const label = `${_prefix}-label-${uuid}`;
@@ -131,15 +110,25 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
     }
     const gpu = gpus;
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setInfoText(getInfoText(status, start, end));
-            setDetails(ExperimentCardDetails(end, start, status, gpu, "/some/random/path/to/the/dataset/directory", uuid));
-        }, 1000);
-        return () => {
-            clearInterval(interval);
-        };
-    }, []);
+    let infoText;
+
+    if (status === "QUEUED") {
+        infoText = (
+            <div className="col align-self-center pt-3 me-3 text-end">
+                <p>Queued</p>
+            </div>
+        );
+    } else {
+        end = end ? end : Date.now();
+        infoText = (
+            <div className="col pt-3 me-3 text-end">
+                <p>{msToTimeString(start)}</p>
+                <p>{msToHoursMinutesSeconds(end - start)}</p>
+            </div>
+        );
+    }
+
+    const details = <ExperimentCardDetails end={end} start={start} status={status} gpu={gpu} dataset="/some/random/path/to/the/dataset/directory" uuid={uuid} />;
 
     return (
         <div className="shadow-sm mb-3">
@@ -153,6 +142,7 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
                             <div className="col pt-3 me-3 text-start">
                                 <h3>{name}</h3>
                                 <p>{project}</p>
+                                <p>{uuid}</p>
                             </div>
                             {infoText}
                         </div>
@@ -168,20 +158,22 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
     );
 };
 
-const getExperiments = (setExperiments, statuses, gpu, count, sortby) => {
+const getExperiments = (setExperiments, statuses, gpu, count, sortBy) => {
     const params = {
         statuses: statuses,
         gpu: gpu,
         count: count,
-        sortby: sortby,
+        sortBy: sortBy,
     };
 
     axios.get("/api/jobs", {
         params: params
     }).then(res => {
         let tempExperiments = [];
+        let i = 0;
         for (const key in Object.keys(res.data.jobs)) {
             tempExperiments.push({
+                index: i,
                 project: res.data.jobs[key].project,
                 name: res.data.jobs[key].name,
                 path: res.data.jobs[key].script_path,
@@ -192,6 +184,7 @@ const getExperiments = (setExperiments, statuses, gpu, count, sortby) => {
                 start: res.data.jobs[key].start_time,
                 end: res.data.jobs[key].finish_time,
             });
+            i++;
         }
         setExperiments(tempExperiments);
     });
@@ -200,8 +193,11 @@ const getExperiments = (setExperiments, statuses, gpu, count, sortby) => {
 const Experiments = ({statuses, title}) => {
     const prefix = title.replace(" ", "_");
     const [experiments, setExperiments] = useState([]);
+    const [experimentCards, setExperimentCards] = useState([]);
     const count = 10;
     const [sortBy, setSortby] = useState("newest");
+
+    console.log(sortBy);
 
     useEffect(() => {
         getExperiments(setExperiments, statuses, "", count, sortBy);
@@ -211,23 +207,23 @@ const Experiments = ({statuses, title}) => {
         };
     }, [sortBy]);
 
-    const experimentCards = experiments.map((data, index) =>
-        <ExperimentCard key={index} prefix={prefix} {...data} />
-    );
+    useEffect(() => {
+        setExperimentCards(experiments.map((data) =>
+            <ExperimentCard key={data.i} prefix={prefix} {...data} />
+        ));
+    }, [experiments]);
 
-    let contents;
+    const [contents, setContents] = useState(<h4 className="p-1 ms-2 text-muted">No {title.toLowerCase()}</h4>);
 
-    if (experimentCards.length === 0) {
-        contents = (
-            <h4 className="p-1 ms-2 text-muted">No {title.toLowerCase()}</h4>
-        );
-    } else {
-        contents = (
-            <React.Fragment>
-                {experimentCards}
-            </React.Fragment>
-        );
-    }
+    useEffect(() => {
+        if (experimentCards.length > 0) {
+            setContents(
+                <React.Fragment>
+                    {experimentCards}
+                </React.Fragment>
+            );
+        }
+    }, [experimentCards]);
 
     return (
         <div className="border shadow rounded p-3 mb-3">
