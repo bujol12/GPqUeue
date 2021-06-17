@@ -20,7 +20,7 @@ class GPU(ABCGPU):
     name: str
     model: str
     total_memory_mib: int
-    uuid: str = attr.ib(factory=lambda: str(uuid4().hex))
+    uuid: str
     last_status: Optional[GpuStatus] = attr.ib(
         default=GpuStatus.IDLE,
         converter=attr.converters.optional(lambda x: GpuStatus(x)),

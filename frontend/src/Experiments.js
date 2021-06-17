@@ -1,13 +1,11 @@
 import React, {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
-import {Sort, SortDropdown} from "./Sort.js";
 import {msToHoursMinutesSeconds, msToTimeString} from "./util.js";
 import axios from "axios";
 
 const postCancelJob = (uuid) => {
     axios.post("/api/cancel_job", { uuid: uuid }).then(
         res => {
-            console.log(res);
             // TODO: notify success / failed
             if (res.data.status === "success") {
                 window.location.reload();
@@ -16,26 +14,7 @@ const postCancelJob = (uuid) => {
     );
 };
 
-const getInfoText = (status, startTime, endTime) => {
-    if (status === "QUEUED") {
-        return (
-            <div className="col align-self-center pt-3 me-3 text-end">
-                <p>Queued</p>
-            </div>
-        );
-    }
-
-    endTime = endTime ? endTime : Date.now();
-
-    return (
-        <div className="col pt-3 me-3 text-end">
-            <p>{msToTimeString(startTime)}</p>
-            <p>{msToHoursMinutesSeconds(endTime - startTime)}</p>
-        </div>
-    );
-};
-
-const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
+const ExperimentCardDetails = ({end, start, status, gpus, dataset, uuid}) => {
     const endTime = end ? end : new Date().getTime();
     const runtime = Math.floor((endTime - start));
 
@@ -69,6 +48,12 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
         statusColour = "text-danger";
     }
 
+    const gpuNames = [];
+
+    gpus.forEach((g) => {
+        gpuNames.push(g.name + " - " + g.model);
+    });
+
     return (
         <div>
             <table className="table">
@@ -87,7 +72,7 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
                     </tr>
                     <tr>
                         <td>GPU</td>
-                        <td>TODO</td>
+                        <td>{gpuNames.join(", ")}</td>
                     </tr>
                     <tr>
                         <td>Dataset</td>
@@ -107,27 +92,44 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
     );
 };
 
-const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, prefix }) => {
-    const icon = `/${status ? status.toLowerCase() : ""}.png`;
-    const [infoText, setInfoText] = useState(getInfoText(status, start, end));
-    const [details, setDetails] = useState("");
+const ExperimentCard = ({ usedGpus, status, project, name, user, gpus, start, end, uuid, prefix }) => {
+    let icon;
+
+    if (status === "RUNNING") {
+        icon = (
+            <div className="icon spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
+        );
+    } else {
+        icon = (
+            <img className="icon" src={`/${status ? status.toLowerCase() : ""}.png`} />
+        );
+    }
+
     const _prefix = `${prefix}-experimentCard`;
     const id = `${_prefix}-${uuid}`;
     const label = `${_prefix}-label-${uuid}`;
-    if (gpus === undefined) {
-        gpus = [];
-    }
-    const gpu = gpus;
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setInfoText(getInfoText(status, start, end));
-            setDetails(ExperimentCardDetails(end, start, status, gpu, "/some/random/path/to/the/dataset/directory", uuid));
-        }, 1000);
-        return () => {
-            clearInterval(interval);
-        };
-    }, []);
+    let infoText;
+
+    if (status === "QUEUED") {
+        infoText = (
+            <div className="col align-self-center pt-3 me-3 text-end">
+                <p>Queued</p>
+            </div>
+        );
+    } else {
+        end = end ? end : Date.now();
+        infoText = (
+            <div className="col pt-3 me-3 text-end">
+                <p>{msToTimeString(start)}</p>
+                <p>{msToHoursMinutesSeconds(end - start)}</p>
+            </div>
+        );
+    }
+
+    const details = <ExperimentCardDetails end={end} start={start} status={status} gpus={usedGpus} dataset="/some/random/path/to/the/dataset/directory" uuid={uuid} />;
 
     return (
         <div className="shadow-sm mb-3">
@@ -136,7 +138,7 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
                     <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
                         <div className="row w-100">
                             <div className="icon-col align-self-center mb-- me-3">
-                                <img className="icon" src={icon} />
+                                {icon}
                             </div>
                             <div className="col pt-3 me-3 text-start">
                                 <h3>{name}</h3>
@@ -156,62 +158,90 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
     );
 };
 
-const getExperiments = (setExperiments, endpoint, project) => {
-    axios.get(`/api/${endpoint}`, {
-        params: {
-            project: project
-        }
+const getExperiments = (setExperiments, statuses, gpu, count, sortBy) => {
+    const params = {
+        statuses: statuses,
+        gpu: gpu,
+        count: count,
+        sortBy: sortBy,
+    };
+
+    axios.get("/api/jobs", {
+        params: params
     }).then(res => {
         let tempExperiments = [];
+        let i = 0;
         for (const key in Object.keys(res.data.jobs)) {
-            console.log(res.data.jobs[key]);
             tempExperiments.push({
-                project: project,
+                index: i,
+                project: res.data.jobs[key].project,
                 name: res.data.jobs[key].name,
                 path: res.data.jobs[key].script_path,
                 uuid: res.data.jobs[key].uuid,
-                user: `${res.data.jobs[key].user.username}`,
+                user: res.data.jobs[key].user.username,
                 status: res.data.jobs[key].status,
                 gpus: res.data.jobs[key].gpus_list,
                 start: res.data.jobs[key].start_time,
                 end: res.data.jobs[key].finish_time,
             });
+            i++;
         }
         setExperiments(tempExperiments);
     });
 };
 
-const Experiments = ({endpoint, project, title}) => {
+const Experiments = ({statuses, title}) => {
     const prefix = title.replace(" ", "_");
     const [experiments, setExperiments] = useState([]);
+    const [experimentCards, setExperimentCards] = useState([]);
+    const count = 10;
+    const [sortBy, setSortby] = useState("newest");
+    const [gpus, setGpus] = useState([]);
 
     useEffect(() => {
-        getExperiments(setExperiments, endpoint, project);
-    }, [project]);
+        axios.get(
+            "/api/gpu_stats"
+        ).then((res) => {
+            let tempGpus = [];
+            for (let i in res.data) {
+                tempGpus.push(res.data[i]);
+            }
+            setGpus(tempGpus);
+        });
+    }, []);
 
-    const experimentCards = experiments.map((data, index) =>
-        <ExperimentCard key={index} prefix={prefix} {...data} />
-    );
-    const sortRules = [
-        {text: "Newest", prop: "start", increasing: true},
-        {text: "Oldest", prop: "start", increasing: false},
-        {text: "Duration", prop: "duration", increasing: false},
-    ];
-    const [sortRule, setSortRule] = useState(sortRules[0]);
+    useEffect(() => {
+        getExperiments(setExperiments, statuses, "", count, sortBy);
+        const interval = setInterval(() => getExperiments(setExperiments, statuses, "", count, sortBy), 1000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, [sortBy]);
 
-    let contents;
+    useEffect(() => {
+        setExperimentCards(experiments.map((data) => {
+            let experimentGpus = [];
+            for (const i in gpus) {
+                if (data.gpus.includes(gpus[i].uuid)) {
+                    experimentGpus.push(gpus[i]);
+                }
+            }
+            return <ExperimentCard key={data.i} prefix={prefix} usedGpus={experimentGpus} {...data} />;
+        }
+        ));
+    }, [experiments]);
 
-    if (experimentCards.length === 0) {
-        contents = (
-            <h4 className="p-1 ms-2 text-muted">No {title.toLowerCase()}</h4>
-        );
-    } else {
-        contents = (
-            <Sort {...sortRule}>
-                {experimentCards}
-            </Sort>
-        );
-    }
+    const [contents, setContents] = useState(<h4 className="p-1 ms-2 text-muted">No {title.toLowerCase()}</h4>);
+
+    useEffect(() => {
+        if (experimentCards.length > 0) {
+            setContents(
+                <React.Fragment>
+                    {experimentCards}
+                </React.Fragment>
+            );
+        }
+    }, [experimentCards]);
 
     return (
         <div className="border shadow rounded p-3 mb-3">
@@ -220,7 +250,16 @@ const Experiments = ({endpoint, project, title}) => {
                     <h2>{title}</h2>
                 </div>
                 <div className="col-3 text-end">
-                    <SortDropdown rules={sortRules} setRule={setSortRule} />
+                    <div className="dropdown">
+                        <button className="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort by
+                        </button>
+                        <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            <li><button className="dropdown-item" onClick={() => setSortby("newest")}>Newest</button></li>
+                            <li><button className="dropdown-item" onClick={() => setSortby("oldest")}>Oldest</button></li>
+                            <li><button className="dropdown-item" onClick={() => setSortby("duration")}>Duration</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             {contents}
@@ -229,3 +268,4 @@ const Experiments = ({endpoint, project, title}) => {
 };
 
 export default Experiments;
+export {getExperiments};

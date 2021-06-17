@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
 import {msToHoursMinutesSeconds} from "./util.js";
+import {getExperiments} from "./Experiments.js";
 
 const getGpus = (setGpus) => {
     axios.get("/api/gpu_stats").then(res => {
@@ -13,26 +14,32 @@ const getGpus = (setGpus) => {
                 user: data.last_user,
                 util: data.last_utilisation_pct,
                 memory: data.last_memory_used_mib,
-                maxMemory: data.total_memory_mib
+                maxMemory: data.total_memory_mib,
+                uuid: data.uuid,
             });
         }
         setGpus(tempGpus);
     });
 };
 
-const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
+const GPUCard = ({user, index, name, util, memory, maxMemory, uuid}) => {
     const icon = !user ? "available.png" : "busy.png";
     const userText = !user ? "Available" : user;
     const collapseId = "gpuCardCollapse" + index;
+    const [currentExperiments, setCurrentExperiments] = useState([]);
 
-    let currentExperiments = [
-        {user: "Delilah Han", name: "Colddog vs Hotdog classifer", duration: 1204},
-        {user: "Joe Stacey", name: "Muffins vs Dogs Detector"},
-        {user: "Sherry Edwards", name: "Hotdog classifer"},
-    ].map((data, index) =>
-        <li key={index} className={"list-group-item" + (index == 0 ? " text-primary" : "")}>
+    useEffect(() => {
+        getExperiments(setCurrentExperiments, ["running", "queued"], uuid, 10, "oldest");
+        const interval = setInterval(() => getExperiments(setCurrentExperiments, ["running", "queued"], uuid, 10, "oldest"), 1000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
+    let experimentListItems = currentExperiments.map((data, index) =>
+        <li key={index} className={"list-group-item" + (data.status === "RUNNING" ? " text-primary" : "")}>
             <span className="d-inline-flex w-100 justify-content-between">
-                {data.name} {data.duration ? "- " + msToHoursMinutesSeconds(data.duration) : ""}
+                {data.name} {data.status === "RUNNING" ? "- " + msToHoursMinutesSeconds(Date.now() - data.start) : ""}
                 <small>{data.user}</small>
             </span>
         </li>
@@ -75,7 +82,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
                 </div>
                 <div className="accordian-body collapse" id={collapseId}>
                     <ul className="list-group pe-0 list-group-flush">
-                        {currentExperiments}
+                        {experimentListItems}
                     </ul>
                 </div>
             </div>

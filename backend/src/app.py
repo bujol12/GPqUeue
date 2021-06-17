@@ -21,6 +21,7 @@ from src.param_parsing import parametric_cli
 from src.user import User
 
 app = Flask(__name__)
+app.config['JSON_SORT_KEYS'] = False
 app.secret_key = '0785f0f7-43fd-4148-917f-62f915d94e38'  # a random uuid4
 app.register_blueprint(src.auth.bp)
 
@@ -122,69 +123,83 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
         result[gpu_name] = gpu.get_stats()
     return result
 
+@app.route("/jobs")
+@login_required
+@use_args({
+    'statuses[]': fields.List(fields.Str(), required=False, default=[], missing=[]),
+    'gpu': fields.Str(required=False, default="", missing=""),
+    'count': fields.Int(required=False, default=10, missing=5),
+    'sortBy': fields.Str(required=False, default="newest", missing="newest"),
+    'project': fields.Str(required=False, default="", missing=""),
+    'public': fields.Bool(required=False, default=False, missing=False),
+}, location="query")
+def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    raw_statuses: List[str] = args["statuses[]"]
+    gpu: str = args["gpu"]
+    count: int = args["count"]
+    sortBy: str = args["sortBy"]
+    project: str = args['project']
+    public: bool = args['public']
+    statuses = []
 
-def get_jobs(
-    status_list: List[JobStatus],
-    project: str,
-    public: bool = False
-) -> List[Dict[str, Any]]:
-    job_dict_list: List[List[Dict[str, Any]]]
-    job_dict_list = [get_database().fetch_all_matching(
-        'status',
-        status.value
-    ) for status in status_list]
-    job_list: List[Job] = [job for job in
-                           [Job.load(_dict)
-                            for _list in job_dict_list
-                            for _dict in _list]
-                           if job is not None]
+    for status in raw_statuses:
+        if status == "queued":
+            statuses.append(JobStatus.QUEUED)
+        elif status == 'running':
+            statuses.append(JobStatus.RUNNING)
+        elif status == 'failed':
+            statuses.append(JobStatus.FAILED)
+        elif status == 'cancelled':
+            statuses.append(JobStatus.CANCELLED)
+        elif status == 'completed':
+            statuses.append(JobStatus.COMPLETED)
 
-    result_list: List[Dict[str, Any]]
+    # fetch jobs
+    job_dicts: List[Dict[str, Any]]
+    job_dicts = get_database().fetch_jobs()
+    job_dicts = filter(lambda j: j is not None, job_dicts)
+    jobs: List[Job]
+    jobs = map(lambda j: Job.load(j), job_dicts)
 
+    # filter by user
     if not public:
-        result_list = [job.dump()
-                       for job in job_list
-                       if job.user == current_user and job.project == project]
-    else:
-        result_list = [job.dump() for job in job_list]
+        jobs = filter(lambda j: j.user == current_user, jobs)
 
-    return result_list
+    # filter by project
+    if project != "":
+        jobs = filter(lambda j: j.project == project, jobs)
 
+    # filter by status
+    if statuses != []:
+        jobs = filter(lambda j: j.status in statuses, jobs)
 
-@app.route("/finished_jobs")
-@login_required
-@use_args({
-    'project': fields.Str(required=True),
-    'public': fields.Bool(required=False, default=False, missing=False),
-}, location='query')
-def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
-    project: str = args['project']
-    public: bool = args['public']
-    jobs = {"jobs": get_jobs(
-        [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED],
-        project,
-        public=public,
-    )}
+    # filter by gpu
+    # ugly because filters didn't work
+    if gpu != "":
+        logger.warning(gpu)
+        temp_jobs = []
+        for j in jobs:
+            gpu_uuids = []
+            for g in j.gpus_list:
+                logger.warning("Found " + g.uuid)
+                gpu_uuids.append(g.uuid)
+            if gpu in gpu_uuids:
+                temp_jobs.append(j)
+        jobs = temp_jobs
 
-    return jobs
+    # sort jobs
+    if sortBy == "newest":
+        jobs = sorted(jobs, key=lambda j: j.start_time, reverse=True)
+    elif sortBy == "oldest":
+        jobs = sorted(jobs, key=lambda j: j.start_time, reverse=False)
+    elif sortBy == "duration":
+        jobs = sorted(jobs, key=lambda j: j.finish_time - j.start_time if j.finish_time != None else datetime.now() - j.start_time, reverse=True)
 
+    job_dicts = map(lambda j: j.dump(), jobs)
 
-@app.route("/ongoing_jobs")
-@login_required
-@use_args({
-    'project': fields.Str(required=True),
-    'public': fields.Bool(required=False, default=False, missing=False),
-}, location='query')
-def get_ongoing_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
-    project: str = args['project']
-    public: bool = args['public']
-
-    return {"jobs": get_jobs(
-        [JobStatus.QUEUED, JobStatus.RUNNING],
-        project,
-        public=public
-    )}
-
+    return {
+        "jobs": list(job_dicts)[:count]
+    }
 
 @app.route("/add_job", methods=['POST'])
 @login_required
@@ -301,10 +316,10 @@ def get_projects() -> Dict[str, Any]:
 def mock_available_gpus():
     global GPU_DCT
     GPU_DCT.update({
-        "0": MockedGPU(name="0", model="mockedGPU", total_memory_mib=12000),
-        "1": MockedGPU(name="1", model="mockedGPU", total_memory_mib=10000),
-        "2": MockedGPU(name="2", model="mockedGPU", total_memory_mib=8000),
-        "3": MockedGPU(name="3", model="mockedGPU", total_memory_mib=16000)
+        "0": MockedGPU(name="0", model="mockedGPU", total_memory_mib=12000, uuid="214175be-8c20-4f6d-8e25-bdc9c438a898"),
+        "1": MockedGPU(name="1", model="mockedGPU", total_memory_mib=10000, uuid="3c7a2a0e-1d5d-4df8-a85e-3dbe79de801c"),
+        "2": MockedGPU(name="2", model="mockedGPU", total_memory_mib=8000, uuid="ee415e66-c0bf-45ba-a944-0c5fb2cd7fa3"),
+        "3": MockedGPU(name="3", model="mockedGPU", total_memory_mib=16000, uuid="af20175a-f19c-4962-8f2f-983d3038a87b")
     })
 
 
