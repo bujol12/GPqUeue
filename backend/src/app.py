@@ -61,8 +61,10 @@ def run_new_jobs():
             queue = gpu.fetch_queue()
             logger.warning(queue)
             if len(queue) > 0:
-                queue[0]["gpus_list"] = list(map(lambda x: GPU_DCT.get(
-                    x, None), json.loads(queue[0].get("gpus_list"))))
+                queue[0]["gpus_list"] = list(map(
+                    lambda x: GPU.load(x),
+                    json.loads(queue[0].get("gpus_list"))
+                ))
                 job = Job.from_dict(queue[0])
                 logger.warning("queue0" + str(job))
                 job.run_job()
