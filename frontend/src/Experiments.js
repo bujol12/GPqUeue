@@ -168,10 +168,10 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
     );
 };
 
-const getExperiments = (setExperiments, statuses, gpus, count, sortby) => {
+const getExperiments = (setExperiments, statuses, gpu, count, sortby) => {
     const params = {
         statuses: statuses,
-        gpus: gpus,
+        gpu: gpu,
         count: count,
         sortby: sortby,
     };
@@ -186,7 +186,7 @@ const getExperiments = (setExperiments, statuses, gpus, count, sortby) => {
                 name: res.data.jobs[key].name,
                 path: res.data.jobs[key].script_path,
                 uuid: res.data.jobs[key].uuid,
-                user: `${res.data.jobs[key].user.username}`,
+                user: res.data.jobs[key].user.username,
                 status: res.data.jobs[key].status,
                 gpus: res.data.jobs[key].gpus_list,
                 start: res.data.jobs[key].start_time,
@@ -204,14 +204,12 @@ const Experiments = ({statuses, title}) => {
     const [sortBy, setSortby] = useState("newest");
 
     useEffect(() => {
-        getExperiments(setExperiments, statuses, count, sortBy);
-        const interval = setInterval(() => getExperiments(setExperiments, statuses, [], count, sortBy), 1000);
+        getExperiments(setExperiments, statuses, "", count, sortBy);
+        const interval = setInterval(() => getExperiments(setExperiments, statuses, "", count, sortBy), 1000);
         return () => {
             clearInterval(interval);
         };
     }, [sortBy]);
-
-    console.log(experiments);
 
     const experimentCards = experiments.map((data, index) =>
         <ExperimentCard key={index} prefix={prefix} {...data} />

@@ -125,16 +125,16 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
 @app.route("/jobs")
 @login_required
 @use_args({
-    'statuses[]': fields.List(fields.Str(), required=False, default=["completed"], missing=["completed"]),
-    'gpus[]': fields.List(fields.Str(), required=False, default=[], missing=[]),
+    'statuses[]': fields.List(fields.Str(), required=False, default=[], missing=[]),
+    'gpu': fields.Str(required=False, default="", missing=""),
     'count': fields.Int(required=False, default=10, missing=5),
     'sortby': fields.Str(required=False, default="newest", missing="newest"),
     'project': fields.Str(required=False, default="", missing=""),
     'public': fields.Bool(required=False, default=False, missing=False),
 }, location="query")
 def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
-    raw_statuses = args["statuses[]"]
-    gpus = args["gpus[]"]
+    raw_statuses: List[str] = args["statuses[]"]
+    gpu: str = args["gpu"]
     count: int = args["count"]
     sortby: str = args["sortby"]
     project: str = args['project']
@@ -169,11 +169,22 @@ def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
         jobs = filter(lambda j: j.project == project, jobs)
 
     # filter by status
-    jobs = filter(lambda j: j.status in statuses, jobs)
+    if statuses != []:
+        jobs = filter(lambda j: j.status in statuses, jobs)
 
-    # filter by gpus
-    if gpus != []:
-        gpus = filter(lambda j: j.gpu)
+    # filter by gpu
+    # ugly because filters didn't work
+    if gpu != "":
+        logger.warning(gpu)
+        temp_jobs = []
+        for j in jobs:
+            gpu_uuids = []
+            for g in j.gpus_list:
+                logger.warning("Found " + g.uuid)
+                gpu_uuids.append(g.uuid)
+            if gpu in gpu_uuids:
+                temp_jobs.append(j)
+        jobs = temp_jobs
 
     # sort jobs
     if sortby == "newest":
@@ -304,10 +315,10 @@ def get_projects() -> Dict[str, Any]:
 def mock_available_gpus():
     global GPU_DCT
     GPU_DCT.update({
-        "0": MockedGPU(name="0", model="mockedGPU", total_memory_mib=12000),
-        "1": MockedGPU(name="1", model="mockedGPU", total_memory_mib=10000),
-        "2": MockedGPU(name="2", model="mockedGPU", total_memory_mib=8000),
-        "3": MockedGPU(name="3", model="mockedGPU", total_memory_mib=16000)
+        "0": MockedGPU(name="0", model="mockedGPU", total_memory_mib=12000, uuid="214175be-8c20-4f6d-8e25-bdc9c438a898"),
+        "1": MockedGPU(name="1", model="mockedGPU", total_memory_mib=10000, uuid="3c7a2a0e-1d5d-4df8-a85e-3dbe79de801c"),
+        "2": MockedGPU(name="2", model="mockedGPU", total_memory_mib=8000, uuid="ee415e66-c0bf-45ba-a944-0c5fb2cd7fa3"),
+        "3": MockedGPU(name="3", model="mockedGPU", total_memory_mib=16000, uuid="af20175a-f19c-4962-8f2f-983d3038a87b")
     })
 
 
