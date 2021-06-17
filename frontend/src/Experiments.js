@@ -108,7 +108,20 @@ const ExperimentCardDetails = (end, start, status, gpu, dataset, uuid) => {
 };
 
 const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, prefix }) => {
-    const icon = `/${status ? status.toLowerCase() : ""}.png`;
+    let icon;
+
+    if (status === "RUNNING") {
+        icon = (
+            <div className="icon spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
+        );
+    } else {
+        icon = (
+            <img className="icon" src={`/${status ? status.toLowerCase() : ""}.png`} />
+        );
+    }
+
     const [infoText, setInfoText] = useState(getInfoText(status, start, end));
     const [details, setDetails] = useState("");
     const _prefix = `${prefix}-experimentCard`;
@@ -136,7 +149,7 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
                     <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
                         <div className="row w-100">
                             <div className="icon-col align-self-center mb-- me-3">
-                                <img className="icon" src={icon} />
+                                {icon}
                             </div>
                             <div className="col pt-3 me-3 text-start">
                                 <h3>{name}</h3>
