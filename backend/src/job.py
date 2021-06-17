@@ -168,7 +168,6 @@ class Job(ABCJob):
     def _serialisation_filter(_: attr.Attribute, v: Any) -> bool:
         return v is not None and not isinstance(v, subprocess.Popen)
 
-
     def to_dict(self) -> Dict[str, Union[str, float, int, Dict[str, Any]]]:
         @singledispatch
         def _convert(arg: Any) -> Union[str, float, int, Dict[str, Any]]:
@@ -199,7 +198,10 @@ class Job(ABCJob):
 
         return dict([(k, _convert(v)) for k, v in _dict.items()])
 
-    def dump(self) -> Dict[str, Union[str, float, Optional[int]]]:
+    def dump(
+        self,
+        use_gpu_name: bool = False,
+    ) -> Dict[str, Union[str, float, Optional[int]]]:
         @singledispatch
         def _converters(arg: Any) -> Union[str, float, Optional[int]]:
             raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
@@ -220,7 +222,11 @@ class Job(ABCJob):
 
         @_converters.register(list)
         def _converters_list(args: List[GPU]) -> str:
-            _list: List[str] = [arg.get_name() for arg in args]
+            _list: List[str]
+            if use_gpu_name:
+                _list = [arg.get_name() for arg in args]
+            else:
+                _list = [arg.get_id() for arg in args]
             return json.dumps(_list)
 
         @_converters.register(dict)

@@ -142,11 +142,11 @@ def get_jobs(
     result_list: List[Dict[str, Any]]
 
     if not public:
-        result_list = [job.to_dict()
+        result_list = [job.dump()
                        for job in job_list
                        if job.user == current_user and job.project == project]
     else:
-        result_list = [job.to_dict() for job in job_list]
+        result_list = [job.dump() for job in job_list]
 
     return result_list
 
@@ -275,7 +275,7 @@ def get_job_details() -> Dict[str, Any]:
             "error": "Job not found.",
         }
 
-    return job.dump()
+    return job.dump(use_gpu_name=True)
 
 
 @app.route("/curr_dir", methods=['GET'])
