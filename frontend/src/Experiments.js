@@ -142,7 +142,6 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
                             <div className="col pt-3 me-3 text-start">
                                 <h3>{name}</h3>
                                 <p>{project}</p>
-                                <p>{uuid}</p>
                             </div>
                             {infoText}
                         </div>
