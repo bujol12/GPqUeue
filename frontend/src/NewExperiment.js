@@ -57,7 +57,7 @@ const getGpus = (setGpus) => {
     });
 };
 
-function cliArgLists({ setYaml }) {
+/*function cliArgLists({ setYaml }) {
     const [argNames, setArgNames] = useState([]);
     const [options, setOptions] = useState([]);
 
@@ -108,7 +108,7 @@ function cliArgLists({ setYaml }) {
             {display}
         </div>
     )
-}
+}*/
 
 function AdvancedOptions({ setYaml }) {
     const label = "advanced-options";
