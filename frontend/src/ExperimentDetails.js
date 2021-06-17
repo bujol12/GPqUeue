@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import axios from "axios";
 import {msToHoursMinutesSeconds, msToTimeString} from "./util.js";
+import { routerHistory } from "./App.js";
 
 const getDetails = (uuid, setDetails) => {
     axios.get("/api/job_details", {
@@ -41,8 +42,13 @@ const ExperimentDetails = ({match}) => {
         statusColour = "text-danger";
     }
 
+    const backButton = () => {
+        routerHistory.goBack();
+    };
+
     return (
         <div className="container">
+            <button type="button" className="btn btn-outline-primary mt-3" onClick={backButton}>&lt; Back</button>
             <div className="row">
                 <h1 className="pt-4 mb-4">Details - {details.name}</h1>
             </div>
