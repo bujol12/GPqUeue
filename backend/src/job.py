@@ -144,6 +144,11 @@ class Job(ABCJob):
     def _get_DB_key(uuid: str) -> str:
         return f'-Job-{uuid}'
 
+    @staticmethod
+    def _serialisation_filter(_: attr.Attribute, v: Any) -> bool:
+        return v is not None and not isinstance(v, subprocess.Popen)
+
+
     def to_dict(self) -> Dict[str, Union[str, float, int, Dict[str, Any]]]:
         @singledispatch
         def _convert(arg: Any) -> Union[str, float, int, Dict[str, Any]]:
@@ -169,7 +174,7 @@ class Job(ABCJob):
 
         _dict: Dict[str, Union[str, Enum]] = attr.asdict(
             self,
-            filter=lambda a, v: v is not None,
+            filter=self._serialisation_filter,
         )
 
         return dict([(k, _convert(v)) for k, v in _dict.items()])
@@ -178,10 +183,6 @@ class Job(ABCJob):
         @singledispatch
         def _converters(arg: Any) -> Union[str, float, Optional[int]]:
             raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
-
-        @_converters.register(subprocess.Popen)
-        def _converters_as_ignore(arg: subprocess.Popen):
-            return {}
 
         @_converters.register(str)
         @_converters.register(int)
@@ -209,7 +210,7 @@ class Job(ABCJob):
         _dict: Dict[str, Union[str, float, Optional[int]]]
         _dict = attr.asdict(
             self,
-            filter=lambda a, v: v is not None,
+            filter=self._serialisation_filter,
             recurse=False,
             value_serializer=lambda inst, a, v: _converters(v),
         )
