@@ -27,8 +27,8 @@ def _load_gpus_list(arg: Any) -> List[GPU]:
 
 
 @_load_gpus_list.register(list)
-def _load_gpus_list_as_is(arg: List[GPU]) -> List[GPU]:
-    return arg
+def _load_gpus_list_as_is(args: List[GPU]) -> List[GPU]:
+    return [GPU.load(arg) for arg in args]
 
 
 @_load_gpus_list.register(str)
