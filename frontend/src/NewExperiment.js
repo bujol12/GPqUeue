@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from "react";
-import {Link, useHistory} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
 import { ImportFromFileBodyComponent, readFileAsync } from "./FileReader";
 import { AutoTextArea } from "./util";
@@ -159,12 +159,16 @@ batch: [4, 5]`
     const yamlExamples = (
         <div>
             <div id="nameHelp" className="form-text">
-                {"Example YAML file for command "}
+                Example:
+            </div>
+            <div id="nameHelp" className="form-text">
+                {"CLI Command: "}
                 <code>
-                    &quot;{commandExample}&quot;
+                    {commandExample}
                 </code>
             </div>
-            <div id="nameHelp2" className="form-text">
+            <div id="nameHelp" className="form-text">
+                {"YAML File:"}
                 <code>
                     <pre>
                         {yamlExampleCode}
@@ -172,7 +176,7 @@ batch: [4, 5]`
                 </code>
             </div>
             <div id="nameHelp" className="form-text">
-                will be interpreted as
+                will run 4 independent experiments with all possible combinations of parameters
             </div>
             {yamlExampleCommandDisplay}
         </div>
@@ -180,21 +184,21 @@ batch: [4, 5]`
 
     return (
         <div className="mb-3">
+
             <div className="accordion-item">
                 <h2 className="accordion-header ms-2" id={label}>
                     <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
                         <div className="row w-100">
-                            Advanced Options
+                            Schedule Multiple Experiments (Optional)
                         </div>
                     </button>
                 </h2>
                 <div id={id} className="accordion-collapse collapse" aria-labelledby={label}>
                     <div className="accordion-body">
                         <div>
-                            <h3>Batch Running (Optional)</h3>
                             <div id="nameHelp" className="form-text">Schedule a bunch of experiments with different configurations / parameters
                             </div>
-                            <div className="mt-0">
+                            <div className="mt-1">
                                 Import from YAML file:
                             </div>
                             {yaml}
@@ -203,10 +207,6 @@ batch: [4, 5]`
                             </div>
                             {yamlTextArea}
                             {yamlExamples}
-                            {/* <div className="mt-3">
-                                Or add one by one:
-                                {cliArgLists(setYaml)}
-                            </div> */}
                         </div>
                     </div>
                 </div>
@@ -273,7 +273,7 @@ const NewExperiment = () => {
         <div key={index} className="form-check">
             <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" onChange={updateChosenGpus(data.index)} />
             <label className="form-check-label" htmlFor="flexCheckDefault">
-            GPU {data.index} - {data.name} ( {data.memory} / {data.maxMemory} MiB )
+                GPU {data.index} - {data.name} ( {data.memory} / {data.maxMemory} MiB )
             </label>
         </div>
     );
@@ -340,9 +340,9 @@ const NewExperiment = () => {
                     <div className="card-body">
                         <input type="text" className="form-control" id="experiment_name"
                             aria-describedby="nameHelp" placeholder="e.g. Hot Dog vs Cold Dog Classifer"
-                            onChange={handleChange(setName)}/>
+                            onChange={handleChange(setName)} />
                         <div id="nameHelp" className="form-text">Give your experiment a good unique name so
-                                    it&apos;s easy to find later.
+                            it&apos;s easy to find later.
                         </div>
                     </div>
                 </div>
@@ -396,4 +396,4 @@ const NewExperimentFailed = () => {
     );
 };
 
-export {NewExperiment, NewExperimentFailed};
+export { NewExperiment, NewExperimentFailed };
