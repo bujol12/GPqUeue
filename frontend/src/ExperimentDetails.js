@@ -30,7 +30,7 @@ const ExperimentDetails = ({match}) => {
         );
     }
 
-    const runtime = msToHoursMinutesSeconds(details.endTime - details.startTime);
+    const runtime = msToHoursMinutesSeconds(details.finish_time - details.start_time);
 
     let statusColour = "";
 
@@ -75,15 +75,15 @@ const ExperimentDetails = ({match}) => {
                             </tr>
                             <tr>
                                 <td>Runtime</td>
-                                <td>{details.startTime ? runtime : "-"}</td>
+                                <td>{details.start_time ? runtime : "-"}</td>
                             </tr>
                             <tr>
                                 <td>Started</td>
-                                <td>{details.startTime ? msToTimeString(details.startTime) : "-"}</td>
+                                <td>{details.start_time ? msToTimeString(details.start_time) : "-"}</td>
                             </tr>
                             <tr>
                                 <td>Finished</td>
-                                <td>{details.endTime ? msToTimeString(details.endTime) : "-"}</td>
+                                <td>{details.finish_time ? msToTimeString(details.finish_time) : "-"}</td>
                             </tr>
                             <tr>
                                 <td>GPU</td>
