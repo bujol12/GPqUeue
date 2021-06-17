@@ -95,6 +95,10 @@ def get_gpus():
     else:
         pass
 
+    # register every gpu in database
+    for gpu in GPU_DCT.values():
+        gpu.commit()
+
 
 @app.before_first_request
 def setup_redis():
