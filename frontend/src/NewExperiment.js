@@ -348,6 +348,15 @@ const NewExperiment = () => {
 
                 <div className="card mb-3 shadow">
                     <div className="card-header">
+                        Select GPUs*
+                    </div>
+                    <div className="card-body">
+                        {gpuCheckboxes}
+                    </div>
+                </div>
+
+                <div className="card mb-3 shadow">
+                    <div className="card-header">
                         Current Directory
                     </div>
                     <div className="card-body">
@@ -367,15 +376,6 @@ const NewExperiment = () => {
                         <div className="mt-3">
                             {advancedOptions}
                         </div>
-                    </div>
-                </div>
-
-                <div className="card mb-3 shadow">
-                    <div className="card-header">
-                            Select GPUs*
-                    </div>
-                    <div className="card-body">
-                        {gpuCheckboxes}
                     </div>
                 </div>
 
