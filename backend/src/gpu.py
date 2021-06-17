@@ -130,6 +130,9 @@ class GPU(ABCGPU):
     def _get_DB_key(uuid: str) -> str:
         return f'-GPU-{uuid}'
 
+    def commit(self) -> bool:
+        return get_database().add_key(self.get_DB_key(), self.dump())
+
     @classmethod
     def load(cls, arg: Any) -> Optional[GPU]:
         return load(arg, cls)

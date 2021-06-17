@@ -27,8 +27,8 @@ def _load_gpus_list(arg: Any) -> List[GPU]:
 
 
 @_load_gpus_list.register(list)
-def _load_gpus_list_as_is(arg: List[GPU]) -> List[GPU]:
-    return arg
+def _load_gpus_list_as_is(args: List[GPU]) -> List[GPU]:
+    return [GPU.load(arg) for arg in args]
 
 
 @_load_gpus_list.register(str)
@@ -43,12 +43,30 @@ def _load_gpus_list_json_string(arg: str) -> List[GPU]:
     raise NotImplementedError(f"Unexpected decoded arg: {res} ({type(res)})")
 
 
+@singledispatch
+def _load_cli_args(arg: Any) -> Dict[str, str]:
+    return arg
+
+
+@_load_cli_args.register(dict)
+def _load_cli_args_as_is(arg: Dict[str, str]) -> Dict[str, str]:
+    return arg
+
+
+@_load_cli_args.register(str)
+def _load_cli_args_str(arg: str) -> Dict[str, str]:
+    return json.loads(arg)
+
+
 @attr.define(slots=False, frozen=False)
 class Job(ABCJob):
     project: str
     name: str
     script_path: str
-    cli_args: str = ''
+    cli_args: Dict[str, str] = attr.ib(
+        default=dict(),
+        converter=_load_cli_args,
+    )
     user: User = attr.ib(
         default=None,
         converter=attr.converters.optional(User.load)
@@ -103,6 +121,8 @@ class Job(ABCJob):
                 [f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path], shell=True)
             logger.warning("Done new process " + str(datetime.now()))
 
+        self.commit()
+
     def is_finished(self):
         if self.process is not None and self.process.poll() is not None:
             logger.warning("JOB FINISHED")
@@ -148,7 +168,6 @@ class Job(ABCJob):
     def _serialisation_filter(_: attr.Attribute, v: Any) -> bool:
         return v is not None and not isinstance(v, subprocess.Popen)
 
-
     def to_dict(self) -> Dict[str, Union[str, float, int, Dict[str, Any]]]:
         @singledispatch
         def _convert(arg: Any) -> Union[str, float, int, Dict[str, Any]]:
@@ -179,7 +198,10 @@ class Job(ABCJob):
 
         return dict([(k, _convert(v)) for k, v in _dict.items()])
 
-    def dump(self) -> Dict[str, Union[str, float, Optional[int]]]:
+    def dump(
+        self,
+        use_gpu_name: bool = False,
+    ) -> Dict[str, Union[str, float, Optional[int]]]:
         @singledispatch
         def _converters(arg: Any) -> Union[str, float, Optional[int]]:
             raise NotImplementedError(f"Unexpected arg: {arg} ({type(arg)})")
@@ -200,8 +222,16 @@ class Job(ABCJob):
 
         @_converters.register(list)
         def _converters_list(args: List[GPU]) -> str:
-            _list: List[str] = [arg.get_name() for arg in args]
+            _list: List[str]
+            if use_gpu_name:
+                _list = [arg.get_name() for arg in args]
+            else:
+                _list = [arg.get_id() for arg in args]
             return json.dumps(_list)
+
+        @_converters.register(dict)
+        def _converters_dict(args: Dict[str, str]) -> str:
+            return json.dumps(args)
 
         @_converters.register(User)
         def _converters_user(arg: User) -> str:

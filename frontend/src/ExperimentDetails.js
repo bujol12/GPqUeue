@@ -30,7 +30,7 @@ const ExperimentDetails = ({match}) => {
         );
     }
 
-    const runtime = msToHoursMinutesSeconds(details.endTime - details.startTime);
+    const runtime = msToHoursMinutesSeconds(details.finish_time - details.start_time);
 
     let statusColour = "";
 
@@ -45,6 +45,16 @@ const ExperimentDetails = ({match}) => {
     const backButton = () => {
         routerHistory.goBack();
     };
+
+    const cliArgs = JSON.parse(details.cli_args);
+    const cliCount = Object.keys(cliArgs).length;
+    const cliArgsDisplayText = (
+        cliCount != 0 ?
+            Object.keys(cliArgs).map(
+                (key, index) => (`${key}: ${cliArgs[key]}`)
+            ).join("\n")
+            : "<Empty>"
+    );
 
     return (
         <div className="container">
@@ -70,24 +80,24 @@ const ExperimentDetails = ({match}) => {
                                 <td className={statusColour}>{details.status.toLowerCase()}</td>
                             </tr>
                             <tr>
-                                <td>Arguments</td>
-                                <td>{details.cli_args !== "" ? (<code>{details.cli_args}</code>) : "-"}</td>
+                                <td>Command</td>
+                                <td>{details.script_path !== "" ? (<code>{details.script_path}</code>) : "-"}</td>
                             </tr>
                             <tr>
                                 <td>Runtime</td>
-                                <td>{details.startTime ? runtime : "-"}</td>
+                                <td>{details.start_time ? runtime : "-"}</td>
                             </tr>
                             <tr>
                                 <td>Started</td>
-                                <td>{details.startTime ? msToTimeString(details.startTime) : "-"}</td>
+                                <td>{details.start_time ? msToTimeString(details.start_time) : "-"}</td>
                             </tr>
                             <tr>
                                 <td>Finished</td>
-                                <td>{details.endTime ? msToTimeString(details.endTime) : "-"}</td>
+                                <td>{details.finish_time ? msToTimeString(details.finish_time) : "-"}</td>
                             </tr>
                             <tr>
                                 <td>GPU</td>
-                                <td>TODO</td>
+                                <td>{JSON.parse(details.gpus_list)}</td>
                             </tr>
                             <tr>
                                 <td>Dataset</td>
@@ -100,7 +110,7 @@ const ExperimentDetails = ({match}) => {
                         </tbody>
                     </table>
                     <h3>Configuration</h3>
-                    <textarea style={{resize: "none", width: "100%"}} rows="9" readOnly>TODO</textarea>
+                    <textarea style={{ resize: "none", width: "100%" }} rows={`${cliCount}`} readOnly>{cliArgsDisplayText}</textarea>
                 </div>
                 <div className="col">
                     <h3>Log</h3>

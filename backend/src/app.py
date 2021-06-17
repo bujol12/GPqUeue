@@ -47,7 +47,6 @@ def check_running_jobs():
                 success = False
 
             job.complete_job(datetime.now(), success=success)
-            get_database().add_key(job.get_DB_key(), job.dump())
 
     for job in to_remove:
         running_jobs.remove(job)
@@ -62,12 +61,13 @@ def run_new_jobs():
             queue = gpu.fetch_queue()
             logger.warning(queue)
             if len(queue) > 0:
-                queue[0]["gpus_list"] = list(map(lambda x: GPU_DCT.get(
-                    x, None), json.loads(queue[0].get("gpus_list"))))
+                queue[0]["gpus_list"] = list(map(
+                    lambda x: GPU.load(x),
+                    json.loads(queue[0].get("gpus_list"))
+                ))
                 job = Job.from_dict(queue[0])
                 logger.warning("queue0" + str(job))
                 job.run_job()
-                get_database().add_key(job.get_DB_key(), job.dump())
                 running_jobs.append(job)
                 gpu.set_queue(queue[1:])
 
@@ -94,6 +94,10 @@ def get_gpus():
         mock_available_gpus()
     else:
         pass
+
+    # register every gpu in database
+    for gpu in GPU_DCT.values():
+        gpu.commit()
 
 
 @app.before_first_request
@@ -138,11 +142,11 @@ def get_jobs(
     result_list: List[Dict[str, Any]]
 
     if not public:
-        result_list = [job.to_dict()
+        result_list = [job.dump()
                        for job in job_list
                        if job.user == current_user and job.project == project]
     else:
-        result_list = [job.to_dict() for job in job_list]
+        result_list = [job.dump() for job in job_list]
 
     return result_list
 
@@ -192,12 +196,12 @@ def add_new_job() -> Dict[str, Any]:
     cli_args = request.json.get('cli_args')
     gpus = list(map(lambda x: GPU_DCT.get(x, None), request.json.get('gpus')))
 
-    def add_job(_script_path: str):
+    def add_job(_script_path: str, _cli_args: Dict[str, str]):
         job = Job(
             project=project,
             name=name,
             script_path=_script_path,
-            cli_args=cli_args,
+            cli_args=_cli_args,
             gpus_list=gpus,
             user=current_user,
         )
@@ -206,7 +210,7 @@ def add_new_job() -> Dict[str, Any]:
 
         # job.run_job()
 
-        get_database().add_key(job.get_DB_key(), job.dump())
+        job.commit()
 
     if yaml:
         args: List[Dict[str, Any]] = parametric_cli(
@@ -215,9 +219,10 @@ def add_new_job() -> Dict[str, Any]:
         )
         for arg_dict in args:
             command: str = arg_dict['command']
-            add_job(command)
+            arguments: Dict[str, str] = arg_dict['argument']
+            add_job(command, arguments)
     else:
-        add_job(script_path)
+        add_job(script_path, json.loads(cli_args or "{}"))
 
     return {"status": "success"}
 
@@ -270,7 +275,7 @@ def get_job_details() -> Dict[str, Any]:
             "error": "Job not found.",
         }
 
-    return job.to_dict()
+    return job.dump(use_gpu_name=True)
 
 
 @app.route("/curr_dir", methods=['GET'])
