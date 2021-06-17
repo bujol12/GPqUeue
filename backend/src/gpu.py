@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import logging
 from enum import Enum
 from functools import singledispatch
 from typing import Any, Dict, List, Optional, Type, Union
 from uuid import uuid4
 
 import attr
-import logging
 
 from src.database import get_database
 from src.enums.gpu_status import GpuStatus

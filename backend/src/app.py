@@ -32,7 +32,7 @@ login_manager.init_app(app)
 HAS_GPU = ((os.environ.get("gpu") or '').lower() in ('true', '1', 't'))
 GPU_DCT: Dict[str, GPU] = {}
 
-running_jobs = []
+running_jobs: List[Job] = []
 
 
 def check_running_jobs():

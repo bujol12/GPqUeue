@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import os
-import subprocess
 import json
 import logging
+import subprocess
 from datetime import datetime
 from enum import Enum
 from functools import singledispatch
@@ -20,6 +19,7 @@ from src.types import ABCJob
 from src.user import User
 
 logger = logging.getLogger(__name__)
+
 
 @singledispatch
 def _load_gpus_list(arg: Any) -> List[GPU]:
@@ -92,13 +92,15 @@ class Job(ABCJob):
         self.start_time = time or datetime.now()
         self.start_job(self.start_time)
 
-        available_gpus = ",".join(map(lambda obj: obj.get_name(), self.gpus_list))
+        available_gpus = ",".join(
+            map(lambda obj: obj.get_name(), self.gpus_list))
 
         if available_gpus != "":
             for gpu in self.gpus_list:
                 gpu.set_busy()
             logger.warning("Running new process " + str(datetime.now()))
-            self.process = subprocess.Popen([f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path], shell=True)
+            self.process = subprocess.Popen(
+                [f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path], shell=True)
             logger.warning("Done new process " + str(datetime.now()))
 
     def is_finished(self):
