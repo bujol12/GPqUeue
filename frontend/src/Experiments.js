@@ -168,9 +168,10 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
     );
 };
 
-const getExperiments = (setExperiments, statuses, count, sortby) => {
+const getExperiments = (setExperiments, statuses, gpus, count, sortby) => {
     const params = {
         statuses: statuses,
+        gpus: gpus,
         count: count,
         sortby: sortby,
     };
@@ -204,12 +205,13 @@ const Experiments = ({statuses, title}) => {
 
     useEffect(() => {
         getExperiments(setExperiments, statuses, count, sortBy);
-        const interval = setInterval(() => getExperiments(setExperiments, statuses, count, sortBy), 1000);
+        const interval = setInterval(() => getExperiments(setExperiments, statuses, [], count, sortBy), 1000);
         return () => {
             clearInterval(interval);
         };
     }, [sortBy]);
 
+    console.log(experiments);
 
     const experimentCards = experiments.map((data, index) =>
         <ExperimentCard key={index} prefix={prefix} {...data} />
@@ -254,3 +256,4 @@ const Experiments = ({statuses, title}) => {
 };
 
 export default Experiments;
+export {getExperiments};

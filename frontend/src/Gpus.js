@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
 import {msToHoursMinutesSeconds} from "./util.js";
+import {getExperiments} from "./Experiments.js";
 
 const getGpus = (setGpus) => {
     axios.get("/api/gpu_stats").then(res => {
@@ -24,12 +25,17 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
     const icon = !user ? "available.png" : "busy.png";
     const userText = !user ? "Available" : user;
     const collapseId = "gpuCardCollapse" + index;
+    const [currentExperiments, setCurrentExperiments] = useState([]);
 
-    let currentExperiments = [
-        {user: "Delilah Han", name: "Colddog vs Hotdog classifer", duration: 1204},
-        {user: "Joe Stacey", name: "Muffins vs Dogs Detector"},
-        {user: "Sherry Edwards", name: "Hotdog classifer"},
-    ].map((data, index) =>
+    useEffect(() => {
+        getExperiments(setCurrentExperiments, ["running", "queued"], 10, "oldest");
+        const interval = setInterval(() => getExperiments(setCurrentExperiments, ["running", "queued"], 10, "oldest"), 1000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
+    let experimentListItems = currentExperiments.map((data, index) =>
         <li key={index} className={"list-group-item" + (index == 0 ? " text-primary" : "")}>
             <span className="d-inline-flex w-100 justify-content-between">
                 {data.name} {data.duration ? "- " + msToHoursMinutesSeconds(data.duration) : ""}
@@ -75,7 +81,7 @@ const GPUCard = ({user, index, name, util, memory, maxMemory}) => {
                 </div>
                 <div className="accordian-body collapse" id={collapseId}>
                     <ul className="list-group pe-0 list-group-flush">
-                        {currentExperiments}
+                        {experimentListItems}
                     </ul>
                 </div>
             </div>

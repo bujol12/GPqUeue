@@ -126,16 +126,19 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
 @login_required
 @use_args({
     'statuses[]': fields.List(fields.Str(), required=False, default=["completed"], missing=["completed"]),
+    'gpus[]': fields.List(fields.Str(), required=False, default=[], missing=[]),
     'count': fields.Int(required=False, default=10, missing=5),
     'sortby': fields.Str(required=False, default="newest", missing="newest"),
     'project': fields.Str(required=False, default="", missing=""),
+    'public': fields.Bool(required=False, default=False, missing=False),
 }, location="query")
 def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
     raw_statuses = args["statuses[]"]
-    logger.warning(raw_statuses)
+    gpus = args["gpus[]"]
     count: int = args["count"]
     sortby: str = args["sortby"]
     project: str = args['project']
+    public: bool = args['public']
     statuses = []
 
     for status in raw_statuses:
@@ -150,14 +153,27 @@ def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
         elif status == 'completed':
             statuses.append(JobStatus.COMPLETED)
 
-
     # fetch jobs
     job_dicts: List[Dict[str, Any]]
     job_dicts = get_database().fetch_jobs()
     job_dicts = filter(lambda j: j is not None, job_dicts)
     jobs: List[Job]
     jobs = map(lambda j: Job.load(j), job_dicts)
-    jobs = filter(lambda j: j.user == current_user, jobs)
+
+    # filter by user
+    if not public:
+        jobs = filter(lambda j: j.user == current_user, jobs)
+
+    # filter by project
+    if project != "":
+        jobs = filter(lambda j: j.project == project, jobs)
+
+    # filter by status
+    jobs = filter(lambda j: j.status in statuses, jobs)
+
+    # filter by gpus
+    if gpus != []:
+        gpus = filter(lambda j: j.gpu)
 
     # sort jobs
     if sortby == "newest":
@@ -166,13 +182,6 @@ def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
         jobs = sorted(jobs, key=lambda j: j.start_time, reverse=True)
     elif sortby == "duration":
         jobs = sorted(jobs, key=lambda j: j.finish_time - j.start_time, reverse=True)
-
-    # filter by project
-    if project != "":
-        jobs = filter(lambda j: j.project == project, jobs)
-
-    # filter by status
-    jobs = filter(lambda j: j.status in statuses, jobs)
 
     job_dicts = map(lambda j: j.dump(), jobs)
 
