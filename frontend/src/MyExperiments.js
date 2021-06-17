@@ -45,8 +45,8 @@ const MyExperiments = () => {
             </div>
             <div className="col">
                 <h1 className="pt-4 mb-4">My Experiments</h1>
-                <Experiments className="mb-4" endpoint="/ongoing_jobs" project={project} title="Ongoing Experiments" />
-                <Experiments className="mb-4" endpoint="/finished_jobs" project={project} title="Finished Experiments" />
+                <Experiments className="mb-4" project="General" statuses={["running", "queued"]} title="Ongoing Experiments" />
+                <Experiments className="mb-4" project="General" statuses={["completed", "failed"]} title="Finished Experiments"/>
             </div>
         </div>
     );

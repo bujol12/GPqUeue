@@ -122,69 +122,63 @@ def get_gpu_stats() -> Dict[str, Dict[str, Any]]:
         result[gpu_name] = gpu.get_stats()
     return result
 
-
-def get_jobs(
-    status_list: List[JobStatus],
-    project: str,
-    public: bool = False
-) -> List[Dict[str, Any]]:
-    job_dict_list: List[List[Dict[str, Any]]]
-    job_dict_list = [get_database().fetch_all_matching(
-        'status',
-        status.value
-    ) for status in status_list]
-    job_list: List[Job] = [job for job in
-                           [Job.load(_dict)
-                            for _list in job_dict_list
-                            for _dict in _list]
-                           if job is not None]
-
-    result_list: List[Dict[str, Any]]
-
-    if not public:
-        result_list = [job.dump()
-                       for job in job_list
-                       if job.user == current_user and job.project == project]
-    else:
-        result_list = [job.dump() for job in job_list]
-
-    return result_list
-
-
-@app.route("/finished_jobs")
+@app.route("/jobs")
 @login_required
 @use_args({
-    'project': fields.Str(required=True),
-    'public': fields.Bool(required=False, default=False, missing=False),
-}, location='query')
-def get_finished_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    'statuses[]': fields.List(fields.Str(), required=False, default=["completed"], missing=["completed"]),
+    'count': fields.Int(required=False, default=10, missing=5),
+    'sortby': fields.Str(required=False, default="newest", missing="newest"),
+    'project': fields.Str(required=False, default="", missing=""),
+}, location="query")
+def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    raw_statuses = args["statuses[]"]
+    logger.warning(raw_statuses)
+    count: int = args["count"]
+    sortby: str = args["sortby"]
     project: str = args['project']
-    public: bool = args['public']
-    jobs = {"jobs": get_jobs(
-        [JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED],
-        project,
-        public=public,
-    )}
+    statuses = []
 
-    return jobs
+    for status in raw_statuses:
+        if status == "queued":
+            statuses.append(JobStatus.QUEUED)
+        elif status == 'running':
+            statuses.append(JobStatus.RUNNING)
+        elif status == 'failed':
+            statuses.append(JobStatus.FAILED)
+        elif status == 'cancelled':
+            statuses.append(JobStatus.CANCELLED)
+        elif status == 'completed':
+            statuses.append(JobStatus.COMPLETED)
 
 
-@app.route("/ongoing_jobs")
-@login_required
-@use_args({
-    'project': fields.Str(required=True),
-    'public': fields.Bool(required=False, default=False, missing=False),
-}, location='query')
-def get_ongoing_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
-    project: str = args['project']
-    public: bool = args['public']
+    # fetch jobs
+    job_dicts: List[Dict[str, Any]]
+    job_dicts = get_database().fetch_jobs()
+    job_dicts = filter(lambda j: j is not None, job_dicts)
+    jobs: List[Job]
+    jobs = map(lambda j: Job.load(j), job_dicts)
+    jobs = filter(lambda j: j.user == current_user, jobs)
 
-    return {"jobs": get_jobs(
-        [JobStatus.QUEUED, JobStatus.RUNNING],
-        project,
-        public=public
-    )}
+    # sort jobs
+    if sortby == "newest":
+        jobs = sorted(jobs, key=lambda j: j.start_time, reverse=True)
+    elif sortby == "oldest":
+        jobs = sorted(jobs, key=lambda j: j.start_time, reverse=True)
+    elif sortby == "duration":
+        jobs = sorted(jobs, key=lambda j: j.finish_time - j.start_time, reverse=True)
 
+    # filter by project
+    if project != "":
+        jobs = filter(lambda j: j.project == project, jobs)
+
+    # filter by status
+    jobs = filter(lambda j: j.status in statuses, jobs)
+
+    job_dicts = map(lambda j: j.dump(), jobs)
+
+    return {
+        "jobs": list(job_dicts)[:count]
+    }
 
 @app.route("/add_job", methods=['POST'])
 @login_required

@@ -38,6 +38,12 @@ class Database:
                 res.append(tmp)
         return res
 
+    def fetch_jobs(self) -> List[Any]:
+        res = []
+        for key in self.r.scan_iter("-Job-*"):
+            res.append(self.fetch_key(key))
+        return res
+
     def exists_key(self, key: str) -> int:
         return self.r.exists(key)
 

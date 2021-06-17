@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
-import {Sort, SortDropdown} from "./Sort.js";
 import {msToHoursMinutesSeconds, msToTimeString} from "./util.js";
 import axios from "axios";
 
@@ -169,17 +168,20 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
     );
 };
 
-const getExperiments = (setExperiments, endpoint, project) => {
-    axios.get(`/api/${endpoint}`, {
-        params: {
-            project: project
-        }
+const getExperiments = (setExperiments, statuses, count, sortby) => {
+    const params = {
+        statuses: statuses,
+        count: count,
+        sortby: sortby,
+    };
+
+    axios.get("/api/jobs", {
+        params: params
     }).then(res => {
         let tempExperiments = [];
         for (const key in Object.keys(res.data.jobs)) {
-            console.log(res.data.jobs[key]);
             tempExperiments.push({
-                project: project,
+                project: res.data.jobs[key].project,
                 name: res.data.jobs[key].name,
                 path: res.data.jobs[key].script_path,
                 uuid: res.data.jobs[key].uuid,
@@ -194,23 +196,24 @@ const getExperiments = (setExperiments, endpoint, project) => {
     });
 };
 
-const Experiments = ({endpoint, project, title}) => {
+const Experiments = ({statuses, title}) => {
     const prefix = title.replace(" ", "_");
     const [experiments, setExperiments] = useState([]);
+    const count = 10;
+    const [sortBy, setSortby] = useState("newest");
 
     useEffect(() => {
-        getExperiments(setExperiments, endpoint, project);
-    }, [project]);
+        getExperiments(setExperiments, statuses, count, sortBy);
+        const interval = setInterval(() => getExperiments(setExperiments, statuses, count, sortBy), 1000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, [sortBy]);
+
 
     const experimentCards = experiments.map((data, index) =>
         <ExperimentCard key={index} prefix={prefix} {...data} />
     );
-    const sortRules = [
-        {text: "Newest", prop: "start", increasing: true},
-        {text: "Oldest", prop: "start", increasing: false},
-        {text: "Duration", prop: "duration", increasing: false},
-    ];
-    const [sortRule, setSortRule] = useState(sortRules[0]);
 
     let contents;
 
@@ -220,9 +223,9 @@ const Experiments = ({endpoint, project, title}) => {
         );
     } else {
         contents = (
-            <Sort {...sortRule}>
+            <React.Fragment>
                 {experimentCards}
-            </Sort>
+            </React.Fragment>
         );
     }
 
@@ -233,7 +236,16 @@ const Experiments = ({endpoint, project, title}) => {
                     <h2>{title}</h2>
                 </div>
                 <div className="col-3 text-end">
-                    <SortDropdown rules={sortRules} setRule={setSortRule} />
+                    <div className="dropdown">
+                        <button className="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort by
+                        </button>
+                        <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            <li><button className="dropdown-item" onClick={() => setSortby("newest")}>Newest</button></li>
+                            <li><button className="dropdown-item" onClick={() => setSortby("oldest")}>Oldest</button></li>
+                            <li><button className="dropdown-item" onClick={() => setSortby("duration")}>Duration</button></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             {contents}
