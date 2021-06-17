@@ -215,7 +215,7 @@ def add_new_job() -> Dict[str, Any]:
             command: str = arg_dict['command']
             add_job(command)
     else:
-        add_job(cli_args)
+        add_job(script_path)
 
     return {"status": "success"}
 
