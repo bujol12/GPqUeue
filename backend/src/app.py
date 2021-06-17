@@ -62,7 +62,8 @@ def run_new_jobs():
             queue = gpu.fetch_queue()
             logger.warning(queue)
             if len(queue) > 0:
-                queue[0]["gpus_list"] = list(map(lambda x: GPU_DCT.get(x, None), json.loads(queue[0].get("gpus_list"))))
+                queue[0]["gpus_list"] = list(map(lambda x: GPU_DCT.get(
+                    x, None), json.loads(queue[0].get("gpus_list"))))
                 job = Job.from_dict(queue[0])
                 logger.warning("queue0" + str(job))
                 job.run_job()
@@ -77,7 +78,8 @@ def check_job_status_and_run_new():
 
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=check_job_status_and_run_new, trigger="interval", seconds=10)
+scheduler.add_job(func=check_job_status_and_run_new,
+                  trigger="interval", seconds=10)
 scheduler.start()
 
 
@@ -202,7 +204,7 @@ def add_new_job() -> Dict[str, Any]:
         for gpu in gpus:
             job.add_to_queue(gpu)
 
-        #job.run_job()
+        # job.run_job()
 
         get_database().add_key(job.get_DB_key(), job.dump())
 
