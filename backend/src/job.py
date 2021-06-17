@@ -78,7 +78,7 @@ class Job(ABCJob):
 
     def add_to_queue(self, gpu: GPU):
         curr_queue = gpu.fetch_queue()
-        curr_queue.append(self)
+        curr_queue.append(self.dump())
         logger.warning(curr_queue)
         gpu.set_queue(curr_queue)
 

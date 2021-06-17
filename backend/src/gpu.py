@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from functools import singledispatch
-from typing import Any, Dict, Optional, Type, Union, List
+from typing import Any, Dict, List, Optional, Type, Union
 from uuid import uuid4
 
 import attr
@@ -38,8 +38,11 @@ class GPU(ABCGPU):
     def get_queue_key(self):
         return "gpu_queue_" + self.name
 
-    def set_queue(self, new_queue: List[Any]):
-        get_database().add_key(self.get_queue_key(), {'queue': [v.dump() for v in new_queue]})
+    def set_queue(self, new_queue: List[Dict[str, Any]]) -> None:
+        get_database().add_key(
+            self.get_queue_key(),
+            {'queue': [v for v in new_queue]},
+        )
 
     def is_idle(self):
         BUSY_PCT_THRESHOLD = 0.10
@@ -47,7 +50,7 @@ class GPU(ABCGPU):
         return self.last_status == GpuStatus.IDLE
         #and (self.last_memory_used_mib / self.total_memory_mib) < BUSY_PCT_THRESHOLD
 
-    def fetch_queue(self):
+    def fetch_queue(self) -> List[Dict[str, Any]]:
         queue = get_database().fetch_key(self.get_queue_key()).get('queue', [])
         return queue
 
