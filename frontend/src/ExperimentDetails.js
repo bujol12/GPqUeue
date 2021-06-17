@@ -21,6 +21,25 @@ const ExperimentDetails = ({match}) => {
         return () => {};
     }, []);
 
+    const [gpus, setGpus] = useState([]);
+
+    useEffect(() => {
+        axios.get(
+            "/api/gpu_stats"
+        ).then((res) => {
+            if (details === null) {
+                return;
+            }
+            let tempGpus = [];
+            for (let i in res.data) {
+                if (details.gpus_list.includes(res.data[i].name)) {
+                    tempGpus.push(res.data[i].name + " - " + res.data[i].model);
+                }
+            }
+            setGpus(tempGpus);
+        });
+    }, [details]);
+
     if (details == null) {
         return (
             <div className="container">
@@ -97,7 +116,7 @@ const ExperimentDetails = ({match}) => {
                             </tr>
                             <tr>
                                 <td>GPU</td>
-                                <td>{JSON.parse(details.gpus_list)}</td>
+                                <td>{gpus.join(", ")}</td>
                             </tr>
                             <tr>
                                 <td>Dataset</td>
