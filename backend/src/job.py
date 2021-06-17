@@ -121,6 +121,8 @@ class Job(ABCJob):
                 [f"export CUDA_VISIBLE_DEVICES={available_gpus};" + self.script_path], shell=True)
             logger.warning("Done new process " + str(datetime.now()))
 
+        self.commit()
+
     def is_finished(self):
         if self.process is not None and self.process.poll() is not None:
             logger.warning("JOB FINISHED")

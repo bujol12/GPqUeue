@@ -47,7 +47,6 @@ def check_running_jobs():
                 success = False
 
             job.complete_job(datetime.now(), success=success)
-            get_database().add_key(job.get_DB_key(), job.dump())
 
     for job in to_remove:
         running_jobs.remove(job)
@@ -67,7 +66,6 @@ def run_new_jobs():
                 job = Job.from_dict(queue[0])
                 logger.warning("queue0" + str(job))
                 job.run_job()
-                get_database().add_key(job.get_DB_key(), job.dump())
                 running_jobs.append(job)
                 gpu.set_queue(queue[1:])
 
@@ -210,7 +208,7 @@ def add_new_job() -> Dict[str, Any]:
 
         # job.run_job()
 
-        get_database().add_key(job.get_DB_key(), job.dump())
+        job.commit()
 
     if yaml:
         args: List[Dict[str, Any]] = parametric_cli(
