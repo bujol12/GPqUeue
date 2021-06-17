@@ -43,12 +43,30 @@ def _load_gpus_list_json_string(arg: str) -> List[GPU]:
     raise NotImplementedError(f"Unexpected decoded arg: {res} ({type(res)})")
 
 
+@singledispatch
+def _load_cli_args(arg: Any) -> Dict[str, str]:
+    return arg
+
+
+@_load_cli_args.register(dict)
+def _load_cli_args_as_is(arg: Dict[str, str]) -> Dict[str, str]:
+    return arg
+
+
+@_load_cli_args.register(str)
+def _load_cli_args_str(arg: str) -> Dict[str, str]:
+    return json.loads(arg)
+
+
 @attr.define(slots=False, frozen=False)
 class Job(ABCJob):
     project: str
     name: str
     script_path: str
-    cli_args: str = ''
+    cli_args: Dict[str, str] = attr.ib(
+        default=dict(),
+        converter=_load_cli_args,
+    )
     user: User = attr.ib(
         default=None,
         converter=attr.converters.optional(User.load)
@@ -202,6 +220,10 @@ class Job(ABCJob):
         def _converters_list(args: List[GPU]) -> str:
             _list: List[str] = [arg.get_name() for arg in args]
             return json.dumps(_list)
+
+        @_converters.register(dict)
+        def _converters_dict(args: Dict[str, str]) -> str:
+            return json.dumps(args)
 
         @_converters.register(User)
         def _converters_user(arg: User) -> str:

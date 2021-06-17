@@ -192,12 +192,12 @@ def add_new_job() -> Dict[str, Any]:
     cli_args = request.json.get('cli_args')
     gpus = list(map(lambda x: GPU_DCT.get(x, None), request.json.get('gpus')))
 
-    def add_job(_script_path: str):
+    def add_job(_script_path: str, _cli_args: Dict[str, str]):
         job = Job(
             project=project,
             name=name,
             script_path=_script_path,
-            cli_args=cli_args,
+            cli_args=_cli_args,
             gpus_list=gpus,
             user=current_user,
         )
@@ -215,9 +215,10 @@ def add_new_job() -> Dict[str, Any]:
         )
         for arg_dict in args:
             command: str = arg_dict['command']
-            add_job(command)
+            arguments: Dict[str, str] = arg_dict['argument']
+            add_job(command, arguments)
     else:
-        add_job(script_path)
+        add_job(script_path, json.loads(cli_args or "{}"))
 
     return {"status": "success"}
 
@@ -270,7 +271,7 @@ def get_job_details() -> Dict[str, Any]:
             "error": "Job not found.",
         }
 
-    return job.to_dict()
+    return job.dump()
 
 
 @app.route("/curr_dir", methods=['GET'])
