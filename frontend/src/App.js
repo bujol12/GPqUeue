@@ -7,7 +7,10 @@ import {NewExperiment, NewExperimentFailed} from "./NewExperiment.js";
 import ExperimentDetails from "./ExperimentDetails.js";
 import "./App.css";
 import { getLocalUser, responseErrorHandler, responseSuccessHandler } from "./util.js";
+import { createBrowserHistory } from "history";
 import axios from "axios";
+
+const routerHistory = createBrowserHistory();
 
 const NavbarLink = ({to, text}) => {
     return (
@@ -94,7 +97,7 @@ const App = () => {
     );
 
     const routing = (
-        <Router>
+        <Router history={routerHistory}>
             <Navbar/>
             <div className="container">
                 <Route exact path="/" component={Login}></Route>
@@ -118,3 +121,4 @@ const App = () => {
 };
 
 export default App;
+export { routerHistory };

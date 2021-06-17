@@ -12,10 +12,10 @@ const postForm = (history, type, name, pw) => {
     }).then(res => {
         if (res.data.status === "success") {
             setLocalUser(res.data.user);
-            history.push("/overview");
+            history.goBack();
         } else {
             removeLocalUser();
-            history.push("/" + type);
+            history.go(0);
         }
     });
 };
@@ -63,6 +63,9 @@ const SignUp = () => {
     const [password, setPassword] = useState("");
 
     const history = useHistory();
+    if (getLocalUser()) {
+        history.replace("/overview");
+    }
 
     const handleSubmit = () => {
         postForm(history, "signup", username, password);

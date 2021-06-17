@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { routerHistory } from "./App";
 
 const msToHoursMinutesSeconds = (totalMs) => {
     const totalSeconds = Math.floor(totalMs / 1000);
@@ -34,9 +35,11 @@ const msToTimeString = (ms) => {
 const responseSuccessHandler = response => response;
 
 const responseErrorHandler = error => {
-    if (error.response.status === 401) {
+    if (error.response && error.response.status === 401) {
         removeLocalUser();
-        this.props.history.push("/login");
+        routerHistory.push("/login");
+        // refresh the page immediately to complete the jump.
+        routerHistory.go(0);
     }
 
     return Promise.reject(error);
