@@ -44,12 +44,7 @@ def parametric_cli(cli: str, yaml_str: str) -> List[Dict[str, Any]]:
             },
         ]
     """
-    param_settings: Dict[str, List[Any]] = (
-        yaml.safe_load(yaml_str)
-            .get('argument', {})
-    )
-    print(param_settings, flush=True)
-    print(cli, flush=True)
+    param_settings: Dict[str, List[Any]] = (yaml.safe_load(yaml_str))
     param_names: List[str] = list(param_settings.keys())
     param_values: List[List[Any]] = list(param_settings.values())
 

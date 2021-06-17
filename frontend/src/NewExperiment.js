@@ -138,9 +138,8 @@ function AdvancedOptions({ setYaml }) {
 
     const commandExample = "python3 test -n {{ number }} -b {{ batch }}";
     const yamlExampleCode = (
-        `argument:
-  number: [1, 2]
-  batch: [4, 5]`
+        `number: [1, 2]
+batch: [4, 5]`
     );
     const yamlExampleCommands = [
         "python3 test -n 1 -b 4",
@@ -192,9 +191,11 @@ function AdvancedOptions({ setYaml }) {
                 <div id={id} className="accordion-collapse collapse" aria-labelledby={label}>
                     <div className="accordion-body">
                         <div>
-                            <h3>Batch Running</h3>
-                            <div className="mt-3">
-                                Import YAML configs from file:
+                            <h3>Batch Running (Optional)</h3>
+                            <div id="nameHelp" className="form-text">Schedule a bunch of experiments with different configurations / parameters
+                            </div>
+                            <div className="mt-0">
+                                Import from YAML file:
                             </div>
                             {yaml}
                             <div className="mt-3">
