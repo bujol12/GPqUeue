@@ -6,7 +6,6 @@ import axios from "axios";
 const postCancelJob = (uuid) => {
     axios.post("/api/cancel_job", { uuid: uuid }).then(
         res => {
-            console.log(res);
             // TODO: notify success / failed
             if (res.data.status === "success") {
                 window.location.reload();
@@ -15,7 +14,7 @@ const postCancelJob = (uuid) => {
     );
 };
 
-const ExperimentCardDetails = ({end, start, status, gpu, dataset, uuid}) => {
+const ExperimentCardDetails = ({end, start, status, gpus, dataset, uuid}) => {
     const endTime = end ? end : new Date().getTime();
     const runtime = Math.floor((endTime - start));
 
@@ -49,6 +48,12 @@ const ExperimentCardDetails = ({end, start, status, gpu, dataset, uuid}) => {
         statusColour = "text-danger";
     }
 
+    const gpuNames = [];
+
+    gpus.forEach((g) => {
+        gpuNames.push(g.name + " - " + g.model);
+    });
+
     return (
         <div>
             <table className="table">
@@ -67,7 +72,7 @@ const ExperimentCardDetails = ({end, start, status, gpu, dataset, uuid}) => {
                     </tr>
                     <tr>
                         <td>GPU</td>
-                        <td>TODO</td>
+                        <td>{gpuNames.join(", ")}</td>
                     </tr>
                     <tr>
                         <td>Dataset</td>
@@ -87,7 +92,7 @@ const ExperimentCardDetails = ({end, start, status, gpu, dataset, uuid}) => {
     );
 };
 
-const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, prefix }) => {
+const ExperimentCard = ({ usedGpus, status, project, name, user, gpus, start, end, uuid, prefix }) => {
     let icon;
 
     if (status === "RUNNING") {
@@ -105,10 +110,6 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
     const _prefix = `${prefix}-experimentCard`;
     const id = `${_prefix}-${uuid}`;
     const label = `${_prefix}-label-${uuid}`;
-    if (gpus === undefined) {
-        gpus = [];
-    }
-    const gpu = gpus;
 
     let infoText;
 
@@ -128,7 +129,7 @@ const ExperimentCard = ({ status, project, name, user, gpus, start, end, uuid, p
         );
     }
 
-    const details = <ExperimentCardDetails end={end} start={start} status={status} gpu={gpu} dataset="/some/random/path/to/the/dataset/directory" uuid={uuid} />;
+    const details = <ExperimentCardDetails end={end} start={start} status={status} gpus={usedGpus} dataset="/some/random/path/to/the/dataset/directory" uuid={uuid} />;
 
     return (
         <div className="shadow-sm mb-3">
@@ -195,8 +196,19 @@ const Experiments = ({statuses, title}) => {
     const [experimentCards, setExperimentCards] = useState([]);
     const count = 10;
     const [sortBy, setSortby] = useState("newest");
+    const [gpus, setGpus] = useState([]);
 
-    console.log(sortBy);
+    useEffect(() => {
+        axios.get(
+            "/api/gpu_stats"
+        ).then((res) => {
+            let tempGpus = [];
+            for (let i in res.data) {
+                tempGpus.push(res.data[i]);
+            }
+            setGpus(tempGpus);
+        });
+    }, []);
 
     useEffect(() => {
         getExperiments(setExperiments, statuses, "", count, sortBy);
@@ -207,8 +219,15 @@ const Experiments = ({statuses, title}) => {
     }, [sortBy]);
 
     useEffect(() => {
-        setExperimentCards(experiments.map((data) =>
-            <ExperimentCard key={data.i} prefix={prefix} {...data} />
+        setExperimentCards(experiments.map((data) => {
+            let experimentGpus = [];
+            for (const i in gpus) {
+                if (data.gpus.includes(gpus[i].uuid)) {
+                    experimentGpus.push(gpus[i]);
+                }
+            }
+            return <ExperimentCard key={data.i} prefix={prefix} usedGpus={experimentGpus} {...data} />;
+        }
         ));
     }, [experiments]);
 

@@ -36,8 +36,6 @@ const GPUCard = ({user, index, name, util, memory, maxMemory, uuid}) => {
         };
     }, []);
 
-    console.log(currentExperiments);
-
     let experimentListItems = currentExperiments.map((data, index) =>
         <li key={index} className={"list-group-item" + (data.status === "RUNNING" ? " text-primary" : "")}>
             <span className="d-inline-flex w-100 justify-content-between">
