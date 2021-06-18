@@ -77,6 +77,11 @@ class Job(ABCJob):
         converter=_load_gpus_list
     )
 
+    scheduled_time: datetime = attr.ib(
+        factory=datetime.now,
+        converter=Converters.optional_datetime,
+    )
+
     start_time: Optional[datetime] = attr.ib(
         default=None,
         converter=Converters.optional_datetime,

@@ -62,10 +62,12 @@ def run_new_jobs():
             queue = gpu.fetch_queue()
             logger.warning(queue)
             if len(queue) > 0:
+                logger.warning("gpus_list0: " + str(queue[0]))
                 queue[0]["gpus_list"] = list(map(
                     lambda x: GPU.load(x),
                     json.loads(queue[0].get("gpus_list"))
                 ))
+                logger.warning("gpus_list: " + str(queue[0]))
                 job = Job.from_dict(queue[0])
                 logger.warning("queue0" + str(job))
                 job.run_job()
@@ -99,6 +101,7 @@ def get_gpus():
     # register every gpu in database
     for gpu in GPU_DCT.values():
         gpu.commit()
+        logger.warning("GPUS: " + str(gpu))
 
 
 @app.before_first_request
@@ -189,9 +192,9 @@ def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
 
     # sort jobs
     if sortBy == "newest":
-        jobs = sorted(jobs, key=lambda j: j.start_time, reverse=True)
+        jobs = sorted(jobs, key=lambda j: j.scheduled_time, reverse=True)
     elif sortBy == "oldest":
-        jobs = sorted(jobs, key=lambda j: j.start_time, reverse=False)
+        jobs = sorted(jobs, key=lambda j: j.scheduled_time, reverse=False)
     elif sortBy == "duration":
         jobs = sorted(jobs, key=lambda j: j.finish_time - j.start_time if j.finish_time != None else datetime.now() - j.start_time, reverse=True)
 
@@ -220,6 +223,9 @@ def add_new_job() -> Dict[str, Any]:
             gpus_list=gpus,
             user=current_user,
         )
+
+        logger.warning("job: " + str(job))
+
         for gpu in gpus:
             job.add_to_queue(gpu)
 
