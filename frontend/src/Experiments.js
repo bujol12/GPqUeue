@@ -14,7 +14,7 @@ const postCancelJob = (uuid) => {
     );
 };
 
-const ExperimentCardDetails = ({end, start, status, gpus, dataset, uuid}) => {
+const ExperimentCardDetails = ({end, start, status, gpus, dataset, uuid, command}) => {
     const endTime = end ? end : new Date().getTime();
     const runtime = Math.floor((endTime - start));
 
@@ -75,8 +75,8 @@ const ExperimentCardDetails = ({end, start, status, gpus, dataset, uuid}) => {
                         <td>{gpuNames.join(", ")}</td>
                     </tr>
                     <tr>
-                        <td>Dataset</td>
-                        <td><code>{dataset}</code></td>
+                        <td>Command</td>
+                        <td><code>{command}</code></td>
                     </tr>
                     <tr>
                         <td>UUID</td>
@@ -92,7 +92,7 @@ const ExperimentCardDetails = ({end, start, status, gpus, dataset, uuid}) => {
     );
 };
 
-const ExperimentCard = ({ usedGpus, status, project, name, user, gpus, start, end, uuid, prefix }) => {
+const ExperimentCard = ({ usedGpus, status, project, name, user, gpus, start, end, uuid, prefix, command }) => {
     let icon;
 
     if (status === "RUNNING") {
@@ -129,7 +129,7 @@ const ExperimentCard = ({ usedGpus, status, project, name, user, gpus, start, en
         );
     }
 
-    const details = <ExperimentCardDetails end={end} start={start} status={status} gpus={usedGpus} dataset="/some/random/path/to/the/dataset/directory" uuid={uuid} />;
+    const details = <ExperimentCardDetails end={end} start={start} status={status} gpus={usedGpus} dataset="/some/random/path/to/the/dataset/directory" uuid={uuid} command={command} />;
 
     return (
         <div className="shadow-sm mb-3">
@@ -177,7 +177,7 @@ const getExperiments = (setExperiments, project, statuses, gpu, count, sortBy) =
                 index: i,
                 project: res.data.jobs[key].project,
                 name: res.data.jobs[key].name,
-                path: res.data.jobs[key].script_path,
+                command: res.data.jobs[key].script_path,
                 uuid: res.data.jobs[key].uuid,
                 user: res.data.jobs[key].user.username,
                 status: res.data.jobs[key].status,
