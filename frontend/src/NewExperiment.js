@@ -183,35 +183,77 @@ batch: [4, 5]`
     );
 
     return (
-        <div className="mb-3">
+        <div>
+            <div className="mt-3 mb-1">
+                Import from YAML file:
+            </div>
+            {yaml}
+            <div className="mt-3 mb-1">
+                Or type here:
+            </div>
+            {yamlTextArea}
+            {yamlExamples}
+        </div>
+    );
+}
 
-            <div className="accordion-item">
-                <h2 className="accordion-header ms-2" id={label}>
-                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target={`#${id}`} aria-expanded="false" aria-controls={id}>
-                        <div className="row w-100">
-                            Schedule Multiple Experiments (Optional)
-                        </div>
-                    </button>
-                </h2>
-                <div id={id} className="accordion-collapse collapse" aria-labelledby={label}>
-                    <div className="accordion-body">
-                        <div>
-                            <div id="nameHelp" className="form-text">Schedule a bunch of experiments with different configurations / parameters
-                            </div>
-                            <div className="mt-1">
-                                Import from YAML file:
-                            </div>
-                            {yaml}
-                            <div className="mt-3">
-                                Or type here:
-                            </div>
-                            {yamlTextArea}
-                            {yamlExamples}
-                        </div>
-                    </div>
+function ShellCommand({ setCommand, setYaml }) {
+    const handleChange = (setter) => (e) => {
+        setter(e.target.value);
+    };
+
+    const shellCommand = (cardDescription, placeholder, examples) => (
+        <div className="card mb-3 shadow">
+            <div className="card-header">
+                <label htmlFor="cli_command" className="form-label">Shell Command*</label>
+                <div id="nameHelp" className="form-text">
+                    {cardDescription}
                 </div>
             </div>
+            <div className="card-body">
+                <input type="text" className="form-control" id="cli_command" onChange={handleChange(setCommand)} placeholder={placeholder} />
+                {examples}
+            </div>
         </div >
+    );
+
+    const singleExperiment = shellCommand(
+        "Schedule a single experiment with one set of parameters.",
+        "e.g. python /.../model.py 1 2 3",
+        (
+            <div>
+                <div id="nameHelp" className="form-text">Examples:</div>
+                <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
+                <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python /.../model.py</code></div>
+            </div>
+        )
+    );
+
+    const multipleExperiments = shellCommand(
+        "Schedule a bunch of experiments with different configurations / parameters",
+        "python3 test -n {{ number }} -b {{ batch }}",
+        AdvancedOptions({ setYaml: setYaml })
+    );
+
+    return (
+        <div>
+            <ul className="nav nav-tabs" id="shellCommandTab" role="tablist">
+                <li className="nav-item" role="presentation">
+                    <button className="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Single Experiment</button>
+                </li>
+                <li className="nav-item" role="presentation">
+                    <button className="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Multiple Experiments</button>
+                </li>
+            </ul>
+            <div className="tab-content" id="shellCommandTabContent">
+                <div className="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    {singleExperiment}
+                </div>
+                <div className="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                    {multipleExperiments}
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -227,7 +269,10 @@ const NewExperiment = () => {
 
     const [yaml, setYaml] = useState(undefined);
 
-    const advancedOptions = AdvancedOptions({ setYaml: setYaml });
+    const shellCommand = ShellCommand({
+        setCommand: setCommand,
+        setYaml: setYaml,
+    });
 
     useEffect(() => {
         getProjects(setProjects);
@@ -365,20 +410,7 @@ const NewExperiment = () => {
                     </div>
                 </div>
 
-                <div className="card mb-3 shadow">
-                    <div className="card-header">
-                        <label htmlFor="cli_command" className="form-label">Shell Command*</label>
-                    </div>
-                    <div className="card-body">
-                        <input type="text" className="form-control" id="cli_command" onChange={handleChange(setCommand)} placeholder="e.g. python /.../model.py 1 2 3" />
-                        <div id="nameHelp" className="form-text">Examples:</div>
-                        <div id="nameHelp2" className="form-text"><code>sh /.../run.sh 1 2 3</code></div>
-                        <div id="nameHelp2" className="form-text"><code>pyenv activate model_env ; python /.../model.py</code></div>
-                        <div className="mt-3">
-                            {advancedOptions}
-                        </div>
-                    </div>
-                </div>
+                {shellCommand}
 
                 <button type="submit" className="btn btn-primary w-100" onClick={handleSubmit}>Submit</button>
             </div>
