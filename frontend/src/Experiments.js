@@ -158,8 +158,9 @@ const ExperimentCard = ({ usedGpus, status, project, name, user, gpus, start, en
     );
 };
 
-const getExperiments = (setExperiments, statuses, gpu, count, sortBy) => {
+const getExperiments = (setExperiments, project, statuses, gpu, count, sortBy) => {
     const params = {
+        project: project,
         statuses: statuses,
         gpu: gpu,
         count: count,
@@ -190,7 +191,7 @@ const getExperiments = (setExperiments, statuses, gpu, count, sortBy) => {
     });
 };
 
-const Experiments = ({statuses, title}) => {
+const Experiments = ({project, statuses, title}) => {
     const prefix = title.replace(" ", "_");
     const [experiments, setExperiments] = useState([]);
     const [experimentCards, setExperimentCards] = useState([]);
@@ -211,12 +212,12 @@ const Experiments = ({statuses, title}) => {
     }, []);
 
     useEffect(() => {
-        getExperiments(setExperiments, statuses, "", count, sortBy);
+        getExperiments(setExperiments, project, statuses, "", count, sortBy);
         const interval = setInterval(() => getExperiments(setExperiments, statuses, "", count, sortBy), 1000);
         return () => {
             clearInterval(interval);
         };
-    }, [sortBy]);
+    }, [project, sortBy]);
 
     useEffect(() => {
         setExperimentCards(experiments.map((data) => {

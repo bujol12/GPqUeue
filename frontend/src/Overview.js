@@ -10,8 +10,8 @@ const Overview = () => {
                     <GPUOverview className="mb-4" />
                 </div>
                 <div className="col">
-                    <Experiments className="mb-4" project="General" statuses={["running", "queued"]} title="Ongoing Experiments" />
-                    <Experiments className="mb-4" project="General" statuses={["completed", "failed"]} title="Finished Experiments"/>
+                    <Experiments className="mb-4" project="" statuses={["running", "queued"]} title="Ongoing Experiments" />
+                    <Experiments className="mb-4" project="" statuses={["completed", "failed"]} title="Finished Experiments"/>
                 </div>
             </div>
         </div>

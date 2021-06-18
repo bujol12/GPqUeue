@@ -29,12 +29,14 @@ const GPUCard = ({user, index, name, util, memory, maxMemory, uuid}) => {
     const [currentExperiments, setCurrentExperiments] = useState([]);
 
     useEffect(() => {
-        getExperiments(setCurrentExperiments, ["running", "queued"], uuid, 10, "oldest");
-        const interval = setInterval(() => getExperiments(setCurrentExperiments, ["running", "queued"], uuid, 10, "oldest"), 1000);
+        getExperiments(setCurrentExperiments, "", ["running", "queued"], uuid, 10, "oldest");
+        const interval = setInterval(() => getExperiments(setCurrentExperiments, "", ["running", "queued"], uuid, 10, "oldest"), 1000);
         return () => {
             clearInterval(interval);
         };
     }, []);
+
+    console.log(currentExperiments);
 
     let experimentListItems = currentExperiments.map((data, index) =>
         <li key={index} className={"list-group-item" + (data.status === "RUNNING" ? " text-primary" : "")}>
@@ -44,6 +46,16 @@ const GPUCard = ({user, index, name, util, memory, maxMemory, uuid}) => {
             </span>
         </li>
     );
+
+    if (experimentListItems.length === 0) {
+        experimentListItems = [
+            <li key={0} className="list-group-item">
+                <span className="text-secondary d-inline-flex w-100 justify-content-between">
+                    Queue empty
+                </span>
+            </li>
+        ];
+    }
 
     const utilPercent = Math.floor(util * 100);
     const memoryPercent = Math.floor((Number(memory) / Number(maxMemory)) * 100);
