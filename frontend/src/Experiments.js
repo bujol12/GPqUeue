@@ -194,7 +194,6 @@ const getExperiments = (setExperiments, project, statuses, gpu, count, sortBy) =
 const Experiments = ({project, statuses, title}) => {
     const prefix = title.replace(" ", "_");
     const [experiments, setExperiments] = useState([]);
-    const [experimentCards, setExperimentCards] = useState([]);
     const count = 10;
     const [sortBy, setSortby] = useState("newest");
     const [gpus, setGpus] = useState([]);
@@ -217,32 +216,32 @@ const Experiments = ({project, statuses, title}) => {
         return () => {
             clearInterval(interval);
         };
+    }, []);
+
+    useEffect(() => {
+        getExperiments(setExperiments, project, statuses, "", count, sortBy);
     }, [project, sortBy]);
 
-    useEffect(() => {
-        setExperimentCards(experiments.map((data) => {
-            let experimentGpus = [];
-            for (const i in gpus) {
-                if (data.gpus.includes(gpus[i].uuid)) {
-                    experimentGpus.push(gpus[i]);
-                }
+
+    let experimentCards = (experiments.map((data) => {
+        let experimentGpus = [];
+        for (const i in gpus) {
+            if (data.gpus.includes(gpus[i].uuid)) {
+                experimentGpus.push(gpus[i]);
             }
-            return <ExperimentCard key={data.i} prefix={prefix} usedGpus={experimentGpus} {...data} />;
         }
-        ));
-    }, [experiments]);
+        return <ExperimentCard key={data.i} prefix={prefix} usedGpus={experimentGpus} {...data} />;
+    }));
 
-    const [contents, setContents] = useState(<h4 className="p-1 ms-2 text-muted">No {title.toLowerCase()}</h4>);
+    let contents = <h4 className="p-1 ms-2 text-muted">No {title.toLowerCase()}</h4>;
 
-    useEffect(() => {
-        if (experimentCards.length > 0) {
-            setContents(
-                <React.Fragment>
-                    {experimentCards}
-                </React.Fragment>
-            );
-        }
-    }, [experimentCards]);
+    if (experimentCards.length > 0) {
+        contents = (
+            <React.Fragment>
+                {experimentCards}
+            </React.Fragment>
+        );
+    }
 
     return (
         <div className="border shadow rounded p-3 mb-3">
