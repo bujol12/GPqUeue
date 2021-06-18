@@ -213,7 +213,7 @@ const Experiments = ({project, statuses, title}) => {
 
     useEffect(() => {
         getExperiments(setExperiments, project, statuses, "", count, sortBy);
-        const interval = setInterval(() => getExperiments(setExperiments, statuses, "", count, sortBy), 1000);
+        const interval = setInterval(() => getExperiments(setExperiments, project, statuses, "", count, sortBy), 1000);
         return () => {
             clearInterval(interval);
         };
