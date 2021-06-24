@@ -84,6 +84,13 @@ class GPU(ABCGPU):
             # Only need username of user
             data['last_user'] = data['last_user']['username']
 
+
+        queue = self.fetch_queue()
+        if len(queue) > 0:
+            self.last_status = GpuStatus.BUSY
+        else:
+            self.last_status = GpuStatus.IDLE
+
         return data
 
     def to_dict(self) -> Dict[str, Union[str, int, float, Dict[str, Any]]]:
