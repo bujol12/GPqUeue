@@ -412,7 +412,7 @@ const NewExperiment = () => {
 
                 {shellCommand}
 
-                <button type="submit" className="btn btn-primary w-100" onClick={handleSubmit}>Submit</button>
+                <button type="submit" className="btn btn-primary w-100" onClick={handleSubmit}>Queue Experiments</button>
             </div>
         </div>
     );
