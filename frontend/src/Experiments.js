@@ -194,6 +194,7 @@ const getExperiments = (setExperiments, project, statuses, gpu, count, sortBy) =
 const Experiments = ({project, statuses, title}) => {
     const prefix = title.replace(" ", "_");
     const [experiments, setExperiments] = useState([]);
+    const [seconds, setSeconds] = useState(0);
     const count = 10;
     const [sortBy, setSortby] = useState("newest");
     const [gpus, setGpus] = useState([]);
@@ -210,18 +211,18 @@ const Experiments = ({project, statuses, title}) => {
         });
     }, []);
 
+    const updateSeconds = () => {
+        setSeconds(seconds + 1);
+        setTimeout(() => updateSeconds, 1000);
+    };
+
     useEffect(() => {
-        getExperiments(setExperiments, project, statuses, "", count, sortBy);
-        const interval = setInterval(() => getExperiments(setExperiments, project, statuses, "", count, sortBy), 1000);
-        return () => {
-            clearInterval(interval);
-        };
+        updateSeconds();
     }, []);
 
     useEffect(() => {
         getExperiments(setExperiments, project, statuses, "", count, sortBy);
-    }, [project, sortBy]);
-
+    }, [seconds, project, sortBy]);
 
     let experimentCards = (experiments.map((data) => {
         let experimentGpus = [];
@@ -255,9 +256,9 @@ const Experiments = ({project, statuses, title}) => {
                         Sort by
                         </button>
                         <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><button className="dropdown-item" onClick={() => setSortby("newest")}>Newest</button></li>
-                            <li><button className="dropdown-item" onClick={() => setSortby("oldest")}>Oldest</button></li>
-                            <li><button className="dropdown-item" onClick={() => setSortby("duration")}>Duration</button></li>
+                            <li key={0}><button className="dropdown-item" onClick={() => setSortby("newest")}>Newest</button></li>
+                            <li key={1}><button className="dropdown-item" onClick={() => setSortby("oldest")}>Oldest</button></li>
+                            <li key={2}><button className="dropdown-item" onClick={() => setSortby("duration")}>Duration</button></li>
                         </ul>
                     </div>
                 </div>
