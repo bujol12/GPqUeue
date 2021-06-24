@@ -204,15 +204,29 @@ def get_jobs(args: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
         "jobs": list(job_dicts)[:count]
     }
 
+
 @app.route("/add_job", methods=['POST'])
 @login_required
-def add_new_job() -> Dict[str, Any]:
-    yaml = request.json.get('yaml')
-    project = request.json.get('project')
-    name = request.json.get('experiment_name')
-    script_path = request.json.get('script_path')
-    cli_args = request.json.get('cli_args')
-    gpus = list(map(lambda x: GPU_DCT.get(x, None), request.json.get('gpus')))
+@use_args({
+    'project': fields.Str(required=True),
+    'experiment_name': fields.Str(required=True),
+    'script_path': fields.Str(required=True),
+    'cli_args': fields.Str(required=False, default="", missing="", allow_none=True),
+    'gpus': fields.List(fields.Str, required=True),
+    'yaml': fields.Str(required=False, default="", missing=""),
+}, location="json")
+def add_new_job(arg: Dict[str, Any]) -> Dict[str, Any]:
+    yaml = arg['yaml']
+    project = arg['project']
+    name = arg['experiment_name']
+    script_path = arg['script_path']
+    cli_args = arg['cli_args']
+    gpus = list(map(lambda x: GPU_DCT.get(x, None), arg['gpus']))
+
+    assert gpus
+    assert script_path
+    assert name
+    assert project
 
     def add_job(_script_path: str, _cli_args: Dict[str, str]):
         job = Job(
