@@ -15,7 +15,7 @@ const postForm = (history, type, name, pw) => {
             history.goBack();
         } else {
             removeLocalUser();
-            history.go(0);
+            history.push(`/${type}#failed`);
         }
     });
 };
@@ -38,10 +38,20 @@ const Login = () => {
         postForm(history, "login", username, password);
     };
 
+    let failedText;
+
+    if (location.hash === "#failed") {
+        failedText = (
+            <div className="text-danger mb-3">
+                Login failed. Username or password is incorrect.
+            </div>
+        );
+    }
 
     return (
         <div className="container container-sm-custom">
             <h1 className="pt-4 mb-4">Login</h1>
+            {failedText}
             <div className="mb-3">
                 <label htmlFor="username" className="form-label">Username</label>
                 <input type="text" className="form-control" id="username" onChange={handleChange(setUsername)} />
@@ -58,7 +68,7 @@ const Login = () => {
     );
 };
 
-const SignUp = () => {
+const SignUp = ({location}) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
@@ -71,10 +81,20 @@ const SignUp = () => {
         postForm(history, "signup", username, password);
     };
 
+    let failedText;
+
+    if (location.hash === "#failed") {
+        failedText = (
+            <div className="text-danger mb-3">
+                Username is already taken.
+            </div>
+        );
+    }
 
     return (
         <div className="container container-sm-custom">
             <h1 className="pt-4 mb-4">Sign up</h1>
+            {failedText}
             <div className="mb-3">
                 <label htmlFor="username" className="form-label">Username</label>
                 <input type="text" className="form-control" id="username" onChange={handleChange(setUsername)} />
