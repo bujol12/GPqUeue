@@ -194,7 +194,7 @@ const getExperiments = (setExperiments, project, statuses, gpu, count, sortBy) =
 const Experiments = ({project, statuses, title}) => {
     const prefix = title.replace(" ", "_");
     const [experiments, setExperiments] = useState([]);
-    const [seconds, setSeconds] = useState(0);
+    const [random, setRandom] = useState(Math.random());
     const count = 10;
     const [sortBy, setSortby] = useState("newest");
     const [gpus, setGpus] = useState([]);
@@ -211,18 +211,19 @@ const Experiments = ({project, statuses, title}) => {
         });
     }, []);
 
-    const updateSeconds = () => {
-        setSeconds(seconds + 1);
-        setTimeout(() => updateSeconds, 1000);
+    const updateRandom = () => {
+        setRandom(Math.random());
+        console.log("asd");
+        setTimeout(updateRandom, 1000);
     };
 
     useEffect(() => {
-        updateSeconds();
+        updateRandom();
     }, []);
 
     useEffect(() => {
         getExperiments(setExperiments, project, statuses, "", count, sortBy);
-    }, [seconds, project, sortBy]);
+    }, [random, project, sortBy]);
 
     let experimentCards = (experiments.map((data) => {
         let experimentGpus = [];
