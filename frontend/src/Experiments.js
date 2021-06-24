@@ -213,7 +213,6 @@ const Experiments = ({project, statuses, title}) => {
 
     const updateRandom = () => {
         setRandom(Math.random());
-        console.log("asd");
         setTimeout(updateRandom, 1000);
     };
 
