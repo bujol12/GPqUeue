@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { routerHistory } from "./App";
 
+const max = (a, b) => a < b ? b : a;
+
 const msToHoursMinutesSeconds = (totalMs) => {
-    const totalSeconds = Math.floor(totalMs / 1000);
+    // FIX ME: Dirty trick to force non-negative
+    const totalSeconds = Math.floor(max(totalMs, 0) / 1000);
     const seconds = totalSeconds % 60;
     const minutes = Math.floor(totalSeconds / 60) % 60;
     const hours = Math.floor(totalSeconds / (60 * 60));
@@ -18,7 +21,8 @@ const msToTimeString = (ms) => {
     const millisecondsInADay = 1000 * 60 * 60 * 24;
     const daysSinceStart = Math.floor((currentDate.getTime() - date.getTime()) / millisecondsInADay);
 
-    if (daysSinceStart === 0) {
+    // FIX ME: Dirty trick to force non-negative
+    if (daysSinceStart <= 0) {
         return date.toLocaleTimeString(navigator.language, {
             hour: "2-digit",
             minute: "2-digit"
